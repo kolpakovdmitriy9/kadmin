@@ -68,6 +68,29 @@
   const profileFor = (name) => ALIAS[String(name || '').trim().toLowerCase()] || 'Базовый';
 
   const PAY_STAGES = ['Предоплата', 'По факту готовности дизайна', 'По факту готовности сайта'];
+  const payStages = (p) => (p && p.payStages && p.payStages.length ? p.payStages : PAY_STAGES);
+  /** Сумма по каждому этапу оплаты тарифа. t.pay[i]: пусто — авто (остаток поровну), «-» — прочерк,
+      «30%» — доля от итога, число — фиксированная сумма, любой другой текст выводится как есть. */
+  const tariffDiscount = (t) => { const d = num(t.discount); return d > 0 && d < 100 ? d : 0; };
+  const discountedTotal = (t) => Math.round(tariffTotal(t) * (1 - tariffDiscount(t) / 100));
+  function payPlan(t, stages) {
+    const tot = discountedTotal(t);   // этапы считаются от цены со скидкой; рассрочка — от полной (как в макете)
+    const cells = stages.map((_, i) => String(((t.pay || [])[i]) ?? '').trim());
+    const out = cells.map((c) => {
+      if (!c) return { kind: 'auto' };
+      if (/^[-–—]+$/.test(c)) return { kind: 'text', text: '-' };
+      const pc = c.match(/^(\d+(?:[.,]\d+)?)\s*%$/);
+      if (pc) return { kind: 'sum', value: Math.round((tot * parseFloat(pc[1].replace(',', '.'))) / 100) };
+      const n = num(c);
+      if (n > 0 && /^[\d\s .,]+(?:₽|р\.?|руб\.?)?$/i.test(c)) return { kind: 'sum', value: n };
+      return { kind: 'text', text: c };
+    });
+    const autos = out.filter((o) => o.kind === 'auto');
+    const rest = Math.max(0, tot - out.reduce((a, o) => a + (o.kind === 'sum' ? o.value : 0), 0));
+    const part = autos.length ? Math.round(rest / autos.length) : 0;
+    autos.forEach((o, i) => { o.kind = 'sum'; o.value = i === autos.length - 1 ? rest - part * (autos.length - 1) : part; o.auto = true; });
+    return out.map((o) => (o.kind === 'sum' ? { ...o, text: rub(o.value) } : o));
+  }
   // ---------- хелперы разметки ----------
   const A = (x, y, w, h, st, inner, cls) => `<div class="abs ${cls || ''}" style="left:${x}px;top:${y}px;${w != null ? 'width:' + w + 'px;' : ''}${h != null ? 'height:' + h + 'px;' : ''}${st || ''}">${inner ?? ''}</div>`;
   const checkSvg = `<svg width="28" height="28" viewBox="0 0 28 28"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5A47"/><stop offset="1" stop-color="#E5200B"/></linearGradient></defs><circle cx="14" cy="14" r="14" fill="url(#g)"/><path d="M8.5 14.4l3.8 3.7 7.3-7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -126,23 +149,31 @@
       h += A(x, 257, cw, 78, B + 'background:#161616;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Общая стоимость проекта');
       h += A(x, 335, cw, 76, B + 'background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', rub(tariffTotal(t)));
     });
-    const stages = (it.p.payStages && it.p.payStages.length ? it.p.payStages : PAY_STAGES);
+    const stages = payStages(it.p);
+    const plans = ts.map((t) => payPlan(t, stages));
+    let y0 = 411;
+    const ds = ts.map(tariffDiscount);
+    if (ds.some((d) => d > 0)) {
+      const uniq = [...new Set(ds.filter((d) => d > 0))];
+      h += A(x0, y0, lw, 77, B + GRAD + 'display:flex;align-items:center;padding-left:24px;font-size:22px;', 'Стоимость со скидкой' + (uniq.length === 1 ? ' ' + String(uniq[0]).replace('.', ',') + '%' : ''));
+      ts.forEach((t, i) => { h += A(x0 + lw + cw * i, y0, cw, 77, B + 'background:#ffe5e2;display:flex;align-items:center;justify-content:center;font-size:22px;', ds[i] ? rub(discountedTotal(t)) : '-'); });
+      y0 += 77;
+    }
     stages.forEach((label, si) => {
-      const y = 411 + 77 * si;
+      const y = y0 + 77 * si;
       h += A(x0, y, lw, 77, B + 'background:#f5f5f5;display:flex;align-items:center;padding-left:24px;font-size:22px;', esc(label));
       ts.forEach((t, i) => {
-        const tot = tariffTotal(t), n = stages.length, part = Math.round(tot / n);
-        const val = si === n - 1 ? tot - part * (n - 1) : part;
-        h += A(x0 + lw + cw * i, y, cw, 77, B + 'background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', rub(val));
+        h += A(x0 + lw + cw * i, y, cw, 77, B + 'background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', esc(plans[i][si].text));
       });
     });
     const inst = ts.filter((t) => tariffMonths(t) > 0);
+    const yi = Math.max(808, y0 + 77 * stages.length + 60);
     inst.forEach((t, i) => {
       const x = 140 + 559 * i, m = tariffMonths(t);
-      h += A(x, 808, 559, 78, B + 'background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Второй вид оплаты');
-      h += A(x, 886, 559, 63, B + 'background:#161616;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', esc(t.name));
-      h += A(x, 948, 344, 64, B + GRAD + 'display:flex;align-items:center;padding-left:20px;font-size:18px;', `Рассрочка на ${m} ${plural(m, ['месяц', 'месяца', 'месяцев'])}`);
-      h += A(x + 344, 948, 215, 64, B + 'background:#ffe5e2;display:flex;align-items:center;justify-content:center;font-size:18px;', rub(tariffTotal(t) / m) + ' / мес');
+      h += A(x, yi, 559, 78, B + 'background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Второй вид оплаты');
+      h += A(x, yi + 78, 559, 63, B + 'background:#161616;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', esc(t.name));
+      h += A(x, yi + 140, 344, 64, B + GRAD + 'display:flex;align-items:center;padding-left:20px;font-size:18px;', `Рассрочка на ${m} ${plural(m, ['месяц', 'месяца', 'месяцев'])}`);
+      h += A(x + 344, yi + 140, 215, 64, B + 'background:#ffe5e2;display:flex;align-items:center;justify-content:center;font-size:18px;', rub(tariffTotal(t) / m) + ' / мес');
     });
     return wrap(h);
   }
@@ -226,5 +257,5 @@
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '');
 
-  Object.assign(KP, { TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
+  Object.assign(KP, { payStages, payPlan, tariffDiscount, discountedTotal, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
 })();

@@ -207,6 +207,23 @@
     function formFor(it) {
       const s = it.slide;
       if (s.type === 'cover') return `<div class="card-b"><b>Обложка</b><label class="l">Название клиента</label><input type="text" data-p="client" value="${esc(p.client)}"><label class="l">КП действительно до</label><input type="date" data-p="validUntil" value="${esc(p.validUntil || '')}"></div>`;
+      if (it.kind === 'payment') {
+        const stages = KP.payStages(p), v = it.v, vi = p.variants.indexOf(v);
+        const ts = v.tariffs.map((t, ti) => ({ t, ti })).filter(({ t }) => t.enabled && t.inPayment && tariffTotal(t) > 0);
+        let h = `<div class="card-b"><b>Порядок оплаты · ${esc(v.cms)}</b><label class="l">Этапы оплаты — по одному в строке (общие для всего КП)</label><textarea data-x="payStages" style="min-height:96px">${esc(stages.join('\n'))}</textarea>
+          <p class="muted" style="margin:10px 0 0">В ячейке: пусто — авто (остаток делится поровну), <b>-</b> — прочерк, <b>30%</b> — доля от итога, <b>100000</b> — сумма, любой другой текст выводится как есть.</p>`;
+        if (!ts.length) h += `<p class="muted">Нет тарифов с включённой «Оплатой» — включите во вкладке «Тарифы и цены».</p>`;
+        else {
+          h += `<table class="est-t" style="margin-top:10px"><thead><tr><th>Этап</th>${ts.map(({ t }) => `<th>${esc(t.name)}</th>`).join('')}</tr></thead><tbody>`;
+          const plans = ts.map(({ t }) => KP.payPlan(t, stages));
+          stages.forEach((st, si) => {
+            h += `<tr><td>${esc(st)}</td>${ts.map(({ t, ti }, k) => { if (!Array.isArray(t.pay)) t.pay = []; return `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.pay.${si}" data-pay="1" value="${esc(t.pay[si] ?? '')}" placeholder="${plans[k][si].auto ? 'авто: ' + esc(plans[k][si].text) : ''}"></td>`; }).join('')}</tr>`;
+          });
+          h += `<tr><td><b>Скидка, %</b><br><small class="muted">пусто — без скидки</small></td>${ts.map(({ t, ti }) => `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.discount" data-pay="1" value="${esc(t.discount ?? '')}" placeholder="—"></td>`).join('')}</tr>`;
+          h += `</tbody></table><button class="btn sm" style="margin-top:8px" data-a="payReset" data-vi="${vi}">Сбросить: всё поровну</button>`;
+        }
+        return h + `</div>`;
+      }
       if (s.type === 'variants') {
         const f = s.fields; const sw = (k, l) => tog('slides.' + p.slides.indexOf(s) + '.fields.' + k, f[k] !== false, l);
         return `<div class="card-b"><b>Блок по CMS</b><div class="muted">Для каждого включённого варианта CMS создаются страницы. Какие тарифы показывать и в каких таблицах — во вкладке «Тарифы и цены».</div><div class="row" style="flex-wrap:wrap;gap:16px;margin-top:10px">${sw('compare', 'Сравнение тарифов')}${sw('packages', 'Пакеты дизайна (только 1-й вариант)')}${sw('payment', 'Порядок оплаты')}${sw('estimate', 'Сметы')}</div></div>`;
@@ -220,10 +237,21 @@
       pv.innerHTML = renderItem(it); fitPreview(); fields.innerHTML = formFor(it);
     }
     const repaint = () => { renderSide(); renderMain(); };
+    // подсказки «авто: …» в таблице оплаты пересчитываются при вводе
+    function refreshPayHints() {
+      const stages = KP.payStages(p);
+      document.querySelectorAll('[data-pay]').forEach((inp) => {
+        const [, vi, , ti, key, si] = inp.dataset.p.split('.');
+        if (key !== 'pay') return;
+        const c = KP.payPlan(p.variants[+vi].tariffs[+ti], stages)[+si];
+        inp.placeholder = c && c.auto ? 'авто: ' + c.text : '';
+      });
+    }
     const refreshPreviewOnly = () => { const it = curItem(); if (it) { $('#pv').innerHTML = renderItem(it); fitPreview(); } };
 
     app.oninput = (e) => {
       const el = e.target;
+      if (el.dataset.x === 'payStages') { p.payStages = KP.lines(el.value); save(); refreshPreviewOnly(); return; }
       if (el.dataset.x === 'extras') { p.extras = KP.lines(el.value).map((l) => { const [n, ...r] = l.split('|'); return { name: n.trim(), price: r.join('|').trim() }; }); save(); refreshPreviewOnly(); return; }
       if (el.dataset.p) {
         let v = el.type === 'checkbox' ? el.checked : el.value;
@@ -231,6 +259,7 @@
         if (el.dataset.t === 'blank') v = el.value === '' ? '' : num(el.value);
         setPath(p, el.dataset.p, v);
         save(); refreshComputed(); refreshPreviewOnly();
+        if (el.dataset.pay) refreshPayHints();
         if (el.type === 'checkbox' || el.tagName === 'SELECT') repaint();
       }
     };
@@ -243,6 +272,7 @@
     app.onchange = (e) => {
       const el = e.target;
       if (el.dataset.a === 'tg') { p.slides[+el.dataset.i].enabled = el.checked; save(); repaint(); }
+      if (el.dataset.x === 'payStages') renderMain();
       if (el.dataset.sheet && p.sheetUrl) { p.sheetTab = ''; save(); syncNow(); }
     };
     app.onclick = async (e) => {
@@ -264,6 +294,7 @@
         else if (a === 'addL') { p.variants[vi].tariffs[ti].rows.push({ id: KP.uid(), name: '', rate: '', hours: '', fixed: '' }); save(); renderSide(); }
         else if (a === 'delL') { p.variants[vi].tariffs[ti].rows.splice(li, 1); save(); repaint(); }
         else if (a === 'sync') await syncNow();
+        else if (a === 'payReset') { p.variants[vi].tariffs.forEach((t) => (t.pay = [])); save(); repaint(); }
         else if (a === 'gh') { store.touch(p); await store.githubPush(); toast('Сохранено в GitHub'); }
       } catch (er) { toast('Ошибка: ' + er.message, 7000); renderSide(); }
     };

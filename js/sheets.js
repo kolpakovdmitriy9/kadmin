@@ -60,18 +60,19 @@
           let name = T(g[r][c - 1]).replace(/\s*задача\s*$/i, '');
           for (let u = r - 1; !name && u >= Math.max(0, r - 3); u--) name = T((g[u] || [])[c - 1]);
           name = KP.normTariffName(name || 'Тариф ' + (tariffs.length + 1));
-          const rows = []; let total = 0, hours = 0, empty = 0, months = '';
+          const rows = []; let total = 0, hours = 0, empty = 0, months = '', discount = null, pay = null;
           for (let k = r + 1; k < g.length; k++) {
             const nm = T((g[k] || [])[c - 1]);
             if (/^итого/i.test(nm)) {
               total = KP.num(g[k][c + 2]); hours = KP.num(g[k][c + 1]);
-              // под «Итого»: «Рассрочка на N» → N мес.; «Рассрочка» без числа или со значением «-» → без рассрочки
+              // под «Итого»: «Рассрочка на N» → N мес. («-» — без рассрочки), «Скидка N%» со значением → скидка,
+              // «100% предоплата» → вся сумма в первом этапе, остальные — прочерк
               for (let j = k + 1; j < Math.min(k + 8, g.length); j++) {
-                const lb = low((g[j] || [])[c + 1]);
-                if (!/^рассрочка/.test(lb)) continue;
-                const n = lb.match(/(\d+)/), val = T(g[j][c + 2]);
-                months = n && val && val !== '-' ? +n[1] : 0;
-                break;
+                const lb = low((g[j] || [])[c + 1]), val = T((g[j] || [])[c + 2]);
+                const on = val && val !== '-' && KP.num(val) > 0;
+                if (/^рассрочка/.test(lb) && months === '') { const n = lb.match(/(\d+)/); months = n && on ? +n[1] : 0; }
+                else if (/^скидка/.test(lb)) { const n = lb.match(/(\d+(?:[.,]\d+)?)\s*%/); discount = n && on ? parseFloat(n[1].replace(',', '.')) : ''; }
+                else if (/100\s*%\s*предоплат/.test(lb) && on) pay = ['100%', '-', '-', '-', '-', '-'];
               }
               break;
             }
@@ -82,7 +83,7 @@
             if (!rate && !hrs) rows.push({ id: KP.uid(), name: nm, rate: '', hours: '', fixed: cost });
             else rows.push({ id: KP.uid(), name: nm, rate, hours: hrs, fixed: '' });
           }
-          if (rows.length) tariffs.push({ name, rows, total, hours, months });
+          if (rows.length) tariffs.push({ name, rows, total, hours, months, discount, pay });
         }
       }
     }
@@ -141,7 +142,7 @@
           t = { id: KP.uid(), name: rt.name, profile: KP.profileFor(rt.name), enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] };
           v.tariffs.push(t);
         }
-        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; seen.add(t.id);
+        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; if (rt.discount !== null) t.discount = rt.discount; if (rt.pay) t.pay = rt.pay; seen.add(t.id);
       });
       if (p.syncEnables) v.tariffs.forEach((t) => (t.enabled = seen.has(t.id)));
       report.push(`${v.cms}: ${res.tariffs.map((t) => t.name).join(', ')}`);
