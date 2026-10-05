@@ -18,26 +18,33 @@
     return rows;
   }
 
-  function csvUrl(src, tab) {
+  function sheetRef(src) {
     src = (src || '').trim();
     if (!src) throw new Error('Не указана ссылка на Google-таблицу: вставьте её в поле «Google-таблица» вверху КП');
-    if (/output=csv|format=csv/.test(src)) return src;
+    if (/output=csv|format=csv/.test(src)) return { direct: src };
     const id = (src.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/) || [])[1];
     if (!id) throw new Error('Не удалось найти ID таблицы в ссылке');
-    const gid = (src.match(/[#&?]gid=(\d+)/) || [])[1];
-    let u = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
-    if (tab) u += '&sheet=' + encodeURIComponent(tab); else if (gid) u += '&gid=' + gid;
-    return u;
+    return { id, gid: (src.match(/[#&?]gid=(\d+)/) || [])[1] };
   }
 
-  async function fetchGrid(src, tab) {
-    const url = csvUrl(src, tab);
+  async function getCSV(url, tab) {
     let r;
     try { r = await fetch(url); } catch (e) { throw new Error('Таблица недоступна из браузера: откройте доступ «Все, у кого есть ссылка — просмотр».'); }
     if (!r.ok) throw new Error('Google Sheets вернул ' + r.status + (tab ? ` (лист «${tab}»)` : ''));
     const txt = await r.text();
     if (/^\s*<!doctype html|<html/i.test(txt)) throw new Error('Google вернул страницу входа — откройте доступ к таблице по ссылке (просмотр).');
     return parseCSV(txt);
+  }
+
+  // Лист без имени (по ссылке) — через export: он отдаёт ячейки как есть, без «умных» заголовков gviz.
+  // Лист по имени — через gviz (export умеет только gid). Если export не сработал — тоже gviz.
+  async function fetchGrid(src, tab) {
+    const ref = sheetRef(src);
+    if (ref.direct) return getCSV(ref.direct, tab);
+    const gviz = `https://docs.google.com/spreadsheets/d/${ref.id}/gviz/tq?tqx=out:csv` + (tab ? '&sheet=' + encodeURIComponent(tab) : ref.gid ? '&gid=' + ref.gid : '');
+    if (tab) return getCSV(gviz, tab);
+    try { return await getCSV(`https://docs.google.com/spreadsheets/d/${ref.id}/export?format=csv` + (ref.gid ? '&gid=' + ref.gid : ''), tab); }
+    catch (e) { return getCSV(gviz, tab); }
   }
 
   const T = (s) => String(s ?? '').replace(/ /g, ' ').trim();
@@ -49,11 +56,25 @@
     for (let r = 0; r < Math.min(g.length, 40); r++) {
       for (let c = 1; c < (g[r] || []).length - 2; c++) {
         if (/^стоимость\s*часа/.test(low(g[r][c])) && /кол-?\s*во/.test(low(g[r][c + 1])) && T(g[r][c - 1])) {
-          const name = KP.normTariffName(T(g[r][c - 1]).replace(/\s*задача\s*$/i, ''));
-          const rows = []; let total = 0, hours = 0, empty = 0;
+          // имя тарифа: «Базовый Задача» в одной ячейке (gviz склеивает заголовки) или над «Задача» в той же колонке
+          let name = T(g[r][c - 1]).replace(/\s*задача\s*$/i, '');
+          for (let u = r - 1; !name && u >= Math.max(0, r - 3); u--) name = T((g[u] || [])[c - 1]);
+          name = KP.normTariffName(name || 'Тариф ' + (tariffs.length + 1));
+          const rows = []; let total = 0, hours = 0, empty = 0, months = '';
           for (let k = r + 1; k < g.length; k++) {
             const nm = T((g[k] || [])[c - 1]);
-            if (/^итого/i.test(nm)) { total = KP.num(g[k][c + 2]); hours = KP.num(g[k][c + 1]); break; }
+            if (/^итого/i.test(nm)) {
+              total = KP.num(g[k][c + 2]); hours = KP.num(g[k][c + 1]);
+              // под «Итого»: «Рассрочка на N» → N мес.; «Рассрочка» без числа или со значением «-» → без рассрочки
+              for (let j = k + 1; j < Math.min(k + 8, g.length); j++) {
+                const lb = low((g[j] || [])[c + 1]);
+                if (!/^рассрочка/.test(lb)) continue;
+                const n = lb.match(/(\d+)/), val = T(g[j][c + 2]);
+                months = n && val && val !== '-' ? +n[1] : 0;
+                break;
+              }
+              break;
+            }
             if (!nm) { if (++empty > 2) break; continue; }
             empty = 0;
             const rate = KP.num(g[k][c]), hrs = KP.num(g[k][c + 1]), cost = KP.num(g[k][c + 2]);
@@ -61,7 +82,7 @@
             if (!rate && !hrs) rows.push({ id: KP.uid(), name: nm, rate: '', hours: '', fixed: cost });
             else rows.push({ id: KP.uid(), name: nm, rate, hours: hrs, fixed: '' });
           }
-          if (rows.length) tariffs.push({ name, rows, total, hours });
+          if (rows.length) tariffs.push({ name, rows, total, hours, months });
         }
       }
     }
@@ -120,7 +141,7 @@
           t = { id: KP.uid(), name: rt.name, profile: KP.profileFor(rt.name), enabled: true, inCompare: true, inPayment: !neuro, estimate: !neuro, months: '', total: '', rows: [] };
           v.tariffs.push(t);
         }
-        t.rows = rt.rows; t.total = ''; seen.add(t.id);
+        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; seen.add(t.id);
       });
       if (p.syncEnables) v.tariffs.forEach((t) => (t.enabled = seen.has(t.id)));
       report.push(`${v.cms}: ${res.tariffs.map((t) => t.name).join(', ')}`);
