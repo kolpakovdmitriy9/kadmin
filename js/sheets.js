@@ -20,7 +20,7 @@
 
   function csvUrl(src, tab) {
     src = (src || '').trim();
-    if (!src) throw new Error('Не указана ссылка на Google-таблицу (Настройки)');
+    if (!src) throw new Error('Не указана ссылка на Google-таблицу: вставьте её в поле «Google-таблица» вверху КП');
     if (/output=csv|format=csv/.test(src)) return src;
     const id = (src.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/) || [])[1];
     if (!id) throw new Error('Не удалось найти ID таблицы в ссылке');
@@ -30,8 +30,8 @@
     return u;
   }
 
-  async function fetchGrid(settings, tab) {
-    const url = csvUrl(settings.sheetUrl, tab);
+  async function fetchGrid(src, tab) {
+    const url = csvUrl(src, tab);
     let r;
     try { r = await fetch(url); } catch (e) { throw new Error('Таблица недоступна из браузера: откройте доступ «Все, у кого есть ссылка — просмотр».'); }
     if (!r.ok) throw new Error('Google Sheets вернул ' + r.status + (tab ? ` (лист «${tab}»)` : ''));
@@ -91,9 +91,15 @@
   KP.syncFromSheet = async function (p, settings) {
     const report = [];
     let gotExtras = null;
+    // Своя ссылка у КП важнее общей из «Настроек». Со своей ссылкой лист по умолчанию — тот, что открыт по ссылке (gid).
+    const own = (p.sheetUrl || '').trim();
+    const src = own || settings.sheetUrl;
+    const used = new Set();
     for (const v of p.variants) {
-      const tab = v.sheetTab || p.sheetTab || p.client;
-      const g = await fetchGrid(settings, tab);
+      const tab = v.sheetTab || p.sheetTab || (own ? '' : p.client);
+      if (used.has(tab)) { report.push(`${v.cms}: пропущен — укажите для него «лист таблицы»`); continue; }
+      used.add(tab);
+      const g = await fetchGrid(src, tab);
       const res = KP.parseEstimateGrid(g);
       if (!res.tariffs.length) { report.push(`${v.cms}: лист «${tab}» — тарифов не найдено`); continue; }
       const seen = new Set();

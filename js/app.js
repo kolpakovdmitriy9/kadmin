@@ -15,18 +15,19 @@
   const setPath = (o, path, v) => { const k = path.split('.'); for (let i = 0; i < k.length - 1; i++) o = o[k[i]]; o[k[k.length - 1]] = v; };
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
-  function ask(title, label, value = '') {
+  function ask(title, label, value = '', label2 = '', ph2 = '') {
     return new Promise((res) => {
       const bg = document.createElement('div');
       bg.className = 'modal-bg';
-      bg.innerHTML = `<div class="modal"><h3 style="margin:0 0 8px">${esc(title)}</h3><label class="l">${esc(label)}</label><input type="text" value="${esc(value)}"><div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn" data-x="0">Отмена</button><button class="btn pri" data-x="1">Создать</button></div></div>`;
+      bg.innerHTML = `<div class="modal"><h3 style="margin:0 0 8px">${esc(title)}</h3><label class="l">${esc(label)}</label><input type="text" value="${esc(value)}">${label2 ? `<label class="l">${esc(label2)}</label><input type="text" placeholder="${esc(ph2)}">` : ''}<div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn" data-x="0">Отмена</button><button class="btn pri" data-x="1">Создать</button></div></div>`;
       document.body.appendChild(bg);
-      const inp = $('input', bg); inp.focus(); inp.select();
-      const done = (ok) => { bg.remove(); res(ok ? inp.value.trim() : null); };
+      const ins = [...bg.querySelectorAll('input')]; const inp = ins[0]; inp.focus(); inp.select();
+      const done = (ok) => { bg.remove(); res(!ok ? null : label2 ? ins.map((x) => x.value.trim()) : inp.value.trim()); };
       bg.addEventListener('click', (e) => { if (e.target === bg) done(false); const x = e.target.dataset.x; if (x) done(x === '1'); });
-      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false); });
+      ins.forEach((x) => x.addEventListener('keydown', (e) => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false); }));
     });
   }
+
 
   // ---------- роутер ----------
   function route() {
@@ -64,8 +65,10 @@
       const a = b.dataset.a;
       try {
         if (a === 'new') {
-          const name = await ask('Новое КП', 'Название клиента (и листа в Google-таблице)'); if (!name) return;
-          const p = KP.newProposal(name, store.data.template); store.add(p); location.hash = '#/p/' + p.id;
+          const r = await ask('Новое КП', 'Название клиента', '', 'Ссылка на Google-таблицу со сметой (можно позже)', 'https://docs.google.com/spreadsheets/d/…'); if (!r || !r[0]) return;
+          const p = KP.newProposal(r[0], store.data.template);
+          if (r[1]) { p.sheetUrl = r[1]; p.sheetTab = ''; }
+          store.add(p); location.hash = '#/p/' + p.id + (r[1] ? '?sync=1' : '');
         } else if (a === 'tpl') location.hash = '#/p/__template__';
         else if (a === 'set') location.hash = '#/settings';
         else if (a === 'open') location.hash = '#/p/' + id;
@@ -90,6 +93,8 @@
 
     app.innerHTML = `<div class="ed"><div class="top"><button class="btn" data-a="back">← Список</button>
       <input type="text" data-p="client" value="${esc(p.client)}" style="width:300px;font-weight:600">
+      <input type="text" data-p="sheetUrl" data-sheet="1" value="${esc(p.sheetUrl || '')}" placeholder="Вставьте ссылку на Google-таблицу — цены подтянутся сами" style="width:380px" title="Google-таблица этого КП (доступ «все, у кого есть ссылка — просмотр»)">
+      <button class="btn" data-a="sync">↻ Из таблицы</button>
       <span class="muted" id="saved">Автосохранение включено</span><span class="sp"></span>
       <button class="btn" data-a="gh">⬆ GitHub</button><button class="btn pri" data-a="pdf">Скачать PDF</button></div>
       <div class="ed-body"><aside class="ed-side"><div class="tabs"><button data-tab="slides">Слайды</button><button data-tab="prices">Тарифы и цены</button></div><div class="side-scroll" id="side"></div></aside>
@@ -118,9 +123,9 @@
 
     const tog = (path, checked, label) => `<label class="row" style="gap:6px"><span class="sw" style="transform:scale(.8)"><input type="checkbox" data-p="${path}" data-t="bool" ${checked ? 'checked' : ''}><i></i></span><span style="font-size:13px">${label}</span></label>`;
     function pricesPanel() {
-      let h = `<div class="card-b"><label class="l" style="margin-top:0">Лист Google-таблицы по умолчанию</label><input type="text" data-p="sheetTab" value="${esc(p.sheetTab || '')}" placeholder="${esc(p.client)}">
+      let h = `<div class="card-b"><label class="l" style="margin-top:0">Лист Google-таблицы по умолчанию</label><input type="text" data-p="sheetTab" value="${esc(p.sheetTab || '')}" placeholder="${esc(p.sheetUrl ? 'лист, открытый по ссылке' : p.client)}">
         ${tog('syncEnables', p.syncEnables, 'Таблица сама включает только найденные в ней тарифы')}
-        <button class="btn pri" style="margin-top:10px;width:100%" data-a="sync">↻ Обновить цены из таблицы</button></div>`;
+        <button class="btn pri" style="margin-top:10px;width:100%" data-a="sync">↻ Из таблицы</button></div>`;
       p.variants.forEach((v, vi) => {
         h += `<div class="card-b"><div class="row"><label class="sw"><input type="checkbox" data-p="variants.${vi}.enabled" data-t="bool" ${v.enabled ? 'checked' : ''}><i></i></label><input class="g" type="text" data-p="variants.${vi}.cms" value="${esc(v.cms)}" placeholder="CMS / вариант"><input type="text" style="width:130px" data-p="variants.${vi}.sheetTab" value="${esc(v.sheetTab || '')}" placeholder="лист таблицы"><button class="btn sm ghost dng" data-a="delV" data-vi="${vi}">✕</button></div><div style="margin-top:8px">${tog('variants.' + vi + '.compareBadge', v.compareBadge !== false, 'Плашка CMS на слайде сравнения')}</div>`;
         v.tariffs.forEach((t, ti) => {
@@ -183,7 +188,17 @@
         if (el.type === 'checkbox' || el.tagName === 'SELECT') repaint();
       }
     };
-    app.onchange = (e) => { const el = e.target; if (el.dataset.a === 'tg') { p.slides[+el.dataset.i].enabled = el.checked; save(); repaint(); } };
+    const syncNow = async () => {
+      const btns = [...document.querySelectorAll('[data-a="sync"]')]; btns.forEach((x) => { x.disabled = true; x.textContent = 'Загружаю…'; });
+      try { const msg = await KP.syncFromSheet(p, store.settings); save(); toast(msg, 6000); }
+      catch (er) { toast('Ошибка: ' + er.message, 7000); }
+      finally { btns.forEach((x) => { x.disabled = false; x.textContent = '↻ Из таблицы'; }); repaint(); }
+    };
+    app.onchange = (e) => {
+      const el = e.target;
+      if (el.dataset.a === 'tg') { p.slides[+el.dataset.i].enabled = el.checked; save(); repaint(); }
+      if (el.dataset.sheet && p.sheetUrl) { p.sheetTab = ''; save(); syncNow(); }
+    };
     app.onclick = async (e) => {
       const tab = e.target.closest('[data-tab]');
       if (tab) { ed.tab = tab.dataset.tab; renderSide(); return; }
@@ -202,16 +217,14 @@
         else if (a === 'delT') { if (confirm('Удалить тариф?')) { p.variants[vi].tariffs.splice(ti, 1); save(); repaint(); } }
         else if (a === 'addL') { p.variants[vi].tariffs[ti].rows.push({ id: KP.uid(), name: '', rate: '', hours: '', fixed: '' }); save(); renderSide(); }
         else if (a === 'delL') { p.variants[vi].tariffs[ti].rows.splice(li, 1); save(); repaint(); }
-        else if (a === 'sync') {
-          b.disabled = true; b.textContent = 'Загружаю…';
-          try { const msg = await KP.syncFromSheet(p, store.settings); save(); toast(msg, 6000); } finally { repaint(); }
-        }
+        else if (a === 'sync') await syncNow();
         else if (a === 'gh') { store.touch(p); await store.githubPush(); toast('Сохранено в GitHub'); }
       } catch (er) { toast('Ошибка: ' + er.message, 7000); renderSide(); }
     };
     window.onresize = fitPreview;
     const first = items()[0]; ed.sel = first ? first.key : null;
     repaint();
+    if (/[?&]sync=1/.test(location.hash)) { history.replaceState(null, '', '#/p/' + p.id); syncNow(); }
   }
 
   // ---------- печать / PDF ----------
@@ -224,7 +237,7 @@
     app.oninput = null; app.onchange = null;
     app.onclick = (e) => { const a = e.target.closest('[data-a]')?.dataset.a; if (a === 'back') location.hash = '#/p/' + p.id; if (a === 'print') window.print(); };
     let status = '';
-    if (store.settings.autoSync && store.settings.sheetUrl && p.id !== '__template__') {
+    if (store.settings.autoSync && (p.sheetUrl || store.settings.sheetUrl) && p.id !== '__template__') {
       try { status = await KP.syncFromSheet(p, store.settings); store.touch(p); }
       catch (er) { status = '⚠ Таблица не обновилась (' + er.message + ') — взяты сохранённые цифры.'; }
     }
