@@ -219,6 +219,7 @@
           stages.forEach((st, si) => {
             h += `<tr><td>${esc(st)}</td>${ts.map(({ t, ti }, k) => { if (!Array.isArray(t.pay)) t.pay = []; return `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.pay.${si}" data-pay="1" value="${esc(t.pay[si] ?? '')}" placeholder="${plans[k][si].auto ? 'авто: ' + esc(plans[k][si].text) : ''}"></td>`; }).join('')}</tr>`;
           });
+          h += `<tr><td><b>Скидка, %</b><br><small class="muted">пусто — без скидки</small></td>${ts.map(({ t, ti }) => `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.discount" data-pay="1" value="${esc(t.discount ?? '')}" placeholder="—"></td>`).join('')}</tr>`;
           h += `</tbody></table><button class="btn sm" style="margin-top:8px" data-a="payReset" data-vi="${vi}">Сбросить: всё поровну</button>`;
         }
         return h + `</div>`;
