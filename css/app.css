@@ -72,3 +72,8 @@ table.list tr:hover td{background:color-mix(in srgb,var(--red) 4%,transparent)}
 }
 
 .est-t td:first-child input{min-width:150px}
+
+/* строка скидки в настройке оплаты — цветом, как на слайде */
+.disc-row td{background:#ffe5e2;padding:6px 4px}
+.disc-row td.disc-lb{background:linear-gradient(135deg,#FF5A47,#E5200B);color:#fff;font-weight:500;padding-left:8px;border-radius:6px 0 0 6px}
+.disc-row small{display:block;margin-top:2px;white-space:nowrap}

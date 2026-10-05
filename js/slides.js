@@ -71,7 +71,7 @@
   const payStages = (p) => (p && p.payStages && p.payStages.length ? p.payStages : PAY_STAGES);
   /** Сумма по каждому этапу оплаты тарифа. t.pay[i]: пусто — авто (остаток поровну), «-» — прочерк,
       «30%» — доля от итога, число — фиксированная сумма, любой другой текст выводится как есть. */
-  const tariffDiscount = (t) => { const d = num(t.discount); return d > 0 && d < 100 ? d : 0; };
+  const tariffDiscount = (t) => { const d = num(t.discount); return t.discountOn && d > 0 && d < 100 ? d : 0; };
   const discountedTotal = (t) => Math.round(tariffTotal(t) * (1 - tariffDiscount(t) / 100));
   function payPlan(t, stages) {
     const tot = discountedTotal(t);   // этапы считаются от цены со скидкой; рассрочка — от полной (как в макете)

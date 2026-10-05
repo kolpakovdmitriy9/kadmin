@@ -142,7 +142,7 @@
           t = { id: KP.uid(), name: rt.name, profile: KP.profileFor(rt.name), enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] };
           v.tariffs.push(t);
         }
-        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; if (rt.discount !== null) t.discount = rt.discount; if (rt.pay) t.pay = rt.pay; seen.add(t.id);
+        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; if (rt.discount !== null) { t.discount = rt.discount; t.discountOn = true; } if (rt.pay) t.pay = rt.pay; seen.add(t.id);
       });
       if (p.syncEnables) v.tariffs.forEach((t) => (t.enabled = seen.has(t.id)));
       report.push(`${v.cms}: ${res.tariffs.map((t) => t.name).join(', ')}`);

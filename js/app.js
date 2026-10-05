@@ -219,7 +219,7 @@
           stages.forEach((st, si) => {
             h += `<tr><td>${esc(st)}</td>${ts.map(({ t, ti }, k) => { if (!Array.isArray(t.pay)) t.pay = []; return `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.pay.${si}" data-pay="1" value="${esc(t.pay[si] ?? '')}" placeholder="${plans[k][si].auto ? 'авто: ' + esc(plans[k][si].text) : ''}"></td>`; }).join('')}</tr>`;
           });
-          h += `<tr><td><b>Скидка, %</b><br><small class="muted">пусто — без скидки</small></td>${ts.map(({ t, ti }) => `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.discount" data-pay="1" value="${esc(t.discount ?? '')}" placeholder="—"></td>`).join('')}</tr>`;
+          h += `<tr class="disc-row"><td class="disc-lb">Скидка</td>${ts.map(({ t, ti }) => { const b = `variants.${vi}.tariffs.${ti}`; return `<td><div class="row" style="gap:6px"><label class="sw" title="Показывать скидку в КП"><input type="checkbox" data-p="${b}.discountOn" data-t="bool" ${t.discountOn ? 'checked' : ''}><i></i></label><input type="text" data-p="${b}.discount" data-disc="1" value="${esc(t.discount ?? '')}" placeholder="—" style="width:52px"><span>%</span></div><small class="muted" data-dhint="${vi}.${ti}">${discHint(t)}</small></td>`; }).join('')}</tr>`;
           h += `</tbody></table><button class="btn sm" style="margin-top:8px" data-a="payReset" data-vi="${vi}">Сбросить: всё поровну</button>`;
         }
         return h + `</div>`;
@@ -237,8 +237,16 @@
       pv.innerHTML = renderItem(it); fitPreview(); fields.innerHTML = formFor(it);
     }
     const repaint = () => { renderSide(); renderMain(); };
+    // только для нас: сколько скидка в рублях (на слайд не выводится)
+    function discHint(t) {
+      const d = KP.num(t.discount);
+      if (!(d > 0 && d < 100)) return t.discountOn ? 'впишите %' : 'выключена';
+      const minus = KP.tariffTotal(t) - Math.round(KP.tariffTotal(t) * (1 - d / 100));
+      return `(−${rub(minus)} → ${rub(KP.tariffTotal(t) - minus)})${t.discountOn ? '' : ' · выключена'}`;
+    }
     // подсказки «авто: …» в таблице оплаты пересчитываются при вводе
     function refreshPayHints() {
+      document.querySelectorAll('[data-dhint]').forEach((el) => { const [vi, ti] = el.dataset.dhint.split('.'); el.textContent = discHint(p.variants[+vi].tariffs[+ti]); });
       const stages = KP.payStages(p);
       document.querySelectorAll('[data-pay]').forEach((inp) => {
         const [, vi, , ti, key, si] = inp.dataset.p.split('.');
@@ -259,6 +267,11 @@
         if (el.dataset.t === 'blank') v = el.value === '' ? '' : num(el.value);
         setPath(p, el.dataset.p, v);
         save(); refreshComputed(); refreshPreviewOnly();
+        if (el.dataset.disc) {
+          const t = p.variants[+el.dataset.p.split('.')[1]].tariffs[+el.dataset.p.split('.')[3]];
+          if (KP.num(el.value) > 0 && !t.discountOn) { t.discountOn = true; save(); renderMain(); const n = document.querySelector(`[data-p="${el.dataset.p}"]`); if (n) { n.focus(); n.setSelectionRange(99, 99); } return; }
+          refreshPreviewOnly(); refreshPayHints();
+        }
         if (el.dataset.pay) refreshPayHints();
         if (el.type === 'checkbox' || el.tagName === 'SELECT') repaint();
       }
