@@ -71,10 +71,8 @@
   const payStages = (p) => (p && p.payStages && p.payStages.length ? p.payStages : PAY_STAGES);
   /** Сумма по каждому этапу оплаты тарифа. t.pay[i]: пусто — авто (остаток поровну), «-» — прочерк,
       «30%» — доля от итога, число — фиксированная сумма, любой другой текст выводится как есть. */
-  const tariffDiscount = (t) => { const d = num(t.discount); return d > 0 && d < 100 ? d : 0; };
-  const discountedTotal = (t) => Math.round(tariffTotal(t) * (1 - tariffDiscount(t) / 100));
   function payPlan(t, stages) {
-    const tot = discountedTotal(t);   // этапы считаются от цены со скидкой; рассрочка — от полной (как в макете)
+    const tot = tariffTotal(t);
     const cells = stages.map((_, i) => String(((t.pay || [])[i]) ?? '').trim());
     const out = cells.map((c) => {
       if (!c) return { kind: 'auto' };
@@ -151,14 +149,7 @@
     });
     const stages = payStages(it.p);
     const plans = ts.map((t) => payPlan(t, stages));
-    let y0 = 411;
-    const ds = ts.map(tariffDiscount);
-    if (ds.some((d) => d > 0)) {
-      const uniq = [...new Set(ds.filter((d) => d > 0))];
-      h += A(x0, y0, lw, 77, B + GRAD + 'display:flex;align-items:center;padding-left:24px;font-size:22px;', 'Стоимость со скидкой' + (uniq.length === 1 ? ' ' + String(uniq[0]).replace('.', ',') + '%' : ''));
-      ts.forEach((t, i) => { h += A(x0 + lw + cw * i, y0, cw, 77, B + 'background:#ffe5e2;display:flex;align-items:center;justify-content:center;font-size:22px;', ds[i] ? rub(discountedTotal(t)) : '-'); });
-      y0 += 77;
-    }
+    const y0 = 411;
     stages.forEach((label, si) => {
       const y = y0 + 77 * si;
       h += A(x0, y, lw, 77, B + 'background:#f5f5f5;display:flex;align-items:center;padding-left:24px;font-size:22px;', esc(label));
@@ -257,5 +248,5 @@
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '');
 
-  Object.assign(KP, { payStages, payPlan, tariffDiscount, discountedTotal, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
+  Object.assign(KP, { payStages, payPlan, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
 })();
