@@ -280,9 +280,14 @@
     if (!p) { location.hash = '#/'; return; }
     document.title = 'КП — ' + p.client;
     app.innerHTML = `<div class="pbar"><button class="btn" data-a="back">← К редактору</button><b>${esc(p.client)}</b><span class="muted g" id="st">Готовлю…</span>
-      <button class="btn pri" data-a="print">Печать → «Сохранить как PDF»</button></div><div class="pages" id="pages"></div>`;
+      <button class="btn" data-a="print">🖨 Печать</button><button class="btn pri" data-a="savePdf">⬇ Сохранить в PDF</button></div><div class="pages" id="pages"></div>`;
     app.oninput = null; app.onchange = null;
-    app.onclick = (e) => { const a = e.target.closest('[data-a]')?.dataset.a; if (a === 'back') location.hash = '#/p/' + p.id; if (a === 'print') window.print(); };
+    app.onclick = (e) => {
+      const a = e.target.closest('[data-a]')?.dataset.a;
+      if (a === 'back') location.hash = '#/p/' + p.id;
+      if (a === 'print') window.print();
+      if (a === 'savePdf') savePdf(p, e.target.closest('button'));
+    };
     let status = '';
     if (store.settings.autoSync && (p.sheetUrl || store.settings.sheetUrl) && p.id !== '__template__') {
       try { status = await KP.syncFromSheet(p, store.settings); store.touch(p); }
@@ -293,6 +298,44 @@
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     $('#st').textContent = `${pages.length} стр. ${status ? '· ' + status : ''} · В окне печати: поля «Нет», «Фоновая графика» включить`;
     if (/auto=1/.test(location.hash)) setTimeout(() => window.print(), 400);
+  }
+
+  // ---------- PDF-файл: каждый слайд 1920×1080 → картинка → страница PDF ----------
+  const loadScript = (src) => new Promise((ok, fail) => {
+    if (document.querySelector(`script[src="${src}"]`)) return ok();
+    const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => fail(new Error('Не загрузилась библиотека PDF — проверьте интернет'));
+    document.head.appendChild(s);
+  });
+  async function savePdf(p, btn) {
+    const st = $('#st'), was = btn.textContent;
+    btn.disabled = true;
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:-20000px;top:0;width:1920px;height:1080px;overflow:hidden';
+    document.body.appendChild(box);
+    try {
+      btn.textContent = 'Готовлю…';
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const slides = [...document.querySelectorAll('#pages > .slide')];
+      const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'px', format: [1920, 1080], hotfixes: ['px_scaling'], compress: true });
+      for (let i = 0; i < slides.length; i++) {
+        btn.textContent = `Страница ${i + 1} из ${slides.length}…`;
+        const c = slides[i].cloneNode(true); c.style.zoom = '1'; c.style.boxShadow = 'none';
+        box.replaceChildren(c);
+        await Promise.all([...c.querySelectorAll('img')].map((im) => (im.complete ? 0 : new Promise((r) => { im.onload = im.onerror = r; }))));
+        const canvas = await window.html2canvas(c, { width: 1920, height: 1080, scale: 1.5, useCORS: true, backgroundColor: '#ffffff', logging: false });
+        if (i) pdf.addPage([1920, 1080], 'landscape');
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 1920, 1080);
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(pdf.output('blob'));
+      a.download = `КП — ${p.client}.pdf`.replace(/[\\/:*?"<>|]+/g, ' ');
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      toast('PDF сохранён');
+    } catch (er) { toast('Ошибка PDF: ' + er.message + '. Можно сохранить через «Печать».', 8000); }
+    finally { box.remove(); btn.disabled = false; btn.textContent = was; }
   }
 
   // ---------- настройки ----------
