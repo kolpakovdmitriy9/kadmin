@@ -1,0 +1,58 @@
+/* Слайды 1920×1080 — общие для превью и PDF */
+.slide{width:1920px;height:1080px;position:relative;overflow:hidden;box-sizing:border-box;font-family:'Onest','Inter',Arial,sans-serif;color:#151515;background:#fff;padding:120px 150px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.slide.dark{color:#fff;background:radial-gradient(55% 60% at 52% 62%,rgba(120,36,34,.85) 0,transparent 70%),radial-gradient(40% 55% at 92% 18%,rgba(90,10,48,.9) 0,transparent 70%),#080304}
+.slide .logo{position:absolute;top:96px;right:120px;display:flex;align-items:center;gap:14px;font-weight:600;font-size:34px;color:#fff}
+.slide h1,.slide h2,.slide h3,.slide p,.slide ul{margin:0}
+.slide .badge{display:inline-block;margin-left:28px;padding:6px 20px;border:2px solid #444;font-size:44px;font-weight:400;vertical-align:middle}
+.slide em{font-style:normal;color:#EE2D17}
+
+.cover h1{position:absolute;left:150px;top:300px;font-size:150px;line-height:1.02;font-weight:500;letter-spacing:-2px}
+.cover .sub{position:absolute;left:150px;top:690px;font-size:44px;font-weight:400}
+.statement h2{position:absolute;left:150px;top:340px;width:1500px;font-size:112px;line-height:1.12;font-weight:500;letter-spacing:-1px}
+.contacts h2{position:absolute;left:150px;top:260px;font-size:112px;line-height:1.1;font-weight:500}
+.contacts .ct{position:absolute;left:150px;bottom:140px;font-size:44px;line-height:1.5}
+
+.light h2{font-size:72px;font-weight:500;letter-spacing:-1px;margin-bottom:56px}
+.light .lead{font-size:40px;line-height:1.4;margin-bottom:36px;max-width:1300px}
+.text ul{padding-left:44px;font-size:40px;line-height:1.55;max-width:1450px}
+.text li{margin-bottom:10px}
+.about-grid{display:flex;gap:80px;align-items:flex-start}
+.about-text{flex:1}.about-text p{font-size:38px;line-height:1.45;margin-bottom:60px}
+.stats{display:flex;gap:70px}.stat b{display:block;font-size:120px;font-weight:600;color:#EE2D17;line-height:1}.stat span{font-size:34px}
+.rating{width:520px;text-align:center;background:#f4f4f4;border-radius:40px;padding:60px 30px}
+.r-num{font-size:110px;font-weight:600}.r-num i{color:#f5d321;font-style:normal}.r-src{font-size:84px;font-weight:700;margin:14px 0}.r-cnt{font-size:40px}
+.cards .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.card{background:#f4f4f4;border-radius:28px;padding:36px 40px;min-height:270px}
+.card .ico{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#FF5A47,#E8200C);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+.card h3{font-size:38px;font-weight:600;margin-bottom:10px}.card p{font-size:28px;line-height:1.4;color:#444}
+
+/* таблицы */
+.tbl{border-collapse:collapse;width:100%;font-size:32px}
+.tbl th,.tbl td{border:1px solid #dcdcdc;padding:18px 28px;text-align:left;background:#fff;font-weight:400}
+.tbl .c{text-align:center}.tbl .lab{background:#f4f4f4}
+.tbl th.hot{background:linear-gradient(135deg,#FF5A47,#E8200C);color:#fff;text-align:center;font-size:34px}
+.tbl th.blk{background:#151515;color:#fff;text-align:center;font-size:30px}
+.tbl .big{font-size:34px}
+.ok{color:#EE2D17;font-size:40px}.no{color:#bbb}
+.payment .pay{width:1420px}.payment .pay th.lab{width:560px;text-align:center}.payment .pay td.lab{white-space:nowrap}
+.payment .inst{width:1180px;margin-top:80px}
+.payment .inst th.lab{text-align:center}
+.payment .hotcell{background:none;padding:0;display:flex;border:0}
+.payment .inst td{padding:0;border:1px solid #dcdcdc}
+.hotcell span{padding:18px 24px;font-size:26px;display:block;flex:1}
+.hotcell span:first-child{background:linear-gradient(135deg,#FF5A47,#E8200C);color:#fff}
+.hotcell .pink{background:#ffe3df;text-align:center}
+.payment h2 .badge,.compare h2 .badge{margin-left:30px}
+
+/* смета */
+.estimate{padding-top:110px}
+.e-head{display:flex;align-items:center;gap:28px;margin-bottom:34px}.e-head h2{margin:0}
+.pill{background:#EE2D17;color:#fff;border-radius:40px;padding:10px 30px;font-size:30px}
+.cms{margin-left:auto;border:2px solid #444;padding:6px 20px;font-size:44px}
+.est{width:1500px;border-collapse:collapse;font-size:27px;--rh:14px}
+.est th{font-weight:500;text-align:left;padding:10px 0 var(--rh)}
+.est td{padding:var(--rh) 0;border-bottom:1px solid #eee}
+.est th:nth-child(1),.est td:nth-child(1){width:760px}.est th:nth-child(2),.est td:nth-child(2){width:260px}.est th:nth-child(3),.est td:nth-child(3){width:230px}
+.estimate.mid .est{font-size:24px;--rh:9px}.estimate.dense .est{font-size:21px;--rh:6px}
+.e-total{width:1500px;display:flex;justify-content:flex-end;gap:70px;margin-top:26px;color:#EE2D17;font-size:34px}
+.e-total span:first-child{margin-right:auto}.e-total b{font-weight:500;font-size:38px}
