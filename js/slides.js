@@ -117,6 +117,8 @@
     let h = `<img class="abs" src="assets/t_payment.png" style="left:130px;top:80px;width:415px;height:65px">` + badge(v.cms, 561, 81);
     const B = 'border:1px solid #e2e2e2;box-sizing:border-box;';
     const x0 = 139, lw = 422, cw = 380;
+    // в PDF такая страница не попадает; в редакторе подсказываем, почему пусто
+    if (!ts.length) return h + A(x0, 179, 1500, 200, 'border:2px dashed #e53935;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;font-size:30px;color:#e53935;', 'Нет тарифов для этой страницы.<br>Во вкладке «Тарифы и цены» включите тариф и переключатель «Оплата».<br><small style="font-size:22px">В PDF эта страница не попадёт.</small>');
     h += A(x0, 179, lw, 232, B + 'background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Этап оплаты');
     ts.forEach((t, i) => {
       const x = x0 + lw + cw * i;

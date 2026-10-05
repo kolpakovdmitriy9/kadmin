@@ -137,8 +137,8 @@
       res.tariffs.forEach((rt) => {
         let t = v.tariffs.find((x) => KP.normTariffName(x.name).toLowerCase() === rt.name.toLowerCase());
         if (!t) {
-          const neuro = /нейро/i.test(rt.name);
-          t = { id: KP.uid(), name: rt.name, profile: KP.profileFor(rt.name), enabled: true, inCompare: true, inPayment: !neuro, estimate: !neuro, months: '', total: '', rows: [] };
+          // раз тариф есть в таблице со сметой — показываем его везде (в т. ч. Нейро); лишнее выключается вручную
+          t = { id: KP.uid(), name: rt.name, profile: KP.profileFor(rt.name), enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] };
           v.tariffs.push(t);
         }
         t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; seen.add(t.id);
