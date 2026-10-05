@@ -15,18 +15,65 @@
   const setPath = (o, path, v) => { const k = path.split('.'); for (let i = 0; i < k.length - 1; i++) o = o[k[i]]; o[k[k.length - 1]] = v; };
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
-  function ask(title, label, value = '', label2 = '', ph2 = '') {
+  function ask(title, label, value = '') {
     return new Promise((res) => {
       const bg = document.createElement('div');
       bg.className = 'modal-bg';
-      bg.innerHTML = `<div class="modal"><h3 style="margin:0 0 8px">${esc(title)}</h3><label class="l">${esc(label)}</label><input type="text" value="${esc(value)}">${label2 ? `<label class="l">${esc(label2)}</label><input type="text" placeholder="${esc(ph2)}">` : ''}<div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn" data-x="0">Отмена</button><button class="btn pri" data-x="1">Создать</button></div></div>`;
+      bg.innerHTML = `<div class="modal"><h3 style="margin:0 0 8px">${esc(title)}</h3><label class="l">${esc(label)}</label><input type="text" value="${esc(value)}"><div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn" data-x="0">Отмена</button><button class="btn pri" data-x="1">Создать</button></div></div>`;
       document.body.appendChild(bg);
-      const ins = [...bg.querySelectorAll('input')]; const inp = ins[0]; inp.focus(); inp.select();
-      const done = (ok) => { bg.remove(); res(!ok ? null : label2 ? ins.map((x) => x.value.trim()) : inp.value.trim()); };
+      const inp = $('input', bg); inp.focus(); inp.select();
+      const done = (ok) => { bg.remove(); res(ok ? inp.value.trim() : null); };
       bg.addEventListener('click', (e) => { if (e.target === bg) done(false); const x = e.target.dataset.x; if (x) done(x === '1'); });
-      ins.forEach((x) => x.addEventListener('keydown', (e) => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false); }));
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false); });
     });
   }
+
+  /** «Новое КП»: ссылка на таблицу → загрузка прямо в окне → готовое КП. null — отмена. */
+  function newFromSheet() {
+    return new Promise((res) => {
+      const bg = document.createElement('div');
+      bg.className = 'modal-bg';
+      bg.innerHTML = `<div class="modal" style="width:520px"><h3 style="margin:0 0 4px">Новое КП</h3>
+        <p class="muted" style="margin:0 0 6px">Вставьте ссылку на Google-таблицу со сметой — цены, тарифы и доп. расходы заполнятся сами.</p>
+        <label class="l">Ссылка на Google-таблицу</label><input type="text" data-f="url" placeholder="https://docs.google.com/spreadsheets/d/…">
+        <label class="l">Название клиента <span class="muted">(если пусто — возьмём из таблицы)</span></label><input type="text" data-f="name">
+        <div data-f="st" class="muted" style="margin-top:12px;min-height:20px;white-space:pre-wrap"></div>
+        <div class="row" style="margin-top:12px;justify-content:space-between"><button class="btn ghost" data-x="empty">Без таблицы</button><span class="row" style="gap:8px"><button class="btn" data-x="0">Отмена</button><button class="btn pri" data-x="1">Загрузить</button></span></div></div>`;
+      document.body.appendChild(bg);
+      const url = $('[data-f="url"]', bg), name = $('[data-f="name"]', bg), st = $('[data-f="st"]', bg), go = $('[data-x="1"]', bg);
+      url.focus();
+      let busy = false;
+      const close = (v) => { bg.remove(); res(v); };
+      const err = (m) => { st.style.color = 'var(--red, #e53935)'; st.textContent = m; };
+      async function load() {
+        if (busy) return;
+        const link = url.value.trim();
+        if (!/docs\.google\.com\/spreadsheets\/d\//.test(link)) { err('Нужна ссылка вида https://docs.google.com/spreadsheets/d/…'); url.focus(); return; }
+        busy = true; go.disabled = true; go.textContent = 'Загружаю…'; st.style.color = ''; st.textContent = 'Читаю таблицу…';
+        try {
+          const p = KP.newProposal(name.value.trim() || 'Новый клиент', store.data.template);
+          p.sheetUrl = link; p.sheetTab = '';
+          const info = {};
+          const msg = await KP.syncFromSheet(p, store.settings, info);
+          const found = p.variants.some((v) => v.tariffs.some((t) => (t.rows || []).length));
+          if (!found) throw new Error('В таблице не нашлось блоков со сметой («<Тариф> Задача | Стоимость часа | Кол-во час. | Стоимость услуг»). ' + msg);
+          let noName = false;
+          if (!name.value.trim()) { if (info.client) { p.client = info.client; } else noName = true; }
+          close({ p, msg, noName });
+        } catch (e) { err('Не получилось: ' + e.message); busy = false; go.disabled = false; go.textContent = 'Загрузить'; }
+      }
+      bg.addEventListener('click', (e) => {
+        if (e.target === bg && !busy) return close(null);
+        const x = e.target.dataset.x;
+        if (x === '0') close(null);
+        else if (x === '1') load();
+        else if (x === 'empty') { const n = name.value.trim(); if (!n) { err('Без таблицы — введите название клиента'); name.focus(); return; } close({ p: KP.newProposal(n, store.data.template), msg: 'КП создано', noName: false }); }
+      });
+      [url, name].forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter') load(); if (e.key === 'Escape' && !busy) close(null); }));
+      url.addEventListener('paste', () => setTimeout(load, 0));
+    });
+  }
+
 
 
   // ---------- роутер ----------
@@ -65,10 +112,9 @@
       const a = b.dataset.a;
       try {
         if (a === 'new') {
-          const r = await ask('Новое КП', 'Название клиента', '', 'Ссылка на Google-таблицу со сметой (можно позже)', 'https://docs.google.com/spreadsheets/d/…'); if (!r || !r[0]) return;
-          const p = KP.newProposal(r[0], store.data.template);
-          if (r[1]) { p.sheetUrl = r[1]; p.sheetTab = ''; }
-          store.add(p); location.hash = '#/p/' + p.id + (r[1] ? '?sync=1' : '');
+          const res = await newFromSheet(); if (!res) return;
+          store.add(res.p); location.hash = '#/p/' + res.p.id + (res.noName ? '?name=1' : '');
+          toast(res.msg, 6000);
         } else if (a === 'tpl') location.hash = '#/p/__template__';
         else if (a === 'set') location.hash = '#/settings';
         else if (a === 'open') location.hash = '#/p/' + id;
@@ -225,6 +271,7 @@
     const first = items()[0]; ed.sel = first ? first.key : null;
     repaint();
     if (/[?&]sync=1/.test(location.hash)) { history.replaceState(null, '', '#/p/' + p.id); syncNow(); }
+    if (/[?&]name=1/.test(location.hash)) { history.replaceState(null, '', '#/p/' + p.id); const c = $('[data-p="client"]'); c.focus(); c.select(); toast('Введите название клиента вверху', 5000); }
   }
 
   // ---------- печать / PDF ----------

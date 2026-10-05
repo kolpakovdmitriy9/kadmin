@@ -81,14 +81,24 @@
         }
       }
     }
-    return { tariffs, extras };
+    // клиент: ячейка «Клиент / Заказчик / Компания / Проект» и значение справа (или «Клиент: Имя» в одной ячейке)
+    let client = '';
+    for (let r = 0; r < Math.min(g.length, 15) && !client; r++) {
+      for (let c = 0; c < (g[r] || []).length && !client; c++) {
+        const m = T(g[r][c]).match(/^(?:клиент|заказчик|компания|проект)\s*:?\s*(.*)$/i);
+        if (!m) continue;
+        if (m[1]) client = m[1];
+        else for (let j = c + 1; j < Math.min(c + 4, g[r].length); j++) if (T(g[r][j])) { client = T(g[r][j]); break; }
+      }
+    }
+    return { tariffs, extras, client };
   };
 
   // «4000руб/год» → «4 000 ₽/год», «от 200 р/год» → «от 200 ₽/год»
   KP.fmtPrice = (s) => String(s).replace(/(\d[\d\s]*)\s*(?:руб(?:лей|\.)?|р\.?|₽)(?=[\s\/]|$)/gi, (m, n) => KP.grp(parseInt(n.replace(/\s/g, ''), 10)) + ' ₽').replace(/\u00a0/g, ' ');
 
   /** Применяет таблицу к КП: каждому варианту (CMS) соответствует лист. Возвращает отчёт. */
-  KP.syncFromSheet = async function (p, settings) {
+  KP.syncFromSheet = async function (p, settings, info = {}) {
     const report = [];
     let gotExtras = null;
     // Своя ссылка у КП важнее общей из «Настроек». Со своей ссылкой лист по умолчанию — тот, что открыт по ссылке (gid).
@@ -101,7 +111,7 @@
       used.add(tab);
       const g = await fetchGrid(src, tab);
       const res = KP.parseEstimateGrid(g);
-      if (!res.tariffs.length) { report.push(`${v.cms}: лист «${tab}» — тарифов не найдено`); continue; }
+      if (!res.tariffs.length) { report.push(`${v.cms}: ${tab ? `лист «${tab}»` : "лист по ссылке"} — тарифов не найдено`); continue; }
       const seen = new Set();
       res.tariffs.forEach((rt) => {
         let t = v.tariffs.find((x) => KP.normTariffName(x.name).toLowerCase() === rt.name.toLowerCase());
@@ -115,6 +125,7 @@
       if (p.syncEnables) v.tariffs.forEach((t) => (t.enabled = seen.has(t.id)));
       report.push(`${v.cms}: ${res.tariffs.map((t) => t.name).join(', ')}`);
       if (res.extras.length && !gotExtras) gotExtras = res.extras;
+      if (res.client && !info.client) info.client = res.client;
     }
     if (gotExtras) { p.extras = gotExtras; report.push(`доп. расходы: ${gotExtras.length}`); }
     return 'Из таблицы → ' + report.join(' · ');
