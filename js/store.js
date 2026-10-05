@@ -4,7 +4,7 @@
   const K_DATA = 'kp.data.v2';
   const K_SET = 'kp.settings.v1';
 
-  const defaults = { sheetUrl: '', autoSync: true, installRules: '300000:4, 500000:6, 800000:8, 1200000:10, inf:12', installMin: 150000, ghOwner: '', ghRepo: '', ghBranch: 'main', ghPath: 'data/proposals.json', ghToken: '' };
+  const defaults = { sheetUrl: '', autoSync: true, examplesUrl: 'https://neuro.mna100.ru/', installRules: '300000:4, 500000:6, 800000:8, 1200000:10, inf:12', installMin: 150000, ghOwner: '', ghRepo: '', ghBranch: 'main', ghPath: 'data/proposals.json', ghToken: '' };
 
   const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { KP.toast && KP.toast('Не удалось сохранить в браузере: ' + e.message); } };

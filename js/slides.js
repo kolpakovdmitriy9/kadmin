@@ -72,7 +72,7 @@
   const payStages = (p) => (p && p.payStages && p.payStages.length ? p.payStages : PAY_STAGES);
   /** Сумма по каждому этапу оплаты тарифа. t.pay[i]: пусто — авто (остаток поровну), «-» — прочерк,
       «30%» — доля от итога, число — фиксированная сумма, любой другой текст выводится как есть. */
-  const tariffDiscount = (t) => { const d = num(t.discount); return d > 0 && d < 100 ? d : 0; };
+  const tariffDiscount = (t) => { const d = num(t.discount); return t.discountOn && d > 0 && d < 100 ? d : 0; };
   const discountedTotal = (t) => Math.round(tariffTotal(t) * (1 - tariffDiscount(t) / 100));
   function payPlan(t, stages) {
     const tot = discountedTotal(t);   // этапы считаются от цены со скидкой; рассрочка — от полной (как в макете)
@@ -147,6 +147,12 @@
     const red = 'border:1px solid #EE3824;color:#EE3824;background:#fff;';
     h += cell(x0, y, W, 64, red + 'font-size:18px;padding-left:20px;', 'Стоимость');
     ts.forEach((t, i) => (h += cell(x0 + (W + G) * (i + 1), y, W, 64, red + 'justify-content:center;font-size:24px;font-weight:500;', rub(tariffTotal(t)))));
+    // кнопка-капсула «Показать примеры» под таблицей, по правому краю (ссылка кликабельна в PDF)
+    const url = String((KP.store && KP.store.settings && KP.store.settings.examplesUrl) || '').trim();
+    if (url && (it.f || {}).examples !== false) {
+      const right = x0 + (W + G) * (ts.length + 1) - G;
+      h += `<a class="abs" href="${esc(url)}" target="_blank" rel="noopener" style="left:${right}px;top:${y + 64 + 26}px;transform:translateX(-100%);height:60px;${GRAD}border-radius:999px;display:flex;align-items:center;gap:16px;padding:0 8px 0 32px;font-size:22px;font-weight:500;text-decoration:none;white-space:nowrap">Показать примеры<span style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="#E5200B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>`;
+    }
     return wrap(h);
   }
 
