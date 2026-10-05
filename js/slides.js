@@ -1,17 +1,16 @@
-/* Реестр типов слайдов: рендер в HTML (1920×1080) + схема полей для редактора */
+/* Движок слайдов. Статичные слайды — точные растры макета Figma (assets/*.webp).
+   Динамические (обложка, сравнение тарифов, оплата, сметы, доп. расходы) — HTML по измеренной геометрии макета. */
 (function () {
   const KP = (window.KP = window.KP || {});
 
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const nl = (s) => esc(s).replace(/\n/g, '<br>');
   const lines = (s) => String(s || '').split('\n').map((x) => x.trim()).filter(Boolean);
   const uid = () => Math.random().toString(36).slice(2, 9);
 
-  // «2 400», «2,400.50», «1 453 500 ₽», «2400,5» → число
   function num(v) {
     if (typeof v === 'number') return isFinite(v) ? v : 0;
-    let s = String(v ?? '').replace(/[\s ₽руб.р]+$/gi, '').replace(/[\s ]/g, '');
-    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, '');
+    let s = String(v ?? '').replace(/[\s ]/g, '').replace(/(руб\.?|р\.?|₽)+$/i, '');
+    if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, '');
     else s = s.replace(',', '.');
     const n = parseFloat(s);
     return isFinite(n) ? n : 0;
@@ -19,217 +18,211 @@
   const grp = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   const rub = (n) => grp(n) + ' ₽';
   const plural = (n, f) => {
-    n = Math.abs(Math.round(n)) % 100;
-    const n1 = n % 10;
+    n = Math.abs(Math.round(n)) % 100; const n1 = n % 10;
     if (n > 10 && n < 20) return f[2];
     if (n1 > 1 && n1 < 5) return f[1];
     if (n1 === 1) return f[0];
     return f[2];
   };
+  const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  function dateRu(iso) {
+    const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return iso || '';
+    return `${+m[3]} ${MONTHS[+m[2] - 1]} ${m[1]} года`;
+  }
 
   // ---------- расчёты ----------
   const lineCost = (l) => (num(l.fixed) ? num(l.fixed) : num(l.rate) * num(l.hours));
-  const tariffHours = (t) => (t.estimate || []).reduce((a, l) => a + num(l.hours), 0);
-  const tariffTotal = (t) => ((t.estimate || []).length ? t.estimate.reduce((a, l) => a + lineCost(l), 0) : num(t.total));
+  const tariffRows = (t) => (t.rows || []).filter((l) => lineCost(l) > 0);
+  const tariffHours = (t) => tariffRows(t).reduce((a, l) => a + num(l.hours), 0);
+  const tariffTotal = (t) => (tariffRows(t).length ? tariffRows(t).reduce((a, l) => a + lineCost(l), 0) : num(t.total));
 
-  // «1/3», «40%», «33.3» → доля
-  function share(s) {
-    s = String(s || '').trim();
-    if (s.includes('/')) {
-      const [a, b] = s.split('/').map(num);
-      return b ? a / b : 0;
-    }
-    return num(s.replace('%', '')) / 100;
+  // правила рассрочки: «300000:4, 500000:6, …, inf:12»; сумма ниже минимума — без рассрочки
+  const DEFAULT_RULES = '300000:4, 500000:6, 800000:8, 1200000:10, inf:12';
+  function parseRules(txt) {
+    return String(txt || DEFAULT_RULES).split(',').map((x) => x.trim()).filter(Boolean).map((x) => {
+      const [a, b] = x.split(':'); return [/inf|∞/i.test(a) ? Infinity : num(a), num(b)];
+    }).sort((p, q) => p[0] - q[0]);
   }
-  function stageAmounts(total, stages) {
-    let acc = 0;
-    return stages.map((st, i) => {
-      const v = i === stages.length - 1 ? total - acc : Math.round(total * st.share);
-      acc += v;
-      return v;
+  function autoMonths(total) {
+    const s = (KP.store && KP.store.settings) || {};
+    if (total < num(s.installMin ?? 150000)) return 0;
+    const r = parseRules(s.installRules).find(([lim]) => total <= lim);
+    return r ? r[1] : 0;
+  }
+  const tariffMonths = (t) => (t.months === '' || t.months == null ? autoMonths(tariffTotal(t)) : num(t.months));
+
+  // ---------- профили сравнения тарифов (из макета) ----------
+  const CHECK = '✓';
+  const PROFILES = {
+    'Нейро': ['—', 'Нейро', '—', '—', '—', '—', 'Junior/Middle', CHECK, CHECK],
+    'Базовый': [CHECK, 'Оптимальный', CHECK, '2 пакета', 'По запросу', CHECK, 'Middle/Senior', CHECK, CHECK],
+    'Премиум': ['Расширенная', 'Премиальный', CHECK, '3 пакета', 'По запросу', CHECK, 'Middle/Senior', CHECK, CHECK],
+  };
+  const COMPARE_ROWS = [
+    ['Аналитика целевой аудитории', 64], ['Дизайн', 64], ['Анимации', 64], ['Пакеты правок', 64], ['SEO-проектирование', 64],
+    ['Контроль дизайна и кода senior специалистов', 88], ['Уровень команды', 64], ['Базовая SEO-оптимизация', 64], ['Гарантия 12 месяцев', 64],
+  ];
+  const ALIAS = { 'база': 'Базовый', 'базовый': 'Базовый', 'оптимальный': 'Базовый', 'премиум': 'Премиум', 'премиальный': 'Премиум', 'нейро': 'Нейро' };
+  const normTariffName = (n) => { const k = String(n || '').trim().toLowerCase().replace(/ё/g, 'е'); return k === 'база' ? 'Базовый' : String(n || '').trim(); };
+  const profileFor = (name) => ALIAS[String(name || '').trim().toLowerCase()] || 'Базовый';
+
+  const PAY_STAGES = ['Предоплата', 'По факту готовности дизайна', 'По факту готовности сайта'];
+  // ---------- хелперы разметки ----------
+  const A = (x, y, w, h, st, inner, cls) => `<div class="abs ${cls || ''}" style="left:${x}px;top:${y}px;${w != null ? 'width:' + w + 'px;' : ''}${h != null ? 'height:' + h + 'px;' : ''}${st || ''}">${inner ?? ''}</div>`;
+  const checkSvg = `<svg width="28" height="28" viewBox="0 0 28 28"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5A47"/><stop offset="1" stop-color="#E5200B"/></linearGradient></defs><circle cx="14" cy="14" r="14" fill="url(#g)"/><path d="M8.5 14.4l3.8 3.7 7.3-7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const badge = (txt, left, top, center) => A(center ? 0 : left, top, null, 71, `${center ? 'left:' + (center) + 'px;transform:translateX(-50%);' : ''}border:1.5px solid #1a1a1a;padding:0 11px 17px;display:flex;align-items:center;font-size:40px;line-height:1;white-space:nowrap;`, esc(txt));
+  const GRAD = 'background:linear-gradient(135deg,#FF5A47,#E5200B);color:#fff;';
+  const cell = (x, y, w, h, st, inner) => A(x, y, w, h, `border:1px solid #d9d9d9;border-radius:6px;box-sizing:border-box;display:flex;align-items:center;${st || ''}`, inner);
+  const wrap = (inner, bg) => `<section class="slide"${bg ? ` style="background:url(${bg}) 0 0/1920px 1080px"` : ''}>${inner}</section>`;
+
+  // ---------- рендеры ----------
+  function renderCover(it) {
+    const { p } = it;
+    const d = dateRu(p.validUntil);
+    return wrap(
+      A(120, 526, 1200, 50, 'font-size:30px;line-height:50px;color:#fff;', 'на разработку сайта для компании ' + esc(p.client)) +
+      (d ? A(1288, 946, 560, 30, 'font-size:20px;line-height:30px;color:#fff;', 'до ' + esc(d)) : ''),
+      'assets/cover.webp');
+  }
+  const renderStatic = (it) => wrap('', 'assets/' + it.asset + '.webp');
+
+  function renderCompare(it) {
+    const { v } = it;
+    const ts = v.tariffs.filter((t) => t.enabled && t.inCompare);
+    const withBadge = v.compareBadge !== false;
+    const x0 = withBadge ? 265 : 251, y0 = withBadge ? 195 : 173, W = 344, G = 4;
+    let h = withBadge ? `<img class="abs" src="assets/t_compare.png" style="left:255px;top:70px;width:685px;height:75px">` + badge(v.cms, 967, 83)
+      : `<img class="abs" src="assets/t_compare_a.png" style="left:241px;top:60px;width:684px;height:75px">`;
+    h += cell(x0, y0, W, 64, 'background:#1a1a1a;color:#fff;font-size:18px;padding-left:20px;border-color:#1a1a1a;', 'Критерий сравнения');
+    ts.forEach((t, i) => (h += A(x0 + (W + G) * (i + 1), y0, W, 64, `${GRAD}border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;`, esc(t.name))));
+    let y = y0 + 68;
+    COMPARE_ROWS.forEach(([label, rh], ri) => {
+      h += cell(x0, y, W, rh, 'background:#f5f5f5;font-size:18px;padding:0 20px;line-height:24px;', esc(label));
+      ts.forEach((t, i) => {
+        const val = (PROFILES[t.profile] || PROFILES['Базовый'])[ri];
+        h += cell(x0 + (W + G) * (i + 1), y, W, rh, 'background:#fff;justify-content:center;font-size:18px;', val === CHECK ? checkSvg : esc(val));
+      });
+      y += rh + G;
     });
+    const red = 'border:1px solid #EE3824;color:#EE3824;background:#fff;';
+    h += cell(x0, y, W, 64, red + 'font-size:18px;padding-left:20px;', 'Стоимость');
+    ts.forEach((t, i) => (h += cell(x0 + (W + G) * (i + 1), y, W, 64, red + 'justify-content:center;font-size:24px;font-weight:500;', rub(tariffTotal(t)))));
+    return wrap(h);
   }
-  const parseStages = (txt) => lines(txt).map((l) => {
-    const [label, sh] = l.split('|').map((x) => x.trim());
-    return { label, share: share(sh || '1/3') };
-  });
 
-  const logo = `<div class="logo"><svg width="46" height="38" viewBox="0 0 46 38"><path d="M0 4l9 28 7-17 7 17 7-28h-6l-3 13-5-13h-6l-5 13-3-13z" fill="#EE2D17"/></svg><span>webtex</span></div>`;
+  function renderPayment(it) {
+    const { v, f } = it;
+    const ts = v.tariffs.filter((t) => t.enabled && t.inPayment && tariffTotal(t) > 0);
+    let h = `<img class="abs" src="assets/t_payment.png" style="left:130px;top:80px;width:415px;height:65px">` + badge(v.cms, 561, 81);
+    const B = 'border:1px solid #e2e2e2;box-sizing:border-box;';
+    const x0 = 139, lw = 422, cw = 380;
+    h += A(x0, 179, lw, 232, B + 'background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Этап оплаты');
+    ts.forEach((t, i) => {
+      const x = x0 + lw + cw * i;
+      h += A(x, 179, cw, 78, B + GRAD + 'display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:500;', esc(t.name));
+      h += A(x, 257, cw, 78, B + 'background:#161616;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Общая стоимость проекта');
+      h += A(x, 335, cw, 76, B + 'background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', rub(tariffTotal(t)));
+    });
+    const stages = (it.p.payStages && it.p.payStages.length ? it.p.payStages : PAY_STAGES);
+    stages.forEach((label, si) => {
+      const y = 411 + 77 * si;
+      h += A(x0, y, lw, 77, B + 'background:#f5f5f5;display:flex;align-items:center;padding-left:24px;font-size:22px;', esc(label));
+      ts.forEach((t, i) => {
+        const tot = tariffTotal(t), n = stages.length, part = Math.round(tot / n);
+        const val = si === n - 1 ? tot - part * (n - 1) : part;
+        h += A(x0 + lw + cw * i, y, cw, 77, B + 'background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', rub(val));
+      });
+    });
+    const inst = ts.filter((t) => tariffMonths(t) > 0);
+    inst.forEach((t, i) => {
+      const x = 140 + 559 * i, m = tariffMonths(t);
+      h += A(x, 808, 559, 78, B + 'background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Второй вид оплаты');
+      h += A(x, 886, 559, 63, B + 'background:#161616;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;', esc(t.name));
+      h += A(x, 948, 344, 64, B + GRAD + 'display:flex;align-items:center;padding-left:20px;font-size:18px;', `Рассрочка на ${m} ${plural(m, ['месяц', 'месяца', 'месяцев'])}`);
+      h += A(x + 344, 948, 215, 64, B + 'background:#ffe5e2;display:flex;align-items:center;justify-content:center;font-size:18px;', rub(tariffTotal(t) / m) + ' / мес');
+    });
+    return wrap(h);
+  }
 
-  const sub = (s, p) => String(s || '').replace(/\{client\}/g, p.client || '');
+  function renderEstimate(it) {
+    const { v, t, f } = it;
+    const rows = tariffRows(t);
+    const n = rows.length, pitch = Math.min(42, Math.floor(660 / Math.max(n, 1)));
+    let h = `<img class="abs" src="assets/t_estimate.png" style="left:280px;top:105px;width:175px;height:70px">`;
+    h += A(484, 124, null, 52, 'background:#EE3824;color:#fff;border-radius:26px;padding:0 24px;display:flex;align-items:center;font-size:20px;white-space:nowrap;', 'пакет ' + esc(t.name));
+    h += badge(v.cms, 0, 114, 1463);
+    const hd = 'font-size:20px;font-weight:500;line-height:42px;padding-top:2px;';
+    h += A(290, 223, 600, 42, hd, 'Этап работ') + A(979, 223, 240, 42, hd, 'Стоимость часа, ₽') + A(1232, 223, 180, 42, hd, 'Кол-во часов') + A(1431, 223, 200, 42, hd, 'Стоимость, ₽');
+    rows.forEach((l, i) => {
+      const y = 276 + pitch * i, fx = num(l.fixed) > 0;
+      const st = `font-size:18px;line-height:${pitch}px;`;
+      h += A(290, y, 1340, pitch, `border-bottom:1px solid #f0f0f0;box-sizing:border-box;`, '');
+      h += A(290, y + 2, 660, pitch, st, esc(l.name)) + A(979, y + 2, 240, pitch, st, fx ? '' : grp(num(l.rate))) + A(1232, y + 2, 190, pitch, st, fx ? '' : String(num(l.hours))) + A(1431, y + 2, 200, pitch, st, grp(lineCost(l)));
+    });
+    const yb = 275 + pitch * n + 10, hrs = tariffHours(t);
+    h += A(290, yb, 300, 44, 'font-size:22px;line-height:44px;color:#EE3824;', 'Итого');
+    h += A(1000, yb, 296, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', hrs ? `${grp(hrs)} ${plural(hrs, ['час', 'часа', 'часов'])}` : '');
+    h += A(1317, yb, 200, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', rub(tariffTotal(t)));
+    return wrap(h);
+  }
 
-  // ---------- типы слайдов ----------
-  // dark: тёмный фон; generated: размножается по вариантам/тарифам
+  function renderExtras(it) {
+    const { p } = it;
+    const list = (p.extras || []).filter((e) => e.name);
+    let h = `<img class="abs" src="assets/t_extra.png" style="left:110px;top:105px;width:640px;height:70px">`;
+    const B = 'border:1px solid #d6d6d6;box-sizing:border-box;display:flex;align-items:center;font-size:18px;';
+    h += A(120, 243, 344, 64, B + 'background:#EE3824;color:#fff;padding-left:20px;', 'Услуга') + A(464, 243, 460, 64, B + 'background:#161616;color:#fff;justify-content:center;', 'Стоимость');
+    list.forEach((e, i) => {
+      const y = 307 + 64 * i;
+      h += A(120, y, 344, 64, B + 'background:#f5f5f5;padding-left:20px;', esc(e.name)) + A(464, y, 460, 64, B + 'background:#fff;justify-content:center;', esc(e.price));
+    });
+    return wrap(h);
+  }
+
+  // ---------- реестр типов слайдов (для списка и форм) ----------
+  const STATIC = {
+    about: ['О компании: команда, №1 в Пензе', '08'], kadema: ['Webtex — часть агентства Kadema Digital', '09'], statement: ['Не просто код и дизайн', '01'],
+    why: ['Почему именно Webtex', '10'], tech: ['Технологии и сервисы', '11'], mistakes: ['Распространённые ошибки при разработке', '12'],
+    benefits: ['Основные преимущества наших проектов', '03'], constructor: ['Конструктор или индивидуальная разработка', '13'], project: ['О проекте: задача', '02'],
+    timeline: ['Сроки и этапы', '04'], team: ['Команда проекта', '05'], packages: ['Пакеты: Базовый / Премиум дизайн', '37'],
+    results: ['Работаем на результат', '06'], support: ['Комплексная техническая поддержка', '07'], contacts: ['Контакты', '14'],
+  };
   const TYPES = {
-    cover: {
-      label: 'Обложка',
-      figma: '15',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'subtitle', label: 'Подзаголовок ({client} — название клиента)', type: 'text' },
-      ],
-      render: ({ p, f }) => `<section class="slide dark cover">${logo}<h1>${nl(f.title)}</h1><p class="sub">${esc(sub(f.subtitle, p))}</p></section>`,
-    },
-    statement: {
-      label: 'Тёмный слайд с крупной фразой',
-      figma: '01, 02, 03, 06',
-      fields: [
-        { key: 'kicker', label: 'Красная часть', type: 'textarea' },
-        { key: 'text', label: 'Белая часть', type: 'textarea' },
-      ],
-      render: ({ f }) => `<section class="slide dark statement">${logo}<h2><em>${nl(f.kicker)}</em>${f.kicker && f.text ? '<br>' : ''}${nl(f.text)}</h2></section>`,
-    },
-    about: {
-      label: 'О компании (цифры + рейтинг)',
-      figma: '08, 09',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'text', label: 'Текст', type: 'textarea' },
-        { key: 'stats', label: 'Цифры: «значение | подпись», по строке', type: 'textarea' },
-        { key: 'rating', label: 'Рейтинг (пусто — скрыть)', type: 'text' },
-        { key: 'ratingSource', label: 'Источник рейтинга', type: 'text' },
-        { key: 'ratingCount', label: 'Число отзывов', type: 'text' },
-      ],
-      render: ({ f }) => {
-        const stats = lines(f.stats).map((l) => { const [v, c] = l.split('|').map((x) => x.trim()); return `<div class="stat"><b>${esc(v)}</b><span>${esc(c)}</span></div>`; }).join('');
-        const rating = f.rating ? `<div class="rating"><div class="r-num">${esc(f.rating)} <i>★</i></div><div class="r-src">${esc(f.ratingSource)}</div><div class="r-cnt">${esc(f.ratingCount)}</div></div>` : '';
-        return `<section class="slide light about"><h2>${nl(f.title)}</h2><div class="about-grid"><div class="about-text"><p>${nl(f.text)}</p><div class="stats">${stats}</div></div>${rating}</div></section>`;
-      },
-    },
-    text: {
-      label: 'Заголовок + текст/список',
-      figma: '07, 10, 11, 12, 24',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'lead', label: 'Вводный текст', type: 'textarea' },
-        { key: 'bullets', label: 'Пункты списка (по строке)', type: 'textarea' },
-      ],
-      render: ({ f }) => `<section class="slide light text"><h2>${nl(f.title)}</h2>${f.lead ? `<p class="lead">${nl(f.lead)}</p>` : ''}<ul>${lines(f.bullets).map((b) => `<li>${esc(b)}</li>`).join('')}</ul></section>`,
-    },
-    cards: {
-      label: 'Карточки (сетка 3×2)',
-      figma: '04, 05',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'items', label: 'Карточки: «Заголовок | описание», по строке', type: 'textarea' },
-      ],
-      render: ({ f }) => `<section class="slide light cards"><h2>${nl(f.title)}</h2><div class="grid">${lines(f.items).map((l, i) => { const [t, d] = l.split('|').map((x) => x.trim()); return `<div class="card"><div class="ico">${i + 1}</div><h3>${esc(t)}</h3><p>${esc(d || '')}</p></div>`; }).join('')}</div></section>`,
-    },
-    table: {
-      label: 'Таблица (произвольная)',
-      figma: '13',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'head', label: 'Шапка: колонки через |', type: 'text' },
-        { key: 'rows', label: 'Строки: ячейки через |', type: 'textarea' },
-      ],
-      render: ({ f }) => {
-        const head = String(f.head || '').split('|').map((x) => `<th>${esc(x.trim())}</th>`).join('');
-        const rows = lines(f.rows).map((l) => `<tr>${l.split('|').map((x) => `<td>${esc(x.trim())}</td>`).join('')}</tr>`).join('');
-        return `<section class="slide light table"><h2>${nl(f.title)}</h2><table class="tbl"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></section>`;
-      },
-    },
-    compare: {
-      label: 'Сравнение тарифов (галочки)',
-      figma: '18',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'rows', label: 'Строки: «Функция | + | – ...» — значения по порядку тарифов; + = ✓, – = нет, любой текст как есть', type: 'textarea' },
-      ],
-      render: ({ f, v }) => {
-        const all = (v && v.tariffs) || [];
-        const cols = all.map((t, i) => ({ t, i })).filter((c) => c.t.enabled);
-        const head = cols.map((c) => `<th class="hot">${esc(c.t.name)}</th>`).join('');
-        const rows = lines(f.rows).map((l) => {
-          const cells = l.split('|').map((x) => x.trim());
-          return `<tr><td>${esc(cells[0])}</td>${cols.map((c) => { const x = cells[c.i + 1] ?? ''; return `<td class="c">${x === '+' ? '<b class="ok">✓</b>' : x === '-' || x === '–' ? '<span class="no">—</span>' : esc(x)}</td>`; }).join('')}</tr>`;
-        }).join('');
-        return `<section class="slide light compare"><h2>${nl(f.title)}${v && v.cms ? `<span class="badge">${esc(v.cms)}</span>` : ''}</h2><table class="tbl"><thead><tr><th></th>${head}</tr></thead><tbody>${rows}</tbody></table></section>`;
-      },
-    },
-    payment: {
-      label: 'Порядок оплаты (авто: по вариантам CMS)',
-      figma: '20, 37',
-      generated: 'variant',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'text' },
-        { key: 'stages', label: 'Этапы: «Название | доля» (1/3, 40%…). Последний этап = остаток', type: 'textarea' },
-        { key: 'installmentLabel', label: 'Подпись рассрочки (N — число месяцев)', type: 'text' },
-      ],
-      render: ({ f, v }) => {
-        const ts = v.tariffs.filter((t) => t.enabled && tariffTotal(t) > 0);
-        const stages = parseStages(f.stages);
-        const head = ts.map((t) => `<th class="hot">${esc(t.name)}</th>`).join('');
-        const sum = ts.map(() => `<th class="blk">Общая стоимость проекта</th>`).join('');
-        const tot = ts.map((t) => `<td class="c big">${rub(tariffTotal(t))}</td>`).join('');
-        const amounts = ts.map((t) => stageAmounts(tariffTotal(t), stages));
-        const rows = stages.map((s, i) => `<tr><td class="lab">${esc(s.label)}</td>${amounts.map((a) => `<td class="c">${rub(a[i])}</td>`).join('')}</tr>`).join('');
-        const inst = ts.filter((t) => num(t.months) > 0);
-        const instBlock = inst.length
-          ? `<table class="tbl inst"><thead><tr>${inst.map(() => `<th class="lab">Второй вид оплаты</th>`).join('')}</tr><tr>${inst.map((t) => `<th class="blk">${esc(t.name)}</th>`).join('')}</tr></thead><tbody><tr>${inst.map((t) => `<td class="hotcell"><span>${esc(String(f.installmentLabel || 'Рассрочка на N месяцев').replace('N', t.months))}</span><span class="pink">${rub(tariffTotal(t) / num(t.months))} / мес</span></td>`).join('')}</tr></tbody></table>`
-          : '';
-        return `<section class="slide light payment"><h2>${esc(f.title)}<span class="badge">${esc(v.cms)}</span></h2>
-          <table class="tbl pay"><thead><tr><th rowspan="3" class="lab">Этап оплаты</th>${head}</tr><tr>${sum}</tr><tr>${tot}</tr></thead><tbody>${rows}</tbody></table>${instBlock}</section>`;
-      },
-    },
-    estimate: {
-      label: 'Смета (авто: по каждому тарифу с расчётом)',
-      figma: '34–36, 40–42',
-      generated: 'tariff',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'text' },
-        { key: 'packLabel', label: 'Плашка (T — название тарифа)', type: 'text' },
-        { key: 'headers', label: 'Шапка колонок через |', type: 'text' },
-      ],
-      render: ({ f, v, t }) => {
-        const L = t.estimate || [];
-        const h = String(f.headers || 'Этап работ|Стоимость часа, ₽|Кол-во часов|Стоимость, ₽').split('|').map((x) => x.trim());
-        const dense = L.length > 14 ? ' dense' : L.length > 11 ? ' mid' : '';
-        const rows = L.map((l) => `<tr><td>${esc(l.name)}</td><td>${num(l.fixed) ? '' : grp(num(l.rate))}</td><td>${num(l.fixed) ? '' : num(l.hours)}</td><td>${grp(lineCost(l))}</td></tr>`).join('');
-        const hrs = tariffHours(t);
-        return `<section class="slide light estimate${dense}"><div class="e-head"><h2>${esc(f.title)}</h2><span class="pill">${esc(String(f.packLabel || 'пакет T').replace('T', t.name))}</span><span class="cms">${esc(v.cms)}</span></div>
-          <table class="est"><thead><tr>${h.map((x) => `<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
-          <div class="e-total"><span>Итого</span><span>${hrs ? grp(hrs) + ' ' + plural(hrs, ['час', 'часа', 'часов']) : ''}</span><b>${rub(tariffTotal(t))}</b></div></section>`;
-      },
-    },
-    contacts: {
-      label: 'Контакты (финальный слайд)',
-      figma: '14',
-      fields: [
-        { key: 'title', label: 'Заголовок', type: 'textarea' },
-        { key: 'name', label: 'Менеджер', type: 'text' },
-        { key: 'phone', label: 'Телефон', type: 'text' },
-        { key: 'email', label: 'Email', type: 'text' },
-        { key: 'site', label: 'Сайт', type: 'text' },
-      ],
-      render: ({ f }) => `<section class="slide dark contacts">${logo}<h2>${nl(f.title)}</h2><div class="ct"><div>${esc(f.name)}</div><div>${esc(f.phone)}</div><div>${esc(f.email)}</div><div>${esc(f.site)}</div></div></section>`,
-    },
+    cover: { label: 'Обложка (клиент, срок действия)', figma: '15' },
+    static: { label: 'Статичный слайд' },
+    variants: { label: 'Блок по CMS: сравнение, оплата, сметы', figma: '18, 20, 34–36, 40–42', generated: true },
+    extras: { label: 'Дополнительные расходы', figma: '24' },
   };
 
-  /** Разворачивает слайды КП в итоговый список страниц для превью/PDF */
+  /** Разворачивает КП в список страниц {key,kind,...}; includeDisabled — для списка слева */
   function expand(p, includeDisabled) {
     const out = [];
+    const push = (o) => out.push(Object.assign({ p }, o));
     (p.slides || []).forEach((s) => {
-      const T = TYPES[s.type];
-      if (!T) return;
+      const base = { slide: s, off: !s.enabled };
       if (!s.enabled && !includeDisabled) return;
-      const base = { slide: s, type: T, f: s.fields || {}, p, off: !s.enabled };
-      const vs = (p.variants || []).filter((v) => v.enabled || includeDisabled);
-      if (T.generated === 'variant') {
-        vs.forEach((v) => { if (v.tariffs.some((t) => t.enabled && tariffTotal(t) > 0) || includeDisabled) out.push({ ...base, key: s.id + ':' + v.id, v, off: base.off || !v.enabled }); });
-      } else if (T.generated === 'tariff') {
-        vs.forEach((v) => v.tariffs.forEach((t) => { if (((t.enabled && (t.estimate || []).length) || includeDisabled) && (t.estimate || []).length) out.push({ ...base, key: s.id + ':' + v.id + ':' + t.id, v, t, off: base.off || !v.enabled || !t.enabled }); }));
-      } else if (s.type === 'compare') {
-        const v = vs[0] || (p.variants || [])[0];
-        out.push({ ...base, key: s.id, v });
-      } else {
-        out.push({ ...base, key: s.id });
+      if (s.type === 'cover') push({ ...base, key: s.id, kind: 'cover', label: 'Обложка' });
+      else if (s.type === 'static') push({ ...base, key: s.id, kind: 'static', asset: s.asset, label: STATIC[s.asset] ? STATIC[s.asset][0] : s.asset });
+      else if (s.type === 'extras') push({ ...base, key: s.id, kind: 'extras', label: 'Дополнительные расходы' });
+      else if (s.type === 'variants') {
+        const f = s.fields || {};
+        (p.variants || []).forEach((v, vi) => {
+          if (!v.enabled && !includeDisabled) return;
+          const vb = { ...base, off: base.off || !v.enabled, v, f };
+          const on = (arr) => v.tariffs.filter((t) => t.enabled && arr(t));
+          if (f.compare !== false && (on((t) => t.inCompare).length || includeDisabled)) push({ ...vb, key: `${s.id}:${v.id}:cmp`, kind: 'compare', label: `Сравнение · ${v.cms}` });
+          if (f.packages !== false && vi === 0) push({ ...vb, key: `${s.id}:${v.id}:pk`, kind: 'static', asset: 'packages', label: 'Пакеты: Базовый / Премиум дизайн' });
+          if (f.payment !== false && (on((t) => t.inPayment && tariffTotal(t) > 0).length || includeDisabled)) push({ ...vb, key: `${s.id}:${v.id}:pay`, kind: 'payment', label: `Порядок оплаты · ${v.cms}` });
+          if (f.estimate !== false) v.tariffs.forEach((t) => { if ((t.estimate && tariffRows(t).length && (t.enabled || includeDisabled))) push({ ...vb, off: vb.off || !t.enabled, key: `${s.id}:${v.id}:${t.id}`, kind: 'estimate', t, label: `Смета · ${v.cms} · ${t.name}` }); });
+        });
       }
     });
     return out;
   }
 
-  const renderItem = (it) => it.type.render({ p: it.p, f: it.f, v: it.v, t: it.t });
+  const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
+  const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '');
 
-  Object.assign(KP, { TYPES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, lineCost, stageAmounts, parseStages, plural });
+  Object.assign(KP, { TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
 })();
