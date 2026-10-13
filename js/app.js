@@ -28,54 +28,6 @@
     });
   }
 
-  /** «Новое КП»: ссылка на таблицу → загрузка прямо в окне → готовое КП. null — отмена. */
-  function newFromSheet() {
-    return new Promise((res) => {
-      const bg = document.createElement('div');
-      bg.className = 'modal-bg';
-      bg.innerHTML = `<div class="modal" style="width:520px"><h3 style="margin:0 0 4px">Новое КП</h3>
-        <p class="muted" style="margin:0 0 6px">Вставьте ссылку на Google-таблицу со сметой — цены, тарифы и доп. расходы заполнятся сами.</p>
-        <label class="l">Ссылка на Google-таблицу</label><input type="text" data-f="url" placeholder="https://docs.google.com/spreadsheets/d/…">
-        <label class="l">Название клиента <span class="muted">(если пусто — возьмём из таблицы)</span></label><input type="text" data-f="name">
-        <div data-f="st" class="muted" style="margin-top:12px;min-height:20px;white-space:pre-wrap"></div>
-        <div class="row" style="margin-top:12px;justify-content:space-between"><button class="btn ghost" data-x="empty">Без таблицы</button><span class="row" style="gap:8px"><button class="btn" data-x="0">Отмена</button><button class="btn pri" data-x="1">Загрузить</button></span></div></div>`;
-      document.body.appendChild(bg);
-      const url = $('[data-f="url"]', bg), name = $('[data-f="name"]', bg), st = $('[data-f="st"]', bg), go = $('[data-x="1"]', bg);
-      url.focus();
-      let busy = false;
-      const close = (v) => { bg.remove(); res(v); };
-      const err = (m) => { st.style.color = 'var(--red, #e53935)'; st.textContent = m; };
-      async function load() {
-        if (busy) return;
-        const link = url.value.trim();
-        if (!/docs\.google\.com\/spreadsheets\/d\//.test(link)) { err('Нужна ссылка вида https://docs.google.com/spreadsheets/d/…'); url.focus(); return; }
-        busy = true; go.disabled = true; go.textContent = 'Загружаю…'; st.style.color = ''; st.textContent = 'Читаю таблицу…';
-        try {
-          const p = KP.newProposal(name.value.trim() || 'Новый клиент', store.data.template);
-          p.sheetUrl = link; p.sheetTab = '';
-          const info = {};
-          const msg = await KP.syncFromSheet(p, store.settings, info);
-          const found = p.variants.some((v) => v.tariffs.some((t) => (t.rows || []).length));
-          if (!found) throw new Error('В таблице не нашлось блоков со сметой («<Тариф> Задача | Стоимость часа | Кол-во час. | Стоимость услуг»). ' + msg);
-          let noName = false;
-          if (!name.value.trim()) { if (info.client) { p.client = info.client; } else noName = true; }
-          close({ p, msg, noName });
-        } catch (e) { err('Не получилось: ' + e.message); busy = false; go.disabled = false; go.textContent = 'Загрузить'; }
-      }
-      bg.addEventListener('click', (e) => {
-        if (e.target === bg && !busy) return close(null);
-        const x = e.target.dataset.x;
-        if (x === '0') close(null);
-        else if (x === '1') load();
-        else if (x === 'empty') { const n = name.value.trim(); if (!n) { err('Без таблицы — введите название клиента'); name.focus(); return; } close({ p: KP.newProposal(n, store.data.template), msg: 'КП создано', noName: false }); }
-      });
-      [url, name].forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter') load(); if (e.key === 'Escape' && !busy) close(null); }));
-      url.addEventListener('paste', () => setTimeout(load, 0));
-    });
-  }
-
-
-
   // ---------- роутер ----------
   function route() {
     const [, name, id] = (location.hash || '#/').match(/^#\/([^/]*)\/?(.*)$/) || [];
@@ -112,9 +64,8 @@
       const a = b.dataset.a;
       try {
         if (a === 'new') {
-          const res = await newFromSheet(); if (!res) return;
-          store.add(res.p); location.hash = '#/p/' + res.p.id + (res.noName ? '?name=1' : '');
-          toast(res.msg, 6000);
+          const name = await ask('Новое КП', 'Название клиента (и листа в Google-таблице)'); if (!name) return;
+          const p = KP.newProposal(name, store.data.template); store.add(p); location.hash = '#/p/' + p.id;
         } else if (a === 'tpl') location.hash = '#/p/__template__';
         else if (a === 'set') location.hash = '#/settings';
         else if (a === 'open') location.hash = '#/p/' + id;
@@ -139,8 +90,6 @@
 
     app.innerHTML = `<div class="ed"><div class="top"><button class="btn" data-a="back">← Список</button>
       <input type="text" data-p="client" value="${esc(p.client)}" style="width:300px;font-weight:600">
-      <input type="text" data-p="sheetUrl" data-sheet="1" value="${esc(p.sheetUrl || '')}" placeholder="Вставьте ссылку на Google-таблицу — цены подтянутся сами" style="width:380px" title="Google-таблица этого КП (доступ «все, у кого есть ссылка — просмотр»)">
-      <button class="btn" data-a="sync">↻ Из таблицы</button>
       <span class="muted" id="saved">Автосохранение включено</span><span class="sp"></span>
       <button class="btn" data-a="gh">⬆ GitHub</button><button class="btn pri" data-a="pdf">Скачать PDF</button></div>
       <div class="ed-body"><aside class="ed-side"><div class="tabs"><button data-tab="slides">Слайды</button><button data-tab="prices">Тарифы и цены</button></div><div class="side-scroll" id="side"></div></aside>
@@ -169,9 +118,9 @@
 
     const tog = (path, checked, label) => `<label class="row" style="gap:6px"><span class="sw" style="transform:scale(.8)"><input type="checkbox" data-p="${path}" data-t="bool" ${checked ? 'checked' : ''}><i></i></span><span style="font-size:13px">${label}</span></label>`;
     function pricesPanel() {
-      let h = `<div class="card-b"><label class="l" style="margin-top:0">Лист Google-таблицы по умолчанию</label><input type="text" data-p="sheetTab" value="${esc(p.sheetTab || '')}" placeholder="${esc(p.sheetUrl ? 'лист, открытый по ссылке' : p.client)}">
+      let h = `<div class="card-b"><label class="l" style="margin-top:0">Лист Google-таблицы по умолчанию</label><input type="text" data-p="sheetTab" value="${esc(p.sheetTab || '')}" placeholder="${esc(p.client)}">
         ${tog('syncEnables', p.syncEnables, 'Таблица сама включает только найденные в ней тарифы')}
-        <button class="btn pri" style="margin-top:10px;width:100%" data-a="sync">↻ Из таблицы</button></div>`;
+        <button class="btn pri" style="margin-top:10px;width:100%" data-a="sync">↻ Обновить цены из таблицы</button></div>`;
       p.variants.forEach((v, vi) => {
         h += `<div class="card-b"><div class="row"><label class="sw"><input type="checkbox" data-p="variants.${vi}.enabled" data-t="bool" ${v.enabled ? 'checked' : ''}><i></i></label><input class="g" type="text" data-p="variants.${vi}.cms" value="${esc(v.cms)}" placeholder="CMS / вариант"><input type="text" style="width:130px" data-p="variants.${vi}.sheetTab" value="${esc(v.sheetTab || '')}" placeholder="лист таблицы"><button class="btn sm ghost dng" data-a="delV" data-vi="${vi}">✕</button></div><div style="margin-top:8px">${tog('variants.' + vi + '.compareBadge', v.compareBadge !== false, 'Плашка CMS на слайде сравнения')}</div>`;
         v.tariffs.forEach((t, ti) => {
@@ -207,28 +156,13 @@
     function formFor(it) {
       const s = it.slide;
       if (s.type === 'cover') return `<div class="card-b"><b>Обложка</b><label class="l">Название клиента</label><input type="text" data-p="client" value="${esc(p.client)}"><label class="l">КП действительно до</label><input type="date" data-p="validUntil" value="${esc(p.validUntil || '')}"></div>`;
-      if (it.kind === 'payment') {
-        const stages = KP.payStages(p), v = it.v, vi = p.variants.indexOf(v);
-        const ts = v.tariffs.map((t, ti) => ({ t, ti })).filter(({ t }) => t.enabled && t.inPayment && tariffTotal(t) > 0);
-        let h = `<div class="card-b"><b>Порядок оплаты · ${esc(v.cms)}</b><label class="l">Этапы оплаты — по одному в строке (общие для всего КП)</label><textarea data-x="payStages" style="min-height:96px">${esc(stages.join('\n'))}</textarea>
-          <p class="muted" style="margin:10px 0 0">В ячейке: пусто — авто (остаток делится поровну), <b>-</b> — прочерк, <b>30%</b> — доля от итога, <b>100000</b> — сумма, любой другой текст выводится как есть.</p>`;
-        if (!ts.length) h += `<p class="muted">Нет тарифов с включённой «Оплатой» — включите во вкладке «Тарифы и цены».</p>`;
-        else {
-          h += `<table class="est-t" style="margin-top:10px"><thead><tr><th>Этап</th>${ts.map(({ t }) => `<th>${esc(t.name)}</th>`).join('')}</tr></thead><tbody>`;
-          const plans = ts.map(({ t }) => KP.payPlan(t, stages));
-          stages.forEach((st, si) => {
-            h += `<tr><td>${esc(st)}</td>${ts.map(({ t, ti }, k) => { if (!Array.isArray(t.pay)) t.pay = []; return `<td><input type="text" data-p="variants.${vi}.tariffs.${ti}.pay.${si}" data-pay="1" value="${esc(t.pay[si] ?? '')}" placeholder="${plans[k][si].auto ? 'авто: ' + esc(plans[k][si].text) : ''}"></td>`; }).join('')}</tr>`;
-          });
-          h += `<tr class="disc-row"><td class="disc-lb">Скидка</td>${ts.map(({ t, ti }) => { const b = `variants.${vi}.tariffs.${ti}`; return `<td><div class="row" style="gap:6px"><label class="sw" title="Показывать скидку в КП"><input type="checkbox" data-p="${b}.discountOn" data-t="bool" ${t.discountOn ? 'checked' : ''}><i></i></label><input type="text" data-p="${b}.discount" data-disc="1" value="${esc(t.discount ?? '')}" placeholder="—" style="width:52px"><span>%</span></div><small class="muted" data-dhint="${vi}.${ti}">${discHint(t)}</small></td>`; }).join('')}</tr>`;
-          h += `</tbody></table><button class="btn sm" style="margin-top:8px" data-a="payReset" data-vi="${vi}">Сбросить: всё поровну</button>`;
-        }
-        return h + `</div>`;
-      }
       if (s.type === 'variants') {
         const f = s.fields; const sw = (k, l) => tog('slides.' + p.slides.indexOf(s) + '.fields.' + k, f[k] !== false, l);
         return `<div class="card-b"><b>Блок по CMS</b><div class="muted">Для каждого включённого варианта CMS создаются страницы. Какие тарифы показывать и в каких таблицах — во вкладке «Тарифы и цены».</div><div class="row" style="flex-wrap:wrap;gap:16px;margin-top:10px">${sw('compare', 'Сравнение тарифов')}${sw('packages', 'Пакеты дизайна (только 1-й вариант)')}${sw('payment', 'Порядок оплаты')}${sw('estimate', 'Сметы')}</div></div>`;
       }
       if (s.type === 'extras') return `<div class="card-b"><b>Дополнительные расходы</b><label class="l">Строки: «Название | цена». Из Google-таблицы подтягиваются автоматически.</label><textarea data-x="extras" style="min-height:160px">${esc((p.extras || []).map((e) => e.name + ' | ' + e.price).join('\n'))}</textarea></div>`;
+      if (s.asset === 'timeline') { const i = p.slides.indexOf(s), f = s.fields || {};
+        return `<div class="card-b"><b>Срок реализации</b><div class="muted">Цифры в заголовке слайда. Остальной текст и этапы — из макета.</div><div class="row" style="margin-top:10px"><span class="muted">от</span><input type="number" min="1" style="width:80px" data-p="slides.${i}.fields.termFrom" data-t="blank" value="${f.termFrom ?? ''}" placeholder="3"><span class="muted">до</span><input type="number" min="1" style="width:80px" data-p="slides.${i}.fields.termTo" data-t="blank" value="${f.termTo ?? ''}" placeholder="4"><span class="muted">месяцев</span><span class="g"></span><b id="termpv">${esc(KP.termText(f))}</b></div><div class="muted" style="margin-top:6px">Если «до» совпадает с «от» — выведется одно число («6 месяцев*»).</div></div>`; }
       return `<div class="card-b muted">Статичный слайд из макета Figma: его можно включать, выключать и переставлять. Содержимое берётся из макета без изменений.</div>`;
     }
     function renderMain() {
@@ -237,57 +171,21 @@
       pv.innerHTML = renderItem(it); fitPreview(); fields.innerHTML = formFor(it);
     }
     const repaint = () => { renderSide(); renderMain(); };
-    // только для нас: сколько скидка в рублях (на слайд не выводится)
-    function discHint(t) {
-      const d = KP.num(t.discount);
-      if (!(d > 0 && d < 100)) return t.discountOn ? 'впишите %' : 'выключена';
-      const minus = KP.tariffTotal(t) - Math.round(KP.tariffTotal(t) * (1 - d / 100));
-      return `(−${rub(minus)} → ${rub(KP.tariffTotal(t) - minus)})${t.discountOn ? '' : ' · выключена'}`;
-    }
-    // подсказки «авто: …» в таблице оплаты пересчитываются при вводе
-    function refreshPayHints() {
-      document.querySelectorAll('[data-dhint]').forEach((el) => { const [vi, ti] = el.dataset.dhint.split('.'); el.textContent = discHint(p.variants[+vi].tariffs[+ti]); });
-      const stages = KP.payStages(p);
-      document.querySelectorAll('[data-pay]').forEach((inp) => {
-        const [, vi, , ti, key, si] = inp.dataset.p.split('.');
-        if (key !== 'pay') return;
-        const c = KP.payPlan(p.variants[+vi].tariffs[+ti], stages)[+si];
-        inp.placeholder = c && c.auto ? 'авто: ' + c.text : '';
-      });
-    }
     const refreshPreviewOnly = () => { const it = curItem(); if (it) { $('#pv').innerHTML = renderItem(it); fitPreview(); } };
 
     app.oninput = (e) => {
       const el = e.target;
-      if (el.dataset.x === 'payStages') { p.payStages = KP.lines(el.value); save(); refreshPreviewOnly(); return; }
       if (el.dataset.x === 'extras') { p.extras = KP.lines(el.value).map((l) => { const [n, ...r] = l.split('|'); return { name: n.trim(), price: r.join('|').trim() }; }); save(); refreshPreviewOnly(); return; }
       if (el.dataset.p) {
         let v = el.type === 'checkbox' ? el.checked : el.value;
         if (el.dataset.t === 'num') v = el.value === '' ? '' : num(el.value);
         if (el.dataset.t === 'blank') v = el.value === '' ? '' : num(el.value);
         setPath(p, el.dataset.p, v);
-        save(); refreshComputed(); refreshPreviewOnly();
-        if (el.dataset.disc) {
-          const t = p.variants[+el.dataset.p.split('.')[1]].tariffs[+el.dataset.p.split('.')[3]];
-          if (KP.num(el.value) > 0 && !t.discountOn) { t.discountOn = true; save(); renderMain(); const n = document.querySelector(`[data-p="${el.dataset.p}"]`); if (n) { n.focus(); n.setSelectionRange(99, 99); } return; }
-          refreshPreviewOnly(); refreshPayHints();
-        }
-        if (el.dataset.pay) refreshPayHints();
+        save(); refreshComputed(); refreshPreviewOnly(); { const tp = $('#termpv'), it = curItem(); if (tp && it) tp.textContent = KP.termText(it.slide.fields); }
         if (el.type === 'checkbox' || el.tagName === 'SELECT') repaint();
       }
     };
-    const syncNow = async () => {
-      const btns = [...document.querySelectorAll('[data-a="sync"]')]; btns.forEach((x) => { x.disabled = true; x.textContent = 'Загружаю…'; });
-      try { const msg = await KP.syncFromSheet(p, store.settings); save(); toast(msg, 6000); }
-      catch (er) { toast('Ошибка: ' + er.message, 7000); }
-      finally { btns.forEach((x) => { x.disabled = false; x.textContent = '↻ Из таблицы'; }); repaint(); }
-    };
-    app.onchange = (e) => {
-      const el = e.target;
-      if (el.dataset.a === 'tg') { p.slides[+el.dataset.i].enabled = el.checked; save(); repaint(); }
-      if (el.dataset.x === 'payStages') renderMain();
-      if (el.dataset.sheet && p.sheetUrl) { p.sheetTab = ''; save(); syncNow(); }
-    };
+    app.onchange = (e) => { const el = e.target; if (el.dataset.a === 'tg') { p.slides[+el.dataset.i].enabled = el.checked; save(); repaint(); } };
     app.onclick = async (e) => {
       const tab = e.target.closest('[data-tab]');
       if (tab) { ed.tab = tab.dataset.tab; renderSide(); return; }
@@ -306,16 +204,16 @@
         else if (a === 'delT') { if (confirm('Удалить тариф?')) { p.variants[vi].tariffs.splice(ti, 1); save(); repaint(); } }
         else if (a === 'addL') { p.variants[vi].tariffs[ti].rows.push({ id: KP.uid(), name: '', rate: '', hours: '', fixed: '' }); save(); renderSide(); }
         else if (a === 'delL') { p.variants[vi].tariffs[ti].rows.splice(li, 1); save(); repaint(); }
-        else if (a === 'sync') await syncNow();
-        else if (a === 'payReset') { p.variants[vi].tariffs.forEach((t) => (t.pay = [])); save(); repaint(); }
+        else if (a === 'sync') {
+          b.disabled = true; b.textContent = 'Загружаю…';
+          try { const msg = await KP.syncFromSheet(p, store.settings); save(); toast(msg, 6000); } finally { repaint(); }
+        }
         else if (a === 'gh') { store.touch(p); await store.githubPush(); toast('Сохранено в GitHub'); }
       } catch (er) { toast('Ошибка: ' + er.message, 7000); renderSide(); }
     };
     window.onresize = fitPreview;
     const first = items()[0]; ed.sel = first ? first.key : null;
     repaint();
-    if (/[?&]sync=1/.test(location.hash)) { history.replaceState(null, '', '#/p/' + p.id); syncNow(); }
-    if (/[?&]name=1/.test(location.hash)) { history.replaceState(null, '', '#/p/' + p.id); const c = $('[data-p="client"]'); c.focus(); c.select(); toast('Введите название клиента вверху', 5000); }
   }
 
   // ---------- печать / PDF ----------
@@ -324,16 +222,11 @@
     if (!p) { location.hash = '#/'; return; }
     document.title = 'КП — ' + p.client;
     app.innerHTML = `<div class="pbar"><button class="btn" data-a="back">← К редактору</button><b>${esc(p.client)}</b><span class="muted g" id="st">Готовлю…</span>
-      <button class="btn" data-a="print">🖨 Печать</button><button class="btn pri" data-a="savePdf">⬇ Сохранить в PDF</button></div><div class="pages" id="pages"></div>`;
+      <button class="btn pri" data-a="print">Печать → «Сохранить как PDF»</button></div><div class="pages" id="pages"></div>`;
     app.oninput = null; app.onchange = null;
-    app.onclick = (e) => {
-      const a = e.target.closest('[data-a]')?.dataset.a;
-      if (a === 'back') location.hash = '#/p/' + p.id;
-      if (a === 'print') window.print();
-      if (a === 'savePdf') savePdf(p, e.target.closest('button'));
-    };
+    app.onclick = (e) => { const a = e.target.closest('[data-a]')?.dataset.a; if (a === 'back') location.hash = '#/p/' + p.id; if (a === 'print') window.print(); };
     let status = '';
-    if (store.settings.autoSync && (p.sheetUrl || store.settings.sheetUrl) && p.id !== '__template__') {
+    if (store.settings.autoSync && store.settings.sheetUrl && p.id !== '__template__') {
       try { status = await KP.syncFromSheet(p, store.settings); store.touch(p); }
       catch (er) { status = '⚠ Таблица не обновилась (' + er.message + ') — взяты сохранённые цифры.'; }
     }
@@ -342,44 +235,6 @@
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     $('#st').textContent = `${pages.length} стр. ${status ? '· ' + status : ''} · В окне печати: поля «Нет», «Фоновая графика» включить`;
     if (/auto=1/.test(location.hash)) setTimeout(() => window.print(), 400);
-  }
-
-  // ---------- PDF-файл: каждый слайд 1920×1080 → картинка → страница PDF ----------
-  const loadScript = (src) => new Promise((ok, fail) => {
-    if (document.querySelector(`script[src="${src}"]`)) return ok();
-    const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => fail(new Error('Не загрузилась библиотека PDF — проверьте интернет'));
-    document.head.appendChild(s);
-  });
-  async function savePdf(p, btn) {
-    const st = $('#st'), was = btn.textContent;
-    btn.disabled = true;
-    const box = document.createElement('div');
-    box.style.cssText = 'position:fixed;left:-20000px;top:0;width:1920px;height:1080px;overflow:hidden';
-    document.body.appendChild(box);
-    try {
-      btn.textContent = 'Готовлю…';
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-      if (document.fonts && document.fonts.ready) await document.fonts.ready;
-      const slides = [...document.querySelectorAll('#pages > .slide')];
-      const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'px', format: [1920, 1080], hotfixes: ['px_scaling'], compress: true });
-      for (let i = 0; i < slides.length; i++) {
-        btn.textContent = `Страница ${i + 1} из ${slides.length}…`;
-        const c = slides[i].cloneNode(true); c.style.zoom = '1'; c.style.boxShadow = 'none';
-        box.replaceChildren(c);
-        await Promise.all([...c.querySelectorAll('img')].map((im) => (im.complete ? 0 : new Promise((r) => { im.onload = im.onerror = r; }))));
-        const canvas = await window.html2canvas(c, { width: 1920, height: 1080, scale: 1.5, useCORS: true, backgroundColor: '#ffffff', logging: false });
-        if (i) pdf.addPage([1920, 1080], 'landscape');
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 1920, 1080);
-      }
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(pdf.output('blob'));
-      a.download = `КП — ${p.client}.pdf`.replace(/[\\/:*?"<>|]+/g, ' ');
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-      toast('PDF сохранён');
-    } catch (er) { toast('Ошибка PDF: ' + er.message + '. Можно сохранить через «Печать».', 8000); }
-    finally { box.remove(); btn.disabled = false; btn.textContent = was; }
   }
 
   // ---------- настройки ----------
