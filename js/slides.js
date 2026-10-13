@@ -96,7 +96,7 @@
     return from === to ? from + ' ' + plural(from, ['месяц', 'месяца', 'месяцев']) + '*' : from + '-' + to + ' ' + plural(to, ['месяц', 'месяца', 'месяцев']) + '*';
   };
   const renderStatic = (it) => it.asset === 'timeline'
-    ? wrap(A(1100, 99, 692.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#EE3824;text-align:right;white-space:nowrap;', esc(termText(it.slide && it.slide.fields))), 'assets/timeline_base.webp')
+    ? wrap(A(1100, 101, 692.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#EE3824;text-align:right;white-space:nowrap;', esc(termText(it.slide && it.slide.fields))), 'assets/timeline_base.webp')
     : wrap(LOGO_ON.includes(it.asset) ? logo() : '', 'assets/' + it.asset + '.webp');
 
   function renderCompare(it) {
