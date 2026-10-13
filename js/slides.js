@@ -169,7 +169,7 @@
       const y = 276 + pitch * i, fx = num(l.fixed) > 0;
       const st = `font-size:18px;line-height:${pitch}px;`;
       h += A(290, y, 1340, pitch, `border-bottom:1px solid #f0f0f0;box-sizing:border-box;`, '');
-      h += A(290, y + 2, 660, pitch, st, esc(l.name)) + A(979, y + 2, 240, pitch, st, fx ? '' : grp(num(l.rate))) + A(1232, y + 2, 190, pitch, st, fx ? '' : String(num(l.hours))) + A(1431, y + 2, 200, pitch, st, grp(lineCost(l)));
+      h += A(290, y + 2, 660, pitch, st, esc(l.name)) + A(979, y + 2, 240, pitch, st, fx ? '' : grp(num(l.rate))) + A(1232, y + 2, 190, pitch, st, fx ? '' : hrsFmt(num(l.hours))) + A(1431, y + 2, 200, pitch, st, grp(lineCost(l)));
     });
     const yb = 275 + pitch * n + 10, hrs = tariffHours(t);
     h += A(290, yb, 300, 44, 'font-size:22px;line-height:44px;color:#EE3824;', 'Итого');

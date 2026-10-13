@@ -50,7 +50,7 @@
       for (let c = 1; c < (g[r] || []).length - 2; c++) {
         if (/^стоимость\s*часа/.test(low(g[r][c])) && /кол-?\s*во/.test(low(g[r][c + 1])) && T(g[r][c - 1])) {
           const name = KP.normTariffName(T(g[r][c - 1]).replace(/\s*задача\s*$/i, ''));
-          const rows = []; let total = 0, hours = 0, empty = 0;
+          const rows = [], fixes = []; let total = 0, hours = 0, empty = 0;
           for (let k = r + 1; k < g.length; k++) {
             const nm = T((g[k] || [])[c - 1]);
             if (/^итого/i.test(nm)) { total = KP.num(g[k][c + 2]); hours = KP.num(g[k][c + 1]); break; }
@@ -59,9 +59,14 @@
             const rate = KP.num(g[k][c]), hrs = KP.num(g[k][c + 1]), cost = KP.num(g[k][c + 2]);
             if (cost <= 0) continue;                                // задача не входит в тариф
             if (!rate && !hrs) rows.push({ id: KP.uid(), name: nm, rate: '', hours: '', fixed: cost });
-            else rows.push({ id: KP.uid(), name: nm, rate, hours: hrs, fixed: '' });
+            else if (rate && Math.abs(rate * hrs - cost) > 0.5) {
+              // в CSV часы приходят округлёнными по формату ячейки (20,2 → «20») — точные часы восстанавливаем из стоимости
+              const exact = Math.round((cost / rate) * 1000) / 1000;
+              rows.push({ id: KP.uid(), name: nm, rate, hours: exact, fixed: '' });
+              fixes.push(`${nm}: ${KP.grp(rate)} × ${hrs} ≠ ${KP.grp(cost)}, часов ${String(exact).replace('.', ',')}`);
+            } else rows.push({ id: KP.uid(), name: nm, rate, hours: hrs, fixed: '' });
           }
-          if (rows.length) tariffs.push({ name, rows, total, hours });
+          if (rows.length) tariffs.push({ name, rows, total, hours, fixes });
         }
       }
     }
@@ -105,6 +110,9 @@
           v.tariffs.push(t);
         }
         t.rows = rt.rows; t.total = ''; seen.add(t.id);
+        rt.fixes.forEach((x) => report.push(`${v.cms} · ${rt.name}: ${x}`));
+        const sum = KP.tariffTotal(t);
+        if (rt.total && Math.abs(sum - rt.total) > 0.5) report.push(`⚠ ${v.cms} · ${rt.name}: сумма строк ${KP.rub(sum)}, а «Итого» в таблице ${KP.rub(rt.total)}`);
       });
       if (p.syncEnables) v.tariffs.forEach((t) => (t.enabled = seen.has(t.id)));
       report.push(`${v.cms}: ${res.tariffs.map((t) => t.name).join(', ')}`);
