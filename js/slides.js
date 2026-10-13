@@ -235,7 +235,9 @@
   }
 
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
-  const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '');
+  // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
+  const ASSET_V = '20261013c';
+  const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|svg))/g, `assets/$1?v=${ASSET_V}`);
 
   Object.assign(KP, { termText, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
 })();
