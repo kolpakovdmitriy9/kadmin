@@ -74,6 +74,9 @@
   const badge = (txt, left, top, center) => A(center ? 0 : left, top, null, 71, `${center ? 'left:' + (center) + 'px;transform:translateX(-50%);' : ''}border:1.5px solid #1a1a1a;padding:0 11px 17px;display:flex;align-items:center;font-size:40px;line-height:1;white-space:nowrap;`, esc(txt));
   const GRAD = 'background:linear-gradient(135deg,#FF5A47,#E5200B);color:#fff;';
   const cell = (x, y, w, h, st, inner) => A(x, y, w, h, `border:1px solid #d9d9d9;border-radius:6px;box-sizing:border-box;display:flex;align-items:center;${st || ''}`, inner);
+  // Логотип (кириллица) на тёмных слайдах — слева, по левому краю текста
+  const LOGO_ON = ['cover', 'benefits', 'project', 'statement', 'results', 'contacts'];
+  const logo = () => `<img class="abs" src="assets/logo.svg" style="left:120px;top:96px;width:193px;height:37px">`;
   const wrap = (inner, bg) => `<section class="slide"${bg ? ` style="background:url(${bg}) 0 0/1920px 1080px"` : ''}>${inner}</section>`;
 
   // ---------- рендеры ----------
@@ -82,7 +85,7 @@
     const d = dateRu(p.validUntil);
     return wrap(
       A(120, 526, 1200, 50, 'font-size:30px;line-height:50px;color:#fff;', 'на разработку сайта для компании ' + esc(p.client)) +
-      (d ? A(1288, 946, 560, 30, 'font-size:20px;line-height:30px;color:#fff;', 'до ' + esc(d)) : ''),
+      (d ? A(1288, 946, 560, 30, 'font-size:20px;line-height:30px;color:#fff;', 'до ' + esc(d)) : '') + logo(),
       'assets/cover.webp');
   }
   // «Сроки и этапы»: срок реализации задаётся вручную цифрами (от / до, месяцев)
@@ -93,7 +96,7 @@
   };
   const renderStatic = (it) => it.asset === 'timeline'
     ? wrap(A(1100, 99, 692.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#EE3824;text-align:right;white-space:nowrap;', esc(termText(it.slide && it.slide.fields))), 'assets/timeline_base.webp')
-    : wrap('', 'assets/' + it.asset + '.webp');
+    : wrap(LOGO_ON.includes(it.asset) ? logo() : '', 'assets/' + it.asset + '.webp');
 
   function renderCompare(it) {
     const { v } = it;
@@ -122,7 +125,7 @@
   function renderPayment(it) {
     const { v, f } = it;
     const ts = v.tariffs.filter((t) => t.enabled && t.inPayment && tariffTotal(t) > 0);
-    let h = `<img class="abs" src="assets/t_payment.png" style="left:130px;top:80px;width:415px;height:65px">` + badge(v.cms, 561, 81);
+    let h = `<img class="abs" src="assets/t_payment.png" style="left:130px;top:80px;width:415px;height:65px">` + (v.paymentBadge !== false ? badge(v.cms, 561, 81) : '');
     const B = 'border:1px solid #e2e2e2;box-sizing:border-box;';
     const x0 = 139, lw = 422, cw = 380;
     h += A(x0, 179, lw, 232, B + 'background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:22px;', 'Этап оплаты');
@@ -159,7 +162,7 @@
     const n = rows.length, pitch = Math.min(42, Math.floor(660 / Math.max(n, 1)));
     let h = `<img class="abs" src="assets/t_estimate.png" style="left:280px;top:105px;width:175px;height:70px">`;
     h += A(484, 124, null, 52, 'background:#EE3824;color:#fff;border-radius:26px;padding:0 24px;display:flex;align-items:center;font-size:20px;white-space:nowrap;', 'пакет ' + esc(t.name));
-    h += badge(v.cms, 0, 114, 1463);
+    if (v.estimateBadge !== false) h += badge(v.cms, 0, 114, 1463);
     const hd = 'font-size:20px;font-weight:500;line-height:42px;padding-top:2px;';
     h += A(290, 223, 600, 42, hd, 'Этап работ') + A(979, 223, 240, 42, hd, 'Стоимость часа, ₽') + A(1232, 223, 180, 42, hd, 'Кол-во часов') + A(1431, 223, 200, 42, hd, 'Стоимость, ₽');
     rows.forEach((l, i) => {
