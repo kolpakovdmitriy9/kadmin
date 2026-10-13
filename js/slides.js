@@ -165,21 +165,24 @@
     const { v, t, f } = it;
     const rows = tariffRows(t);
     const n = rows.length, pitch = Math.min(42, Math.floor(660 / Math.max(n, 1)));
-    let h = `<img class="abs" src="assets/t_estimate.png" style="left:280px;top:105px;width:175px;height:70px">`;
-    h += A(484, 124, null, 52, 'background:#EE3824;color:#fff;border-radius:26px;padding:0 24px;display:flex;align-items:center;font-size:20px;white-space:nowrap;', 'пакет ' + esc(t.name));
-    if (v.estimateBadge !== false) h += badge(v.cms, 0, 114, 1463);
+    // поля как на остальных слайдах: текст от x=123 до 1800, заголовок на y≈104 (раньше 292…1630, y≈128)
+    const DX = -169, DY = -24, K = (1800 - 123) / (1630 - 292);
+    const X = (x) => Math.round(123 + (x - 292) * K), Wd = (w) => Math.round(w * K);
+    let h = `<img class="abs" src="assets/t_estimate.png" style="left:${280 + DX}px;top:${105 + DY}px;width:175px;height:70px">`;
+    h += A(484 + DX, 124 + DY, null, 52, 'background:#EE3824;color:#fff;border-radius:26px;padding:0 24px;display:flex;align-items:center;font-size:20px;white-space:nowrap;', 'пакет ' + esc(t.name));
+    if (v.estimateBadge !== false) h += badge(v.cms, 0, 114 + DY, X(1630)).replace('translateX(-50%)', 'translateX(-100%)'); // правым краем к таблице
     const hd = 'font-size:20px;font-weight:500;line-height:42px;padding-top:2px;';
-    h += A(290, 223, 600, 42, hd, 'Этап работ') + A(979, 223, 240, 42, hd, 'Стоимость часа, ₽') + A(1232, 223, 180, 42, hd, 'Кол-во часов') + A(1431, 223, 200, 42, hd, 'Стоимость, ₽');
+    h += A(X(290), 223 + DY, Wd(600), 42, hd, 'Этап работ') + A(X(979), 223 + DY, Wd(240), 42, hd, 'Стоимость часа, ₽') + A(X(1232), 223 + DY, Wd(180), 42, hd, 'Кол-во часов') + A(X(1431), 223 + DY, Wd(200), 42, hd, 'Стоимость, ₽');
     rows.forEach((l, i) => {
-      const y = 276 + pitch * i, fx = num(l.fixed) > 0;
+      const y = 276 + DY + pitch * i, fx = num(l.fixed) > 0;
       const st = `font-size:18px;line-height:${pitch}px;`;
-      h += A(290, y, 1340, pitch, `border-bottom:1px solid #f0f0f0;box-sizing:border-box;`, '');
-      h += A(290, y + 2, 660, pitch, st, esc(l.name)) + A(979, y + 2, 240, pitch, st, fx ? '' : grp(num(l.rate))) + A(1232, y + 2, 190, pitch, st, fx ? '' : hrsFmt(num(l.hours))) + A(1431, y + 2, 200, pitch, st, grp(lineCost(l)));
+      h += A(X(290), y, X(1630) - X(290), pitch, `border-bottom:1px solid #f0f0f0;box-sizing:border-box;`, '');
+      h += A(X(290), y + 2, Wd(660), pitch, st, esc(l.name)) + A(X(979), y + 2, Wd(240), pitch, st, fx ? '' : grp(num(l.rate))) + A(X(1232), y + 2, Wd(190), pitch, st, fx ? '' : hrsFmt(num(l.hours))) + A(X(1431), y + 2, Wd(200), pitch, st, grp(lineCost(l)));
     });
-    const yb = 275 + pitch * n + 10, hrs = tariffHours(t);
-    h += A(290, yb, 300, 44, 'font-size:22px;line-height:44px;color:#EE3824;', 'Итого');
-    h += A(1000, yb, 296, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', hrs ? `${grp(hrs)} ${plural(hrs, ['час', 'часа', 'часов'])}` : '');
-    h += A(1317, yb, 200, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', rub(tariffTotal(t)));
+    const yb = 275 + DY + pitch * n + 10, hrs = tariffHours(t);
+    h += A(X(290), yb, 300, 44, 'font-size:22px;line-height:44px;color:#EE3824;', 'Итого');
+    h += A(X(1296) - 296, yb, 296, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', hrs ? `${grp(hrs)} ${plural(hrs, ['час', 'часа', 'часов'])}` : '');
+    h += A(X(1517) - 200, yb, 200, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', rub(tariffTotal(t)));
     return wrap(h);
   }
 
@@ -239,7 +242,7 @@
 
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
-  const ASSET_V = '20261013g';
+  const ASSET_V = '20261013h';
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|jpg|svg))/g, `assets/$1?v=${ASSET_V}`);
 
   Object.assign(KP, { termText, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
