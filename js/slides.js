@@ -78,7 +78,13 @@
   // Логотип (кириллица) на тёмных слайдах — слева, по левому краю текста
   const LOGO_ON = ['cover', 'benefits', 'project', 'statement', 'results', 'contacts'];
   const logo = () => `<img class="abs" src="assets/logo.svg" style="left:120px;top:96px;width:193px;height:37px">`;
-  const wrap = (inner, bg) => `<section class="slide"${bg ? ` style="background:url(${bg}) 0 0/1920px 1080px"` : ''}>${inner}</section>`;
+  // Тёмные слайды: фон — CSS-градиент (.slide.dark), картинка — только содержимое с прозрачностью (*_fg.webp)
+  const DARK = ['cover', 'benefits', 'project', 'statement', 'results', 'contacts'];
+  const wrap = (inner, bg) => {
+    const dark = bg && DARK.find((n) => bg === 'assets/' + n + '.webp');
+    if (dark) return `<section class="slide dark"><img class="abs" src="assets/${dark}_fg.webp" style="left:0;top:0;width:1920px;height:1080px">${inner}</section>`;
+    return `<section class="slide"${bg ? ` style="background:url(${bg}) 0 0/1920px 1080px"` : ''}>${inner}</section>`;
+  };
 
   // ---------- рендеры ----------
   function renderCover(it) {
@@ -236,7 +242,7 @@
 
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
-  const ASSET_V = '20261013c';
+  const ASSET_V = '20261013e';
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|svg))/g, `assets/$1?v=${ASSET_V}`);
 
   Object.assign(KP, { termText, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });

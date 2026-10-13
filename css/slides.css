@@ -5,3 +5,11 @@
 .slide{width:1920px;height:1080px;position:relative;overflow:hidden;box-sizing:border-box;font-family:'Atyp Display','Onest','Inter',Arial,sans-serif;color:#151515;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .slide .abs,.abs{position:absolute;box-sizing:border-box}
 .slide img.abs{display:block}
+/* Тёмный фон слайдов — CSS-градиент (в PDF остаётся векторным, без полос сжатия); содержимое — слой *_fg.webp поверх */
+.slide.dark{background:radial-gradient(708px 829px at 286px 1153px,rgba(105,25,15,0.352) 0%,rgba(105,25,15,0.352) 50%,rgba(105,25,15,0) 100%),
+  radial-gradient(604px 1137px at 1064px -465px,rgba(216,66,6,0.859) 0%,rgba(216,66,6,0.153) 50%,rgba(216,66,6,0) 100%),
+  radial-gradient(495px 347px at 861px 631px,rgba(224,184,120,0.16) 0%,rgba(224,184,120,0.101) 50%,rgba(224,184,120,0) 100%),
+  radial-gradient(1258px 666px at 1350px 557px,rgba(114,20,27,0.805) 0%,rgba(114,20,27,0.508) 50%,rgba(114,20,27,0) 100%),
+  radial-gradient(677px 398px at 1456px 468px,rgba(115,0,140,0.431) 0%,rgba(115,0,140,0.282) 50%,rgba(115,0,140,0) 100%),
+  radial-gradient(1268px 1141px at 1818px -487px,rgba(138,0,137,0.326) 0%,rgba(138,0,137,0.139) 50%,rgba(138,0,137,0) 100%),
+  rgb(2,1,0)}
