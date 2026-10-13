@@ -76,7 +76,7 @@
   const GRAD = 'background:linear-gradient(135deg,#FF5A47,#E5200B);color:#fff;';
   const cell = (x, y, w, h, st, inner) => A(x, y, w, h, `border:1px solid #d9d9d9;border-radius:6px;box-sizing:border-box;display:flex;align-items:center;${st || ''}`, inner);
   // Логотип (кириллица) на тёмных слайдах — слева, по левому краю текста
-  const LOGO_ON = ['cover', 'benefits', 'project', 'statement', 'results', 'contacts'];
+  const LOGO_ON = ['cover', 'benefits', 'statement', 'contacts'];
   const logo = () => `<img class="abs" src="assets/logo.svg" style="left:120px;top:96px;width:193px;height:37px">`;
   const wrap = (inner, bg) => `<section class="slide"${bg ? ` style="background:url(${bg}) 0 0/1920px 1080px"` : ''}>${inner}</section>`;
 
