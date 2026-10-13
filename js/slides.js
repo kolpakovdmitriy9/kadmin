@@ -96,7 +96,8 @@
     return from === to ? from + ' ' + plural(from, ['месяц', 'месяца', 'месяцев']) + '*' : from + '-' + to + ' ' + plural(to, ['месяц', 'месяца', 'месяцев']) + '*';
   };
   const renderStatic = (it) => it.asset === 'timeline'
-    ? wrap(A(1100, 101, 692.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#EE3824;text-align:right;white-space:nowrap;', esc(termText(it.slide && it.slide.fields))), 'assets/timeline_base.webp')
+    // «Срок реализации» и срок — одной строкой, одним шрифтом и кеглем, по общей базовой линии
+    ? wrap(A(700, 101, 1092.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#151A27;text-align:right;white-space:nowrap;', 'Срок реализации<span style="color:#EE3824;margin-left:60px">' + esc(termText(it.slide && it.slide.fields)) + '</span>'), 'assets/timeline_base.webp')
     : wrap(LOGO_ON.includes(it.asset) ? logo() : '', 'assets/' + it.asset + '.webp');
 
   function renderCompare(it) {
