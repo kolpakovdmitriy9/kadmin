@@ -1,4 +1,4 @@
-/* Движок слайдов. Статичные слайды — точные растры макета Figma (assets/*.webp).
+/* Движок слайдов. Статичные слайды — точные растры макета Figma (assets/*.jpg).
    Динамические (обложка, сравнение тарифов, оплата, сметы, доп. расходы) — HTML по измеренной геометрии макета. */
 (function () {
   const KP = (window.KP = window.KP || {});
@@ -78,11 +78,8 @@
   // Логотип (кириллица) на тёмных слайдах — слева, по левому краю текста
   const LOGO_ON = ['cover', 'benefits', 'project', 'statement', 'results', 'contacts'];
   const logo = () => `<img class="abs" src="assets/logo.svg" style="left:120px;top:96px;width:193px;height:37px">`;
-  // Тёмные слайды: фон — CSS-градиент (.slide.dark), картинка — только содержимое с прозрачностью (*_fg.webp)
-  const DARK = ['cover', 'benefits', 'project', 'statement', 'results', 'contacts'];
+  // Слайды — JPEG 3840×2160: в PDF вставляется как есть, без пересжатия (WebP Chrome пересжимает)
   const wrap = (inner, bg) => {
-    const dark = bg && DARK.find((n) => bg === 'assets/' + n + '.webp');
-    if (dark) return `<section class="slide dark"><img class="abs" src="assets/${dark}_fg.webp" style="left:0;top:0;width:1920px;height:1080px">${inner}</section>`;
     return `<section class="slide"${bg ? ` style="background:url(${bg}) 0 0/1920px 1080px"` : ''}>${inner}</section>`;
   };
 
@@ -93,7 +90,7 @@
     return wrap(
       A(120, 526, 1200, 50, 'font-size:30px;line-height:50px;color:#fff;', 'на разработку сайта для компании ' + esc(p.client)) +
       (d ? A(1288, 946, 560, 30, 'font-size:20px;line-height:30px;color:#fff;', 'до ' + esc(d)) : '') + logo(),
-      'assets/cover.webp');
+      'assets/cover.jpg');
   }
   // «Сроки и этапы»: срок реализации задаётся вручную цифрами (от / до, месяцев)
   const termText = (f) => {
@@ -103,8 +100,8 @@
   };
   const renderStatic = (it) => it.asset === 'timeline'
     // «Срок реализации» и срок — одной строкой, одним шрифтом и кеглем, по общей базовой линии
-    ? wrap(A(700, 101, 1092.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#151A27;text-align:right;white-space:nowrap;', 'Срок реализации<span style="color:#EE3824;margin-left:60px">' + esc(termText(it.slide && it.slide.fields)) + '</span>'), 'assets/timeline_base.webp')
-    : wrap(LOGO_ON.includes(it.asset) ? logo() : '', 'assets/' + it.asset + '.webp');
+    ? wrap(A(700, 101, 1092.5, 48, 'font-size:48px;line-height:48px;font-weight:500;color:#151A27;text-align:right;white-space:nowrap;', 'Срок реализации<span style="color:#EE3824;margin-left:60px">' + esc(termText(it.slide && it.slide.fields)) + '</span>'), 'assets/timeline_base.jpg')
+    : wrap(LOGO_ON.includes(it.asset) ? logo() : '', 'assets/' + it.asset + '.jpg');
 
   function renderCompare(it) {
     const { v } = it;
@@ -242,8 +239,8 @@
 
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
-  const ASSET_V = '20261013e';
-  const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|svg))/g, `assets/$1?v=${ASSET_V}`);
+  const ASSET_V = '20261013g';
+  const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|jpg|svg))/g, `assets/$1?v=${ASSET_V}`);
 
   Object.assign(KP, { termText, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
 })();
