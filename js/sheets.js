@@ -59,12 +59,11 @@
             const rate = KP.num(g[k][c]), hrs = KP.num(g[k][c + 1]), cost = KP.num(g[k][c + 2]);
             if (cost <= 0) continue;                                // задача не входит в тариф
             if (!rate && !hrs) rows.push({ id: KP.uid(), name: nm, rate: '', hours: '', fixed: cost });
-            else if (rate && Math.abs(rate * hrs - cost) > 0.5) {
-              // в CSV часы приходят округлёнными по формату ячейки (20,2 → «20») — точные часы восстанавливаем из стоимости
-              const exact = Math.round((cost / rate) * 1000) / 1000;
-              rows.push({ id: KP.uid(), name: nm, rate, hours: exact, fixed: '' });
-              fixes.push(`${nm}: ${KP.grp(rate)} × ${hrs} ≠ ${KP.grp(cost)}, часов ${String(exact).replace('.', ',')}`);
-            } else rows.push({ id: KP.uid(), name: nm, rate, hours: hrs, fixed: '' });
+            else {
+              // считаем сами: ставка × часы; если в таблице другая стоимость — только предупреждаем
+              rows.push({ id: KP.uid(), name: nm, rate, hours: hrs, fixed: '' });
+              if (rate && Math.abs(rate * hrs - cost) > 0.5) fixes.push(`«${nm}»: ${KP.grp(rate)} × ${String(hrs).replace('.', ',')} = ${KP.grp(rate * hrs)}, а в таблице ${KP.grp(cost)}`);
+            }
           }
           if (rows.length) tariffs.push({ name, rows, total, hours, fixes });
         }
@@ -110,7 +109,7 @@
           v.tariffs.push(t);
         }
         t.rows = rt.rows; t.total = ''; seen.add(t.id);
-        rt.fixes.forEach((x) => report.push(`${v.cms} · ${rt.name}: ${x}`));
+        rt.fixes.forEach((x) => report.push(`⚠ ${v.cms} · ${rt.name}: ${x}`));
         const sum = KP.tariffTotal(t);
         if (rt.total && Math.abs(sum - rt.total) > 0.5) report.push(`⚠ ${v.cms} · ${rt.name}: сумма строк ${KP.rub(sum)}, а «Итого» в таблице ${KP.rub(rt.total)}`);
       });
