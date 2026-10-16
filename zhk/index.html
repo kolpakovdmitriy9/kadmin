@@ -142,15 +142,18 @@ body:not(.is-ready) .fab{opacity:0}
 .warm{position:relative;z-index:2;height:380vh}
 .warm-st{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .warm-bg{position:absolute;left:0;top:0;bottom:0;width:46%;background:var(--peach);transform-origin:0 50%;will-change:transform}
-.warm-left .ln{display:block}
-.wm{will-change:transform,opacity;transform-origin:0 100%}
+.warm-left{transform:translate3d(var(--wx,0px),0,0)}
+.warm-left .wr{opacity:0;transform:translateY(16px);transition:opacity .9s var(--ease) .15s,transform 1s var(--ease) .15s}
+.warm-left p.wr{transition-delay:.55s}
+.warm-left.on .wr{opacity:1;transform:none}
+.warm-left.on .bsplit .w>span{transform:none}
 .warm-photo{position:absolute;inset:0;clip-path:inset(0 0 0 var(--wl,46%));will-change:clip-path}
 .warm-photo img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;transform:translate3d(var(--wpx,0px),0,0) scale(var(--ws,1.25));will-change:transform}
 .warm-photo:after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(20,10,5,.78),rgba(20,10,5,.1) 55%,transparent);opacity:var(--wo,0)}
-.warm-left{position:absolute;z-index:2;left:var(--gut);top:calc(var(--hdr) + 7vh);width:calc(46% - var(--gut) * 2);opacity:var(--wlo,1);filter:blur(calc((1 - var(--wlo,1))*10px));will-change:opacity}
+.warm-left{position:absolute;z-index:2;left:var(--gut);top:calc(var(--hdr) + 7vh);width:calc(46% - var(--gut) * 2);opacity:var(--wlo,1);filter:blur(calc((1 - var(--wlo,1))*10px));will-change:opacity,transform}
 .warm-left .eyebrow{margin-bottom:5vh}
 .warm-left .h2{font-size:clamp(40px,5.6vw,96px)}
-.warm-left p{margin-top:5vh;max-width:380px;font-size:16px;line-height:1.5;font-weight:500;opacity:.8}
+.warm-left p{margin-top:5vh;max-width:380px;font-size:16px;line-height:1.5;font-weight:500;color:rgba(27,19,16,.8)}
 .warm-quote{opacity:clamp(0,calc((var(--wo,0) - .72)*3.6),1);position:absolute;z-index:3;left:var(--gut);right:var(--gut);bottom:clamp(30px,8vh,90px);color:#fff;font-size:clamp(40px,7vw,128px);line-height:.98;letter-spacing:-.05em;font-weight:600;max-width:1180px}
 .warm-quote .mw{opacity:.22;transition:opacity .45s linear}
 .warm-quote .mw.on{opacity:1}
@@ -440,9 +443,9 @@ body:not(.is-ready) .fab{opacity:0}
     <div class="warm-bg" id="warm-bg"></div>
     <div class="warm-photo" id="warm-photo"><img src="media/g-couple.jpg" alt="Прогулка у пруда во дворе" loading="lazy"></div>
     <div class="warm-left" id="warm-left">
-      <div class="eyebrow wm"><b>[02]</b> О доме</div>
-      <h2 class="h2"><span class="ln wm">Простые радости</span><span class="ln wm">жизни</span></h2>
-      <p class="wm">Мамины булочки по воскресеньям, соседи по имени и свет в окнах, когда возвращаешься поздно.</p>
+      <div class="eyebrow wr"><b>[02]</b> О доме</div>
+      <h2 class="h2 bsplit" data-bsplit>Простые радости жизни</h2>
+      <p class="wr">Мамины булочки по воскресеньям, соседи по имени и свет в окнах, когда возвращаешься поздно.</p>
     </div>
     <div class="eyebrow warm-cap" id="warm-cap"><b style="color:var(--sun)">[02]</b> О доме</div>
     <p class="warm-quote" id="warm-quote">Тёплый свет в окнах и двор, где знают соседей</p>
@@ -782,7 +785,7 @@ document.addEventListener('click', e => {
 
 /* ---------- scroll-driven scenes ---------- */
 const hero = $('.hero'), warm = $('.warm'), wSt = $('.warm-st'), wPhoto = $('#warm-photo'), wLeft = $('#warm-left');
-const wCap = $('#warm-cap'), wBg = $('#warm-bg'), wmEls = $$('.warm-left .wm');
+const wCap = $('#warm-cap'), wBg = $('#warm-bg');
 const cards = $$('.card');
 const cta = $('#cta'), ctaWin = $('#cta-win');
 let sy = scrollY, lx = 0;
@@ -827,13 +830,16 @@ layoutHero();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutHero);
 
 // the picture follows the scroll slowly: an intro drift, then the camera keeps pushing in through the four text steps
-let introT = 0, introStart = -1, vidCur = 0;
+const REVERSE = !/[?&]forward\b/.test(location.search);   // default: the camera pulls away from the house; add ?forward to compare
+let introT = 0, introStart = -1, vidCur = 0, vidInit = false;
 function updateHeroVideo(sp) {
   if (!(hv.duration > 0)) return;
   const D = hv.duration - .04, INTRO = .3;
   if (introStart >= 0) introT = INTRO * EASE(clamp((performance.now() - introStart) / 2600));
   const scrub = INTRO + (1 - INTRO) * sp;
-  const want = D * Math.max(introT, scrollY > 2 ? scrub : 0);
+  const pr = Math.max(introT, scrollY > 2 ? scrub : 0);
+  const want = D * (REVERSE ? 1 - pr : pr);
+  if (!vidInit) { vidCur = want; vidInit = true; }
   vidCur += (want - vidCur) * .12;                       // glide, so wheel notches never jump
   if (!hv.seeking && Math.abs(hv.currentTime - vidCur) > .02) hv.currentTime = vidCur;
 }
@@ -875,13 +881,9 @@ function frame() {
   const e1 = SM(clamp((wp - .3) / .32));
   const W0 = narrow ? 100 : 46;
   wBg.style.transform = `translate3d(${((1 - eL) * 100).toFixed(2)}vw,0,0) scaleX(${((W0 + 100 * (eL - eR)) / W0).toFixed(4)})`;
-  // every piece of text rides at its own speed behind the leading edge, with a little lean while it moves
-  wmEls.forEach((el, i) => {
-    const d = [0, .05, .1, .18][i], u = clamp((tE - d) / (1 - d));
-    const e = Math.min(1 - Math.pow(1 - u, 3), eL);
-    el.style.transform = e >= .999 ? '' : `translate3d(${((1 - e) * 100).toFixed(2)}vw,0,0) skewX(${(-(1 - e) * 9).toFixed(2)}deg)`;
-    el.style.opacity = e >= .999 ? '' : clamp(e * 2.2).toFixed(3);
-  });
+  // the panel carries its text rigidly; the words then rise out of their masks, exactly like on the first screen
+  wLeft.style.setProperty('--wx', ((1 - eL) * 100).toFixed(2) + 'vw');
+  wLeft.classList.toggle('on', tE > .55);
   wSt.style.setProperty('--wpx', ((1 - eR) * vw() * .14).toFixed(1) + 'px');
   if (narrow) {
     const top = lerp(100, 46, SM(clamp((wp - .24) / .08)));
