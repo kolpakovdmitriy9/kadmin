@@ -254,7 +254,6 @@ body:not(.is-ready) .fab{opacity:0}
 .hx-photo img{position:absolute;left:-12%;top:0;width:124%;height:100%;object-fit:cover;max-width:none;will-change:transform}
 .h-big{position:absolute;z-index:6;left:3vw;top:calc(var(--hdr) + 7vh);font-weight:700;color:#fff;font-size:min(15.5vw,31vh);line-height:.86;letter-spacing:-.07em;white-space:nowrap;will-change:transform}
 .h-txt{position:absolute;z-index:5;left:3vw;bottom:9vh;width:min(30vw,420px);font-size:clamp(14px,1.15vw,18px);line-height:1.45;font-weight:500;color:#fff;will-change:transform}
-.l-fin{flex:0 0 min(92vw,1500px);padding:calc(var(--hdr) + 6vh) clamp(24px,5vw,90px) 6vh 2vw;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:clamp(18px,3.6vh,34px)}
 .l-fin .eyebrow{width:100%}
 .l-fin .f-h{margin:0;font-weight:600;font-size:clamp(44px,7vw,132px);line-height:.92;letter-spacing:-.06em;max-width:11ch}
 .l-fin p{margin:0;max-width:440px;font-size:clamp(15px,1.3vw,20px);line-height:1.45;font-weight:500;color:rgba(27,19,16,.78)}
@@ -265,7 +264,6 @@ body:not(.is-ready) .fab{opacity:0}
 
 .anchor{position:absolute;left:0;top:0}
 .l-fin{position:relative;flex:0 0 min(62vw,980px)}
-.l-map{flex:0 0 min(84vw,1240px);padding:calc(var(--hdr) + 5vh) 2vw 6vh 0;display:flex}
 .map{position:relative;flex:1;border-radius:36px;overflow:hidden;background:#EFE6DA;box-shadow:0 0 0 1px rgba(27,19,16,.08)}
 .map svg{position:absolute;inset:0;width:100%;height:100%}
 .pin{position:absolute;left:52%;top:46%;width:0;height:0}
@@ -275,18 +273,9 @@ body:not(.is-ready) .fab{opacity:0}
 .pin span{position:absolute;left:22px;top:-26px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:16px;font-size:14px;font-weight:700;line-height:1.25;white-space:nowrap}
 .pin span em{font-style:normal;font-weight:500;opacity:.7;font-size:12.5px}
 .map-chip{position:absolute;left:20px;bottom:20px;background:#fff;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:600}
-.l-foot{flex:0 0 min(92vw,1280px);background:var(--ink);color:var(--cream);padding:calc(var(--hdr) + 5vh) var(--gut) 24px clamp(28px,4vw,72px);display:flex;flex-direction:column;overflow:hidden}
-.l-foot .f-a{opacity:1;transform:none;filter:none}
-.l-foot .eyebrow{margin-bottom:clamp(24px,5vh,56px)}
-.l-foot .f-grid .tel{font-size:clamp(22px,2.2vw,38px);white-space:nowrap}
-.l-foot .f-grid{grid-template-columns:1.3fr 1fr 1fr 1fr}
-.l-foot .f-word{font-size:min(20vw,36vh);margin:auto 0 -.07em}
 .leisure{background:var(--cream)}
 
 
-.l-end{flex:0 0 100vw;width:100vw;height:100%;background:var(--cream);padding:calc(var(--hdr) + 3vh) var(--gut) 3vh;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;column-gap:clamp(24px,5vw,96px);row-gap:2.4vh;position:relative;overflow:hidden}
-.le-top{display:contents;grid-template-columns:minmax(0,.82fr) minmax(0,1fr);gap:clamp(24px,5vw,96px);position:relative}
-.le-info{grid-column:2;grid-row:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,1.8vh,18px);min-width:0}
 .le-h{margin:0;font-weight:600;font-size:clamp(44px,7vw,132px);line-height:.92;letter-spacing:-.06em}
 .le-rows{display:flex;gap:clamp(14px,2vw,32px);flex-wrap:wrap;font-size:clamp(14px,1.1vw,17px);font-weight:500;color:rgba(27,19,16,.7)}
 .le-tel{font-weight:300;font-size:clamp(34px,4.4vw,80px);letter-spacing:-.06em;line-height:1;margin-top:1vh;white-space:nowrap}
@@ -296,15 +285,27 @@ body:not(.is-ready) .fab{opacity:0}
 .le-soc a:hover{background:var(--ink);color:#fff;transform:translateY(-3px)}
 .le-soc svg{width:42%;height:42%}
 .le-info .btn{align-self:flex-start}
-.le-map{grid-column:1;grid-row:1/3;position:relative;transform:translateZ(0);contain:layout paint;display:block;border-radius:clamp(22px,2.4vw,40px);overflow:hidden;background:#EFE6DA;box-shadow:0 0 0 1px rgba(27,19,16,.08)}
 .le-map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;filter:saturate(.85) sepia(.12)}
 .le-open{position:absolute;left:16px;bottom:16px;background:#FBF7F2;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.14)}
-.le-bot{grid-column:2;grid-row:2;display:grid;grid-template-columns:auto 1fr 1fr;gap:clamp(16px,2.4vw,40px);align-items:center;border-top:1px solid rgba(27,19,16,.12);padding-top:2.2vh;font-size:13px;line-height:1.7}
-.le-bot span,.le-bot a{display:block}.lb-nav{display:flex;flex-direction:column}
-.lb-doc{opacity:.65}
-.l-end .f-word{margin:0;font-size:clamp(34px,3.6vw,64px);line-height:1;color:var(--ink);letter-spacing:-.06em;text-align:center}
-.lb-fine{padding-right:70px;grid-column:1/-1;margin:0;font-size:11px;opacity:.45;line-height:1.4}
-@media(max-width:900px){.l-end{display:flex;flex-direction:column;height:auto;min-height:100%;overflow:auto;padding-bottom:20px;gap:18px}.le-top{display:flex;flex-direction:column;gap:18px}.le-map{min-height:280px;flex:none}.le-bot{grid-template-columns:1fr 1fr}.le-tel{font-size:34px}}
+
+
+/* finale: the left half scrolls (text -> office -> footer) while the map on the right stays pinned */
+.l-fin{flex:0 0 50vw;height:100%;overflow:hidden;position:relative}
+.fin-col{will-change:transform}
+.fin-b{height:100vh;height:100svh;padding:calc(var(--hdr) + 5vh) clamp(20px,3vw,56px) 6vh var(--gut);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:clamp(12px,2.4vh,26px)}
+.fin-b.foot{height:auto;min-height:62svh;justify-content:flex-end;gap:2.6vh;padding-top:6vh;padding-bottom:3vh;border-top:1px solid rgba(27,19,16,.12)}
+.fin-b .eyebrow{width:100%}
+.fin-b .f-h{margin:0;font-weight:600;font-size:clamp(44px,6.2vw,120px);line-height:.92;letter-spacing:-.06em;max-width:11ch}
+.fin-b p{margin:0;max-width:440px;font-size:clamp(15px,1.3vw,20px);line-height:1.45;font-weight:500;color:rgba(27,19,16,.78)}
+.fin-b .le-tel{font-size:clamp(30px,4vw,76px)}
+.lb-row{display:flex;gap:clamp(24px,5vw,90px);font-size:14px;line-height:1.8;width:100%}
+.lb-row span,.lb-row a{display:block}.lb-doc{opacity:.65}
+.fin-b.foot .f-word{margin:0;font-size:clamp(70px,13vw,240px);line-height:.85;color:var(--ink);letter-spacing:-.07em;text-align:left}
+.fin-b.foot .lb-fine{font-size:11px;opacity:.5;max-width:none;padding-right:70px}
+.l-map{flex:0 0 50vw;height:100%;padding:calc(var(--hdr) + 3vh) var(--gut) 3vh 0;display:flex}
+.le-map{position:relative;flex:1;display:block;border-radius:clamp(22px,2.4vw,40px);overflow:hidden;background:#EFE6DA;box-shadow:0 0 0 1px rgba(27,19,16,.08);transform:translateZ(0);contain:layout paint}
+.le-open-m{display:none;font-weight:700;font-size:14px;text-decoration:underline}
+@media(max-width:900px){.l-fin{flex-basis:100vw}.l-map{display:none}.le-open-m{display:block}.fin-b .f-h{font-size:clamp(40px,12vw,80px)}}
 
 /* ============ PLANS ============ */
 .plans{background:linear-gradient(#fff 0,#fff 55%,#fcfaf8 66%,#f9f5f1 76%,#f7f1ec 85%,#f5eee9 93%,var(--cream) 100%);padding:clamp(90px,16vh,200px) var(--gut)}
@@ -320,6 +321,12 @@ body:not(.is-ready) .fab{opacity:0}
 .p-row.on:before{transform:none}
 .p-row.on{padding-left:14px}
 .p-row:not(.on){opacity:.55}
+.p-row{transition:padding .7s var(--ease),opacity .6s var(--ease),background-color .5s var(--ease)}
+.p-row b,.p-row .a,.p-row .pr{transition:transform .7s var(--ease),color .5s var(--ease)}
+.p-row:active b,.p-row:active .a{transform:scale(.985)}
+@keyframes rowin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pvin{from{opacity:0;transform:translateY(12px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.chip{transition:background .5s var(--ease),color .5s var(--ease),box-shadow .5s var(--ease),transform .5s var(--ease)}.chip:active{transform:scale(.96)}
 .p-row:hover{opacity:1}
 .p-row b{font-size:clamp(20px,2vw,30px);font-weight:600;letter-spacing:-.035em}
 .p-row .a{font-weight:200;font-size:clamp(30px,3.4vw,54px);letter-spacing:-.06em;line-height:1}
@@ -379,7 +386,6 @@ body:not(.is-ready) .fab{opacity:0}
 .f-legal{border-top:1px solid rgba(255,255,255,.14);padding-top:18px;font-size:12px;opacity:.55;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 
 /* ============ responsive ============ */
-@media(max-width:700px){.l-map{flex-basis:92vw;padding-right:0}.l-foot .f-grid{grid-template-columns:1fr 1fr}.l-foot{flex-basis:96vw}.l-fin{flex-basis:92vw}}
 @media(max-width:1000px){
   .phone,.hc.hide-t{display:none}
   .design-head{grid-template-columns:1fr}.design-head p{grid-column:1}
@@ -652,15 +658,15 @@ body:not(.is-ready) .fab{opacity:0}
         <p class="h-txt" data-hk="0.06">Каждый человек ищет своё место в жизни, чтобы обрести в нём счастье. Мы собрали двор как коллекцию тихих уголков: сад, пруд и площадки на уровне первого этажа.</p>
         <div class="hx-photo"><img src="media/g-low.jpg" alt="" data-ph="0.16"></div>
       </div>
-      <div class="l-fin" id="l-fin"><span id="cta" class="anchor"></span>
-        <div class="eyebrow f-a">Жизнь во дворе</div>
-        <h2 class="f-h f-a">Двор лучше увидеть вживую</h2>
-        <p class="f-a">Пройдём по двору с менеджером, заглянем в лобби и покажем квартиру с отделкой.</p>
-        <a class="btn f-a" href="#contacts">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a>
-      </div>
-      <div class="l-end" id="contacts">
-        <div class="le-top">
-          <div class="le-info">
+      <div class="l-fin" id="l-fin">
+        <div class="fin-col" id="fin-col">
+          <div class="fin-b">
+            <div class="eyebrow f-a">Жизнь во дворе</div>
+            <h2 class="f-h f-a">Двор лучше увидеть вживую</h2>
+            <p class="f-a">Пройдём по двору с менеджером, заглянем в лобби и покажем квартиру с отделкой.</p>
+            <a class="btn f-a" href="#contacts">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a>
+          </div>
+          <div class="fin-b" id="contacts">
             <h2 class="le-h">Офис продаж</h2>
             <div class="le-rows"><span>Адрес: ул. Парковая, д. 12</span><span>Ежедневно: 09:00 — 21:00</span></div>
             <a class="le-tel" href="tel:+74950000000">+7 (495) 000-00-00</a>
@@ -671,18 +677,23 @@ body:not(.is-ready) .fab{opacity:0}
               <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.600 15.100L2 22l5-1.300A10 10 0 1 0 12 2Zm5.200 14.200c-.2.600-1.300 1.200-1.800 1.200-.5.100-1 .2-3.300-.7-2.800-1.200-4.600-4-4.700-4.200-.1-.2-1.100-1.500-1.100-2.900s.7-2 1-2.300c.2-.3.500-.3.700-.3h.5c.2 0 .4 0 .6.500l.9 2.100c.1.200.1.400 0 .5l-.4.600c-.1.200-.3.300-.1.600.7 1.100 1.500 1.900 2.700 2.500.3.200.5.100.7-.1l.8-1c.2-.3.400-.2.600-.1l2 1c.3.100.4.200.5.300.1.200.1.800-.1 1.400Z"/></svg></a>
             </div>
             <a class="btn" href="tel:+74950000000">Записаться на просмотр<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a>
+            <a class="le-open-m" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener">Открыть в Яндекс Картах ↗</a>
           </div>
-          <a class="le-map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener" aria-label="Открыть в Яндекс Картах">
-            <iframe id="le-frame" title="Офис продаж на Яндекс Картах" data-src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            <span class="le-open">Открыть в Яндекс Картах ↗</span>
-          </a>
+          <div class="fin-b foot">
+            <div class="lb-row">
+              <div class="lb-nav"><a href="#design">О доме</a><a href="#city">Расположение</a><a href="#plans">Квартиры</a><a href="#leisure">Двор</a></div>
+              <div class="lb-doc"><span>Проектная декларация</span><span>Разрешение на строительство</span><span>Не является публичной офертой</span></div>
+            </div>
+            <div class="f-word" id="f-word" aria-label="атлас">атлас</div>
+            <p class="lb-fine">© ЖК «Атлас». Демонстрационный сайт: название, адрес, цены и характеристики вымышлены и не являются публичной офертой.</p>
+          </div>
         </div>
-        <div class="le-bot">
-          <div class="lb-nav"><a href="#design">О доме</a><a href="#city">Расположение</a><a href="#plans">Квартиры</a><a href="#leisure">Двор</a></div>
-          <div class="f-word" id="f-word" aria-label="атлас">атлас</div>
-          <div class="lb-doc"><span>Проектная декларация</span><span>Разрешение на строительство</span><span>Не является публичной офертой</span></div>
-          <p class="lb-fine">© ЖК «Атлас». Демонстрационный сайт: название, адрес, цены и характеристики вымышлены и не являются публичной офертой.</p>
-        </div>
+      </div>
+      <div class="l-map" id="l-map">
+        <a class="le-map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener" aria-label="Открыть в Яндекс Картах">
+          <iframe id="le-frame" title="Офис продаж на Яндекс Картах" data-src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <span class="le-open">Открыть в Яндекс Картах ↗</span>
+        </a>
       </div>
     </div>
   </div>
@@ -780,15 +791,18 @@ function wallPath(x, y, w, h, half) {
 function renderChips() {
   $('#chips').innerHTML = groups.map(([k, t]) => `<button class="chip${k === group ? ' on' : ''}" data-g="${k}" type="button">${t}</button>`).join('');
 }
-function renderList() {
+function renderList(anim) {
   $('#p-list').innerHTML = visible().map(([p, i]) =>
     `<button class="p-row${i === sel ? ' on' : ''}" data-i="${i}" type="button"><b>${p.type}</b><span class="a">${p.area}<small>м²</small></span><span class="pr">от ${p.price} млн ₽</span></button>`).join('');
+  if (anim) $$('.p-row').forEach((r, k) => { r.style.animation = `rowin .7s var(--ease) ${k * .06}s both`; });
 }
 let planTimer = 0;
 function renderView() {
   const p = plans[sel], box = $('#pv-plan');
   $('#pv-sec').textContent = `${p.sec} · этаж ${p.floor}`;
   $('#pv-num').textContent = String(sel + 1).padStart(2, '0') + ' / ' + String(plans.length).padStart(2, '0');
+  const sw = [$('#pv-sec'), $('#pv-num'), $('#pv-area'), $('#pv-meta')];
+  sw.forEach(e => { e.style.animation = 'none'; void e.offsetWidth; e.style.animation = 'pvin .8s var(--ease) both'; });
   $('#pv-area').innerHTML = `${p.area}<small>м²</small>`;
   $('#pv-meta').innerHTML = `<b>${p.type}</b>от ${p.price} млн ₽`;
   clearTimeout(planTimer);
@@ -801,11 +815,14 @@ $('#chips').addEventListener('click', e => {
   const b = e.target.closest('[data-g]'); if (!b) return;
   group = b.dataset.g;
   const v = visible(); if (!v.some(([, i]) => i === sel)) sel = v[0][1];
-  renderChips(); renderList(); renderView();
+  $$('.chip').forEach(c => c.classList.toggle('on', c.dataset.g === group));
+  renderList(true); renderView();
 });
 $('#p-list').addEventListener('click', e => {
   const b = e.target.closest('[data-i]'); if (!b) return;
-  sel = +b.dataset.i; renderList(); renderView();
+  sel = +b.dataset.i;
+  $$('.p-row').forEach(r => r.classList.toggle('on', +r.dataset.i === sel));    // keep the nodes so the CSS transitions can play
+  renderView();
 });
 renderChips(); renderList(); renderView();
 
@@ -822,9 +839,9 @@ function goTo(sel) {
   const el = $(sel); if (!el) return;
   let y = el.getBoundingClientRect().top + scrollY;
   if (sel === '#plans' || sel === '#leisure') y += 2;
-  if (sel === '#cta' || sel === '#contacts') {          // these live inside the sideways track: scroll to where the panel sits
-    const extra = Math.max(0, ltrack.scrollWidth - vw()), x = Math.min(extra, (sel === '#cta' ? el.parentElement : el).offsetLeft - (sel === '#cta' ? 0 : 0));
-    y = leis.getBoundingClientRect().top + scrollY + (sel === '#contacts' ? extra : x) + 2;
+  if (sel === '#cta' || sel === '#contacts') {          // the office block lives in the scrolling left column of the pinned finale
+    const extra = Math.max(0, ltrack.scrollWidth - vw());
+    y = leis.getBoundingClientRect().top + scrollY + extra + Math.min(vEx, $('#contacts').offsetTop) + 2;
   }
   scrollTo({ top: y - (sel === '#about' ? 0 : 0), behavior: 'smooth' });
 }
@@ -853,12 +870,14 @@ function layoutCity() {
 addEventListener('resize', layoutCity); layoutCity();
 
 /* ---------- leisure: one sideways gallery ---------- */
-const leFrame = $('#le-frame'), leEnd = $('#contacts');
+const leFrame = $('#le-frame'), leEnd = $('#l-map'), finCol = $('#fin-col');
+let vy = 0, vEx = 0;
 const ltrack = $('#l-track'), leis = $('#leisure'), lcards = $$('.lc'), lFin = $('#l-fin');
 const hxEl = $('.hx'), l2hk = $$('#leisure [data-hk]'), l2ph = $$('#leisure [data-ph]');
 function sizeLeisure() {
   const extra = Math.max(0, ltrack.scrollWidth - vw());
-  leis.style.height = `calc(100svh + ${extra}px)`;
+  vEx = Math.max(0, finCol.offsetHeight - vh());
+  leis.style.height = `calc(100svh + ${extra + vEx}px)`;
 }
 addEventListener('resize', sizeLeisure);
 
@@ -883,7 +902,7 @@ layoutHero();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutHero);
 
 // the picture follows the scroll slowly: an intro drift, then the camera keeps pushing in through the four text steps
-const REVERSE = false;   // hero.mp4 is already stored pulled-away-last: scroll down = plain forward playback (smoothest to scrub)
+const REVERSE = false;   // hero.mp4 plays in its original direction: scroll down = forward
 let introT = 0, introStart = -1, vidCur = 0, vidInit = false;
 function updateHeroVideo(sp) {
   if (!(hv.duration > 0)) return;
@@ -1028,9 +1047,11 @@ function frame() {
   if (!leFrame.src && leEnd.getBoundingClientRect().left < vw() * 2.2) leFrame.src = leFrame.dataset.src;
 
   /* leisure: the only horizontal block, driven by vertical scroll */
-  const lr = leis.getBoundingClientRect(), lrange = leis.offsetHeight - H;
-  const lp = lrange > 0 ? clamp(-lr.top / lrange) : 0;
   const extra = Math.max(0, ltrack.scrollWidth - vw());
+  const lr = leis.getBoundingClientRect(), lrange = extra;
+  const lp = lrange > 0 ? clamp(-lr.top / lrange) : 0;
+  vy += (-clamp(-lr.top - extra, 0, vEx) - vy) * .12;                  // after the sideways part the left column scrolls up, the map stays
+  finCol.style.transform = `translate3d(0,${vy.toFixed(1)}px,0)`;
   lx += (-lp * extra - lx) * .12;
   ltrack.style.transform = `translate3d(${lx.toFixed(1)}px,0,0)`;
   leis.style.setProperty('--lp', lp.toFixed(4));
