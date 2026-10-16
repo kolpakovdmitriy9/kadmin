@@ -312,7 +312,7 @@ body:not(.is-ready) .fab{opacity:0}
 @media(max-width:900px){.l-fin{flex-basis:100vw}.l-map{display:none}.le-open-m{display:block}.fin-b .f-h{font-size:clamp(40px,12vw,80px)}}
 
 /* ============ PLANS ============ */
-.plans{background:linear-gradient(#fff 0,#fff 55%,#fcfaf8 66%,#f9f5f1 76%,#f7f1ec 85%,#f5eee9 93%,var(--cream) 100%);padding:clamp(90px,16vh,200px) var(--gut)}
+.plans{background:#fff;padding:clamp(90px,16vh,200px) var(--gut)}
 .plans-top{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-top:clamp(30px,6vh,70px)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{height:40px;padding:0 20px;border-radius:99px;box-shadow:inset 0 0 0 1.5px rgba(27,19,16,.25);font-size:14px;font-weight:600;transition:background .4s var(--ease),color .4s var(--ease),box-shadow .4s}
@@ -876,6 +876,7 @@ function layoutCity() {
 addEventListener('resize', layoutCity); layoutCity();
 
 /* ---------- leisure: one sideways gallery ---------- */
+const plansEl = $('#plans');
 const leFrame = $('#le-frame'), leEnd = $('#l-map'), finCol = $('#fin-col');
 let vy = 0, vEx = 0;
 const fin1 = $('.fin-b'), offItems = [...$$('#contacts .off-top > *, #contacts .off-foot > *')];
@@ -1049,6 +1050,10 @@ function frame() {
     const stepNow = pp < .66 ? 0 : (pan + VU * u / 2 < 112 * u ? 1 : 2);
     if (stepNow !== cityStep) { cityStep = stepNow; cityStepEls.forEach((e, i) => e.classList.toggle('on', i === stepNow)); }
   }
+
+  /* plans background: white while the plans are on screen, it takes the next block's cream as the end approaches */
+  { const pr = plansEl.getBoundingClientRect(), k = SM(clamp((H * 1.05 - pr.bottom) / (H * .95)));
+    plansEl.style.backgroundColor = `rgb(${Math.round(lerp(255, 244, k))},${Math.round(lerp(255, 238, k))},${Math.round(lerp(255, 231, k))})`; }
 
   /* the map loads once, shortly before its panel arrives (a lazy iframe resizing mid-scroll was what made it jump) */
   if (!leFrame.src && leEnd.getBoundingClientRect().left < vw() * 2.2) leFrame.src = leFrame.dataset.src;
