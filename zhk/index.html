@@ -1052,8 +1052,10 @@ function frame() {
   }
 
   /* plans background: white while the plans are on screen, it takes the next block's cream as the end approaches */
-  { const pr = plansEl.getBoundingClientRect(), k = SM(clamp((H * 1.05 - pr.bottom) / (H * .95)));
-    plansEl.style.backgroundColor = `rgb(${Math.round(lerp(255, 244, k))},${Math.round(lerp(255, 238, k))},${Math.round(lerp(255, 231, k))})`; }
+  { const pr = plansEl.getBoundingClientRect(), k = SM(clamp((H * 1.75 - pr.bottom) / H)), L = Math.min(pr.height, k * H * 1.35), st = pr.height - L;
+    // the colour at the section's lower edge is always the next block's cream, the gradient above it only grows as the edge approaches
+    const stops = [0, .12, .25, .4, .55, .7, .85, 1].map(t => { const c = SM(t); return `rgb(${Math.round(lerp(255, 244, c))},${Math.round(lerp(255, 238, c))},${Math.round(lerp(255, 231, c))}) ${(st + L * t).toFixed(1)}px`; });
+    plansEl.style.background = k > 0.001 ? `linear-gradient(to bottom,#fff 0,${stops.join(',')})` : '#fff'; }
 
   /* the map loads once, shortly before its panel arrives (a lazy iframe resizing mid-scroll was what made it jump) */
   if (!leFrame.src && leEnd.getBoundingClientRect().left < vw() * 2.2) leFrame.src = leFrame.dataset.src;
