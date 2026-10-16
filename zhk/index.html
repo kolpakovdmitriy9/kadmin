@@ -282,28 +282,29 @@ body:not(.is-ready) .fab{opacity:0}
 .l-foot .f-grid{grid-template-columns:1.3fr 1fr 1fr 1fr}
 .l-foot .f-word{font-size:min(20vw,36vh);margin:auto 0 -.07em}
 .leisure{background:var(--cream)}
-.tick{position:relative;z-index:3;background:var(--terra);color:#fff;overflow:hidden;white-space:nowrap;font-weight:700;font-size:clamp(18px,2.2vw,34px);letter-spacing:-.03em;padding:16px 0}
-.tick div{display:inline-block;animation:tick 28s linear infinite}
-.tick span{margin:0 28px}.tick span:after{content:'✦';margin-left:56px;opacity:.6}
+.tick{position:relative;z-index:3;height:clamp(130px,15vw,230px);background:linear-gradient(#fff 50%,var(--cream) 50%);overflow:hidden}
+.tick-b{position:absolute;left:0;right:0;top:50%;height:var(--th,30px);transform:translateY(-50%);background:var(--terra);color:#fff;overflow:hidden;white-space:nowrap;font-weight:700;font-size:var(--tf,16px);letter-spacing:-.03em;line-height:var(--th,30px)}
+.tick-b>div{display:inline-block;animation:tick 46s linear infinite}
+.tick-b span{display:inline-block;margin:0 .55em}.tick-b span:after{content:'';display:inline-block;width:.2em;height:.2em;border-radius:50%;background:rgba(255,255,255,.75);margin-left:1.1em;vertical-align:middle}
 @keyframes tick{to{transform:translateX(-50%)}}
 
 
-.l-end{flex:0 0 100vw;width:100vw;height:100%;background:#fff;padding:calc(var(--hdr) + 3vh) var(--gut) 3vh;display:flex;flex-direction:column;gap:2.4vh;position:relative;overflow:hidden}
-.le-top{isolation:isolate;flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(24px,4vw,72px);position:relative}
+.l-end{flex:0 0 100vw;width:100vw;height:100%;background:var(--cream);padding:calc(var(--hdr) + 3vh) var(--gut) 3vh;display:flex;flex-direction:column;gap:2.4vh;position:relative;overflow:hidden}
+.le-top{isolation:isolate;flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1fr);gap:clamp(24px,5vw,96px);position:relative}
 .le-info{display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,1.8vh,18px);min-width:0}
 .le-h{margin:0;font-weight:600;font-size:clamp(34px,4.6vw,84px);line-height:.92;letter-spacing:-.055em}
 .le-rows{display:flex;gap:clamp(14px,2vw,32px);flex-wrap:wrap;font-size:clamp(14px,1.1vw,17px);font-weight:500;color:rgba(27,19,16,.7)}
 .le-tel{font-weight:300;font-size:clamp(34px,4.4vw,80px);letter-spacing:-.06em;line-height:1;margin-top:1vh;white-space:nowrap}
 .le-mail{font-size:clamp(15px,1.3vw,20px);font-weight:600;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(27,19,16,.3)}
 .le-soc{display:flex;gap:12px;margin:1vh 0}
-.le-soc a{width:clamp(44px,3.4vw,56px);height:clamp(44px,3.4vw,56px);border-radius:50%;background:var(--cream);color:var(--ink);display:grid;place-items:center;transition:background .4s var(--ease),color .4s var(--ease),transform .5s var(--ease)}
+.le-soc a{width:clamp(44px,3.4vw,56px);height:clamp(44px,3.4vw,56px);border-radius:50%;background:#E9DFD3;color:var(--ink);display:grid;place-items:center;transition:background .4s var(--ease),color .4s var(--ease),transform .5s var(--ease)}
 .le-soc a:hover{background:var(--ink);color:#fff;transform:translateY(-3px)}
 .le-soc svg{width:42%;height:42%}
 .le-info .btn{align-self:flex-start}
-.le-map{position:relative;display:block;border-radius:clamp(22px,2.4vw,40px);overflow:hidden;background:#EFE6DA;box-shadow:0 0 0 1px rgba(27,19,16,.08)}
+.le-map{order:-1;position:relative;display:block;border-radius:clamp(22px,2.4vw,40px);overflow:hidden;background:#EFE6DA;box-shadow:0 0 0 1px rgba(27,19,16,.08)}
 .le-map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;filter:saturate(.85) sepia(.12)}
-.le-open{position:absolute;left:16px;bottom:16px;background:#fff;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.14)}
-.le-blob{position:absolute;right:-5vw;top:-9vh;width:clamp(120px,14vw,260px);aspect-ratio:1;border-radius:50%;background:var(--orange);z-index:-1;opacity:.95}
+.le-open{position:absolute;left:16px;bottom:16px;background:#FBF7F2;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.le-blob{position:absolute;right:-7vw;top:-11vh;width:clamp(140px,16vw,300px);aspect-ratio:1;border-radius:50%;background:var(--orange);z-index:-1;opacity:.95}
 .le-bot{flex:none;display:grid;grid-template-columns:1.1fr 1fr auto 1.2fr;gap:clamp(16px,2.4vw,40px);align-items:center;border-top:1px solid rgba(27,19,16,.12);padding-top:2.2vh;font-size:13px;line-height:1.7}
 .le-bot span,.le-bot a{display:block}.lb-c span{opacity:.5;font-size:12px}
 .lb-c a:first-of-type{font-weight:700}
@@ -640,7 +641,7 @@ body:not(.is-ready) .fab{opacity:0}
   </div>
 </section>
 
-<div class="tick" aria-hidden="true"><div><span>двор</span><span>пруд</span><span>кофейня внизу</span><span>сад на первом этаже</span><span>тихие уголки</span><span>двор</span><span>пруд</span><span>кофейня внизу</span><span>сад на первом этаже</span><span>тихие уголки</span></div></div>
+<div class="tick" id="tick" aria-hidden="true"><div class="tick-b"><div><span>двор</span><span>пруд</span><span>кофейня внизу</span><span>сад на первом этаже</span><span>тихие уголки</span><span>двор</span><span>пруд</span><span>кофейня внизу</span><span>сад на первом этаже</span><span>тихие уголки</span></div></div></div>
 
 <!-- ================= LEISURE (sideways gallery, pinned) ================= -->
 <section class="sect leisure" id="leisure">
@@ -668,7 +669,6 @@ body:not(.is-ready) .fab{opacity:0}
       <div class="l-end" id="contacts">
         <div class="le-top">
           <div class="le-info">
-            <div class="eyebrow"><b style="color:var(--orange)">[07]</b>&nbsp;Офис продаж</div>
             <h2 class="le-h">Офис продаж</h2>
             <div class="le-rows"><span>Адрес: ул. Парковая, д. 12</span><span>Ежедневно: 09:00 — 21:00</span></div>
             <a class="le-tel" href="tel:+74950000000">+7 (495) 000-00-00</a>
@@ -863,6 +863,7 @@ function layoutCity() {
 addEventListener('resize', layoutCity); layoutCity();
 
 /* ---------- leisure: one sideways gallery ---------- */
+const tickEl = $('#tick');
 const ltrack = $('#l-track'), leis = $('#leisure'), lcards = $$('.lc'), lFin = $('#l-fin');
 const hxEl = $('.hx'), l2hk = $$('#leisure [data-hk]'), l2ph = $$('#leisure [data-ph]');
 function sizeLeisure() {
@@ -1032,6 +1033,11 @@ function frame() {
     const stepNow = pp < .66 ? 0 : (pan + VU * u / 2 < 112 * u ? 1 : 2);
     if (stepNow !== cityStep) { cityStep = stepNow; cityStepEls.forEach((e, i) => e.classList.toggle('on', i === stepNow)); }
   }
+
+  /* ticker band: starts as a thin strip and swells while it passes through the screen, the text keeps running */
+  { const tr = tickEl.getBoundingClientRect(), tp = SM(clamp((H - tr.top) / (H * .85)));
+    const box = tr.height, fsz = lerp(15, box * .5, tp);
+    tickEl.style.setProperty('--tf', fsz.toFixed(1) + 'px'); tickEl.style.setProperty('--th', (fsz * 1.55).toFixed(1) + 'px'); }
 
   /* leisure: the only horizontal block, driven by vertical scroll */
   const lr = leis.getBoundingClientRect(), lrange = leis.offsetHeight - H;
