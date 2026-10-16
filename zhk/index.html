@@ -207,9 +207,10 @@ body.front .cutc,body.front #l1,body.no-gl .cutc,body.no-gl #l1{display:none}
 .c-ph.pop.on{clip-path:inset(0)}
 .c-ph.zoom{transform-origin:50% 50%;transition:transform 2.4s var(--ease)}
 .c-name{position:absolute;left:0;top:0;transform:translateX(-50%);will-change:transform,opacity}
-.c-caps{position:absolute;z-index:5;left:var(--gut);bottom:clamp(36px,8vh,86px);height:48px;width:calc(100% - var(--gut)*2)}
-.c-caps span{position:absolute;left:0;bottom:0;display:flex;gap:8px;opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .9s var(--ease);white-space:nowrap}
-.c-caps span.on{opacity:1;transform:none}
+.c-caps{position:absolute;z-index:5;left:66%;right:var(--gut);top:50%;height:0}
+.c-caps span{position:absolute;left:0;top:0;display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;max-width:100%;opacity:0;transform:translateY(calc(-50% + 18px));transition:opacity .6s var(--ease),transform .9s var(--ease)}
+.c-caps .c-h{flex:0 0 100%;margin:0 0 14px;font-weight:600;font-size:clamp(30px,3.6vw,66px);line-height:.95;letter-spacing:-.05em}
+.c-caps span.on{opacity:1;transform:translateY(-50%)}
 .c-caps .pill{height:clamp(36px,3.4vw,50px);padding:0 clamp(16px,1.6vw,26px);font-size:clamp(14px,1.3vw,20px)}
 .c-item{position:absolute;left:calc(var(--x)*var(--u));top:50%;transform:translate3d(calc((1 - var(--r,0))*4*var(--u)),-54%,0);opacity:var(--r,0);will-change:transform,opacity}
 .c-item .num{display:flex;align-items:flex-start;gap:calc(.7*var(--u));font-weight:200;font-size:calc(11.5*var(--u));line-height:.82;letter-spacing:-.07em;font-variant-numeric:tabular-nums}
@@ -224,70 +225,31 @@ body.front .cutc,body.front #l1,body.no-gl .cutc,body.no-gl #l1{display:none}
 .c-bar{position:absolute;left:var(--gut);right:calc(var(--gut) + 70px);bottom:clamp(14px,3vh,30px);height:1px;background:rgba(27,19,16,.2)}
 .c-bar span{position:absolute;inset:0;background:var(--ink);transform-origin:left;transform:scaleX(var(--cp,0))}
 
-/* ============ LEISURE: alternating vertical / horizontal scenes with circles and people cut-outs ============ */
-:root{--clay:#B96A52;--sand:#E8C493}
-.lz{position:relative;background:var(--peach)}
-.orb{position:absolute;width:var(--d);aspect-ratio:1;will-change:transform}
-.orb:before{content:'';position:absolute;inset:-1.1vw;border-radius:50%;border:1.5px solid currentColor;opacity:.28;pointer-events:none}
-.orb-c{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:#d9b9a8}
-.orb-i{position:absolute;inset:0;will-change:transform}
-.orb-i img{position:absolute;max-width:none;height:auto}
-.orb-cut{position:absolute;max-width:none;height:auto;pointer-events:none;will-change:transform;filter:drop-shadow(0 10px 18px rgba(60,20,0,.28))}
-.orb-cap{position:absolute;left:50%;top:calc(100% + 1.8vw);transform:translateX(-50%);display:flex;gap:8px;white-space:nowrap}
-.orb-cap .pill,.z-pills .pill,.chip-f{height:clamp(32px,2.9vw,46px);padding:0 clamp(14px,1.3vw,22px);font-size:clamp(13px,1.05vw,17px)}
-/* 1 */
-.lz1{position:relative;height:250vh;min-height:1700px;overflow:hidden}
-.lz-eye{position:absolute;left:var(--gut);right:var(--gut);top:calc(var(--hdr) + 5vh)}
-.lz-title{position:absolute;left:var(--gut);top:calc(var(--hdr) + 12vh);margin:0;font-weight:700;font-size:clamp(54px,10.4vw,200px);line-height:.86;letter-spacing:-.07em;max-width:9em}
-.lz-lead{position:absolute;left:var(--gut);top:calc(var(--hdr) + 12vh + 2 * 10.4vw * .86 + 5vh);max-width:340px;font-size:clamp(15px,1.2vw,19px);line-height:1.45;font-weight:500;color:rgba(27,19,16,.8)}
-.o-a{--d:min(36vw,60vh);left:56vw;top:66vh;color:var(--terra)}
-.o-b{--d:min(22vw,38vh);left:9vw;top:118vh;color:var(--ink)}
-.o-c{--d:min(30vw,52vh);left:48vw;top:156vh;color:var(--terra)}
-/* 2 */
-.lz2{position:relative}
-.lz2-st{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
-.lz2-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:stretch;background:linear-gradient(90deg,var(--clay) 0%,#C97C5C 30%,#DDA372 62%,var(--sand) 100%);will-change:transform}
-.lz2-track>div{position:relative;flex:none;height:100%}
-.hp1{width:76vw}.hp2{width:34vw;margin-left:2vw}.hp3{width:60vw}.hp4{width:48vw}.hp5{width:58vw}.hp6{width:8vw}
+/* ============ LEISURE: white sideways gallery, after the twelve.ru reference ============ */
+.leisure{position:relative;background:#fff}
+.leisure-st{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.l-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:stretch;will-change:transform}
+.l-intro{flex:0 0 clamp(300px,50vw,960px);padding:calc(var(--hdr) + 6vh) 2vw 6vh var(--gut);display:flex;flex-direction:column;justify-content:space-between}
+.l-title{margin:0;font-weight:700;font-size:clamp(56px,8.4vw,156px);line-height:.88;letter-spacing:-.065em;max-width:6.4em}
+.l-lead{max-width:330px;font-size:15px;line-height:1.4;font-weight:500;color:rgba(27,19,16,.8)}
+.lc{flex:0 0 clamp(290px,38vw,740px);margin-right:clamp(24px,5vw,96px);display:flex;flex-direction:column;justify-content:space-between;padding:calc(var(--hdr) + 6vh) 0 6vh}
+.lc-img{position:relative;aspect-ratio:3/2;overflow:hidden;background:#eee6dc;clip-path:inset(0 var(--cr,0%) 0 0)}
+.lc-img img{position:absolute;top:0;left:-7%;width:114%;height:100%;object-fit:cover;transform:translate3d(var(--px,0px),0,0) scale(var(--sc,1));will-change:transform}
+.lc h3{margin:22px 0 0;font-size:clamp(20px,1.8vw,32px);font-weight:600;letter-spacing:-.035em;line-height:1.1;opacity:var(--to,1);transform:translateY(calc((1 - var(--to,1))*18px))}
+.lc-d{max-width:330px;font-size:14px;line-height:1.4;font-weight:500;color:rgba(27,19,16,.7);opacity:var(--to,1);transform:translateY(calc((1 - var(--to,1))*18px))}
+.hx{position:relative;flex:none;width:112vw;height:100%;background:#C4785A;overflow:hidden}
+.hx-photo{position:absolute;left:76vw;top:0;bottom:0;width:36vw;overflow:hidden}
+.hx-photo img{position:absolute;left:-12%;top:0;width:124%;height:100%;object-fit:cover;max-width:none;will-change:transform}
 .h-big{position:absolute;z-index:6;left:3vw;top:calc(var(--hdr) + 7vh);font-weight:700;color:#fff;font-size:min(15.5vw,31vh);line-height:.86;letter-spacing:-.07em;white-space:nowrap;will-change:transform}
 .h-txt{position:absolute;z-index:5;left:3vw;bottom:9vh;width:min(30vw,420px);font-size:clamp(14px,1.15vw,18px);line-height:1.45;font-weight:500;color:#fff;will-change:transform}
-.h-txt.dark{color:var(--ink);left:auto;right:0;bottom:11vh;width:min(21vw,320px)}
-.tall{position:absolute;left:0;right:0;top:0;bottom:0;overflow:hidden;background:#b86a3c}
-.tall img{position:absolute;left:-12%;top:0;width:124%;height:100%;object-fit:cover;max-width:none;will-change:transform}
-.hp4 .tall{left:0;right:auto;width:42%;top:12vh;bottom:12vh;border-radius:clamp(20px,2.4vw,40px)}
-.hp3 .orb{--d:min(40vw,62vh);left:6vw;top:calc(50% - var(--d)/2 - 2vh);color:#fff}
-.hp5 .orb{--d:min(34vw,56vh);left:8vw;top:calc(50% - var(--d)/2 - 2vh);color:var(--ink)}
-.chip-f{position:absolute;z-index:6;display:inline-flex;align-items:center;border-radius:99px;background:#fff;color:var(--ink);font-weight:600;white-space:nowrap;box-shadow:0 10px 30px rgba(60,20,0,.18);will-change:transform}
-.chip-f.c1{left:44vw;top:22vh}.chip-f.c2{left:2vw;top:72vh}.chip-f.c3{left:40vw;top:24vh}
-/* 3 */
-.lz3{position:relative;height:340vh;background:var(--sand)}
-.lz3-st{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
-.z-word{position:absolute;z-index:1;left:3vw;top:calc(var(--hdr) + 6vh);font-weight:700;color:#fff;font-size:min(11vw,22vh);line-height:.86;letter-spacing:-.07em;white-space:nowrap;will-change:transform,opacity}
-.z-circle{position:absolute;z-index:2;left:50%;top:54%;width:min(86vh,66vw);aspect-ratio:1;margin:calc(min(86vh,66vw)/-2) 0 0 calc(min(86vh,66vw)/-2);will-change:transform}
-.z-disc{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:#d9b9a8}
-.z-disc img{position:absolute;left:50%;top:50%;width:150%;height:auto;max-width:none;transform:translate(-50%,-50%) translateY(var(--zy,0px)) scale(var(--zs,1));will-change:transform}
-.z-ring{position:absolute;border-radius:50%;border:1.5px solid var(--terra);opacity:.35;inset:-3vw}
-.z-ring.r2{inset:-7vw;opacity:.18}
-.z-cut{position:absolute;z-index:3;max-width:none;height:auto;filter:drop-shadow(0 14px 28px rgba(60,20,0,.3));will-change:transform}
-.zc1{left:14vw;top:46vh;width:min(19vw,34vh)}
-.zc2{right:12vw;top:30vh;width:min(14vw,26vh)}
-.z-pills{position:absolute;z-index:4;left:var(--gut);bottom:11vh;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
-.z-pills .pill{opacity:0;transform:translateX(-18px);transition:opacity .7s var(--ease),transform .9s var(--ease)}
-.z-pills .pill.on{opacity:1;transform:none}
-.z-lead{position:absolute;z-index:4;right:var(--gut);bottom:11vh;width:min(24vw,330px);font-size:clamp(14px,1.15vw,18px);line-height:1.45;font-weight:500;color:var(--ink);opacity:var(--ll,0);transform:translateY(calc((1 - var(--ll,0))*16px))}
-/* 4 */
-.lz4{position:relative;height:230vh;background:var(--sand)}
-.lz4-st{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
-.y-left{position:absolute;left:var(--gut);top:calc(var(--hdr) + 8vh);width:min(30vw,380px)}
-.y-left p{margin:18px 0 0;font-size:clamp(15px,1.3vw,20px);line-height:1.45;font-weight:500}
-.y-panel{position:absolute;inset:0;overflow:hidden;color:#fff;background:#b86a3c;will-change:transform;box-shadow:-40px 0 80px rgba(60,20,0,.25)}
-.y-bg{position:absolute;inset:0;will-change:transform}
-.y-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.25)}
-.y-panel:after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(40,16,4,.3),transparent 62%);pointer-events:none}
-.y-big{position:absolute;z-index:2;left:2vw;top:calc(var(--hdr) + 12vh);font-weight:700;font-size:min(19.5vw,40vh);line-height:.9;letter-spacing:-.07em;white-space:nowrap;text-shadow:0 4px 60px rgba(60,20,0,.25);will-change:transform}
-.y-btn{position:absolute;z-index:3;right:clamp(24px,13vw,300px);top:50%;width:clamp(120px,12.5vw,230px);aspect-ratio:1;margin-top:calc(clamp(120px,12.5vw,230px)/-2);border-radius:50%;background:var(--orange);color:#fff;display:grid;place-content:center;justify-items:center;gap:.8em;text-align:center;font-size:clamp(12px,1vw,16px);font-weight:600;line-height:1.2;box-shadow:0 20px 60px rgba(242,106,46,.4);transform:translate3d(var(--mx,0px),var(--my,0px),0) scale(var(--bs,1));transition:box-shadow .5s var(--ease)}
-.y-btn i{font-style:normal;font-weight:300;font-size:1.9em;line-height:.6}
-.y-btn:hover{box-shadow:0 24px 80px rgba(242,106,46,.6)}
+.l-end{flex:0 0 100vw;position:relative;overflow:hidden;color:#fff;background:#b86a3c}
+.l-end-bg{position:absolute;inset:0;will-change:transform}
+.l-end-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:0 0;transform:scale(1.32)}
+.l-end:after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(40,16,4,.28),transparent 60%);pointer-events:none}
+.l-big{position:absolute;z-index:2;left:2vw;top:calc(var(--hdr) + 12vh);font-weight:700;font-size:min(19.5vw,40vh);line-height:.9;letter-spacing:-.07em;white-space:nowrap;will-change:transform;text-shadow:0 4px 60px rgba(60,20,0,.25)}
+.l-btn{position:absolute;z-index:3;right:clamp(24px,13vw,300px);top:50%;width:clamp(120px,12.5vw,230px);aspect-ratio:1;margin-top:calc(clamp(120px,12.5vw,230px)/-2);border-radius:50%;background:var(--orange);color:#fff;display:grid;place-content:center;justify-items:center;gap:.8em;text-align:center;font-size:clamp(12px,1vw,16px);font-weight:600;line-height:1.2;box-shadow:0 20px 60px rgba(242,106,46,.4);transform:translate3d(var(--mx,0px),var(--my,0px),0) scale(var(--bs,1));transition:box-shadow .5s var(--ease)}
+.l-btn i{font-style:normal;font-weight:300;font-size:1.9em;line-height:.6}
+.l-btn:hover{box-shadow:0 24px 80px rgba(242,106,46,.6)}
 
 /* ============ PLANS ============ */
 .plans{background:#fff;padding:clamp(90px,16vh,200px) var(--gut)}
@@ -383,26 +345,25 @@ body.front .cutc,body.front #l1,body.no-gl .cutc,body.no-gl #l1{display:none}
   .warm{height:250vh}
   .fact{grid-template-columns:1fr}
   .p-row{grid-template-columns:1fr auto}.p-row .pr{grid-column:2}
-  .lz1{height:320vh;min-height:2200px}
-  .lz-title{font-size:15.5vw}
-  .lz-lead{top:calc(var(--hdr) + 12vh + 3 * 15.5vw * .86 + 3vh)}
-  .o-a{--d:76vw;left:14vw;top:84vh}.o-b{--d:44vw;left:6vw;top:158vh}.o-c{--d:62vw;left:34vw;top:208vh}
-  .hp1{width:118vw}.hp2{width:62vw}.hp3{width:100vw}.hp4{width:100vw}.hp5{width:100vw}
-  .h-big{font-size:min(30vw,22vh)}.h-txt{width:62vw}.h-txt.dark{width:46vw}
-  .hp3 .orb,.hp5 .orb{--d:72vw}
-  .chip-f.c1{left:52vw;top:18vh}.chip-f.c3{left:46vw;top:20vh}
-  .z-word{font-size:min(17vw,14vh)}.z-circle{width:92vw;margin:-46vw 0 0 -46vw;top:50%}
-  .zc1{left:2vw;top:60vh;width:34vw}.zc2{right:2vw;top:22vh;width:28vw}
-  .z-lead{width:44vw}
-  .y-big{font-size:24vw}.y-btn{right:6vw;top:62%}
+  .l-intro{flex-basis:88vw}
+  .hx{width:150vw}.hx-photo{left:100vw;width:50vw}
+  .h-big{font-size:min(30vw,22vh)}.h-txt{width:62vw}
+  .lc{flex-basis:78vw}
+  .l-title{font-size:clamp(52px,16vw,90px)}
+  .l-btn{right:6vw;top:62%}
+  .l-big{font-size:24vw;top:calc(var(--hdr) + 8vh)}
   .card-t h3{font-size:clamp(42px,14vw,80px)}
   .card-n{font-size:64px}
   .f-grid{grid-template-columns:1fr}
 }
+@media(max-aspect-ratio:6/5){
+  .c-caps{left:var(--gut);right:84px;top:auto;bottom:clamp(64px,14vh,120px)}
+  .c-caps span{transform:translateY(18px);color:#fff;text-shadow:0 1px 18px rgba(0,0,0,.45)}
+  .c-caps span.on{transform:none}
+  .c-caps .c-h{font-size:clamp(30px,9vw,60px)}
+}
 @media(max-width:700px){
   .pill{height:30px;padding:0 14px}
-  .c-caps{height:84px}
-  .c-caps span{flex-direction:column;align-items:flex-start;gap:6px}
   .c-dot .pill{bottom:18px}
 }
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
@@ -526,27 +487,10 @@ body.front .cutc,body.front #l1,body.no-gl .cutc,body.no-gl #l1{display:none}
   </div>
 </section>
 
-<!-- ================= TRUST ================= -->
-<section class="sect trust" id="trust">
-  <div class="eyebrow" style="color:#fff"><b style="color:var(--orange)">[03]</b> Надёжность</div>
-  <div class="trust-grid">
-    <div>
-      <h2 class="h2 split" data-split>Дом, на который можно положиться</h2>
-      <p class="trust-sub rv">Монолитный каркас, клинкер вместо штукатурки и инженерия, которую не слышно. Всё, что должно работать годами, сделано с запасом.</p>
-    </div>
-    <div class="fact-list">
-      <div class="fact" data-fact><b><em data-count="24">0</em><small>этажа</small></b><span>монолитный каркас, фасад из клинкерного кирпича</span></div>
-      <div class="fact" data-fact><b><em data-count="3.1" data-dec="1">0</em><small>м</small></b><span>высота потолков в квартирах, окна в пол</span></div>
-      <div class="fact" data-fact><b><em data-count="210">0</em></b><span>мест в подземном паркинге, лифт прямо на этаж</span></div>
-      <div class="fact" data-fact><b><em data-count="4">0</em><small>лифта</small></b><span>скоростные лифты Otis в каждой секции и грузовой</span></div>
-    </div>
-  </div>
-</section>
-
 <!-- ================= CITY ================= -->
 <section class="sect city" id="city">
   <div class="city-head">
-    <div class="eyebrow"><b>[04]</b> Расположение</div>
+    <div class="eyebrow"><b>[03]</b> Расположение</div>
     <h2 class="h2 split" data-split>Дом, который общается с городом</h2>
   </div>
   <div class="city-pin" id="city-pin">
@@ -577,92 +521,54 @@ body.front .cutc,body.front #l1,body.no-gl .cutc,body.no-gl #l1{display:none}
         <b class="pill c-name" id="c-name">ЖК «Атлас»</b>
       </div>
       <div class="c-caps" id="c-caps">
-        <span><b class="pill">Кофейня и пекарня</b><b class="pill t">1 мин пешком</b></span>
-        <span><b class="pill">Детская площадка</b><b class="pill t">2 мин пешком</b></span>
-        <span><b class="pill">Аллея для прогулок</b><b class="pill t">3 мин пешком</b></span>
-        <span><b class="pill">Пруд во дворе</b><b class="pill t">4 мин пешком</b></span>
+        <span><b class="c-h">Кофейня и пекарня</b><b class="pill">1 мин пешком</b></span>
+        <span><b class="c-h">Детская площадка</b><b class="pill">2 мин пешком</b></span>
+        <span><b class="c-h">Аллея для прогулок</b><b class="pill">3 мин пешком</b></span>
+        <span><b class="c-h">Пруд во дворе</b><b class="pill">4 мин пешком</b></span>
       </div>
       <div class="c-bar"><span></span></div>
     </div>
   </div>
 </section>
 
-<!-- ================= LEISURE: V collage / H strip / V pinned circle / H closing panel ================= -->
-<section class="sect lz" id="leisure">
-  <!-- 1 · vertical: floating circles with people cut-outs, three depth speeds -->
-  <div class="lz1" id="lz1">
-    <div class="eyebrow lz-eye"><b>[05]</b> Жизнь во дворе</div>
-    <h2 class="lz-title split" data-split>дом, который умеет отдыхать</h2>
-    <p class="lz-lead rv">Далеко ехать не нужно: вечерняя прогулка, детская площадка и утренний кофе — в нескольких шагах от подъезда.</p>
-    <div class="orb o-a" data-sp="0.1" data-cs="-0.015" data-is="0">
-        <div class="orb-c"><div class="orb-i"><img src="media/g-family.jpg" style="width:295.385%;left:-35.192%;top:-52.885%" alt="" loading="lazy"></div></div>
-        <img class="orb-cut" src="media/cut-family.webp" style="width:48.077%;left:25.962%;top:39.808%" alt="" loading="lazy"><div class="orb-cap"><b class="pill">Прогулки с коляской</b><b class="pill t">5 мин по двору</b></div>
-      </div>
-    <div class="orb o-b" data-sp="0.3" data-cs="-0.02" data-is="0">
-        <div class="orb-c"><div class="orb-i"><img src="media/g-play.jpg" style="width:365.714%;left:-230.0%;top:-99.286%" alt="" loading="lazy"></div></div>
-        <img class="orb-cut" src="media/cut-girl.webp" style="width:33.81%;left:33.095%;top:49.048%" alt="" loading="lazy"><div class="orb-cap"><b class="pill">Площадки для всех</b><b class="pill t">3 площадки</b></div>
-      </div>
-    <div class="orb o-c" data-sp="0.16" data-cs="-0.015" data-is="0">
-        <div class="orb-c"><div class="orb-i"><img src="media/g-door.jpg" style="width:320.0%;left:-73.958%;top:-74.792%" alt="" loading="lazy"></div></div>
-        <img class="orb-cut" src="media/cut-woman.webp" style="width:32.5%;left:33.75%;top:53.958%" alt="" loading="lazy"><div class="orb-cap"><b class="pill">Кофе внизу</b><b class="pill t">1 мин пешком</b></div>
-      </div>
-  </div>
-
-  <!-- 2 · horizontal: the strip slides sideways, every layer at its own speed -->
-  <div class="lz2" id="lz2">
-    <div class="lz2-st">
-      <div class="lz2-track" id="lz2-track">
-        <div class="hp1">
-          <div class="h-big" data-hk="-0.38">радость<br>ко двору</div>
-          <p class="h-txt" data-hk="0.06">Каждый человек ищет своё место в жизни, чтобы обрести в нём счастье. Мы собрали двор как коллекцию тихих уголков: сад, пруд и площадки на уровне первого этажа.</p>
-        </div>
-        <div class="hp2"><div class="tall"><img src="media/g-low.jpg" alt="" data-ph="0.16"></div></div>
-        <div class="hp3">
-          <div class="orb o-d" data-sp="0" data-cs="0" data-is="0">
-        <div class="orb-c"><div class="orb-i"><img src="media/g-couple.jpg" style="width:284.444%;left:-167.037%;top:-57.037%" alt=""></div></div>
-        <img class="orb-cut" src="media/cut-couple.webp" style="width:51.296%;left:24.444%;top:35.556%" alt=""><div class="orb-cap"><b class="pill">Вечер у воды</b><b class="pill t">4 мин пешком</b></div>
-      </div>
-          <div class="chip-f c1" data-hk="0.22">пруд с настилом</div>
-          <div class="chip-f c2" data-hk="-0.14">тёплая подсветка</div>
-        </div>
-        <div class="hp4"><div class="tall t2"><img src="media/g-family.jpg" alt="" data-ph="0.2"></div><p class="h-txt dark" data-hk="0.1">Широкие ровные дорожки и сад вдоль фасада: по двору можно ходить с коляской без единой ступеньки.</p></div>
-        <div class="hp5">
-          <div class="orb o-e" data-sp="0" data-cs="0" data-is="0">
-        <div class="orb-c"><div class="orb-i"><img src="media/g-play.jpg" style="width:333.913%;left:0.0%;top:-70.0%" alt=""></div></div>
-        <img class="orb-cut" src="media/cut-seated.webp" style="width:48.696%;left:25.435%;top:54.13%" alt=""><div class="orb-cap"><b class="pill">Скамейки в тени</b><b class="pill t">всегда тихо</b></div>
-      </div>
-          <div class="chip-f c3" data-hk="0.3">120 деревьев</div>
-        </div>
-        <div class="hp6"></div>
-      </div>
+<!-- ================= TRUST ================= -->
+<section class="sect trust" id="trust">
+  <div class="eyebrow" style="color:#fff"><b style="color:var(--orange)">[04]</b> Надёжность</div>
+  <div class="trust-grid">
+    <div>
+      <h2 class="h2 split" data-split>Дом, на который можно положиться</h2>
+      <p class="trust-sub rv">Монолитный каркас, клинкер вместо штукатурки и инженерия, которую не слышно. Всё, что должно работать годами, сделано с запасом.</p>
+    </div>
+    <div class="fact-list">
+      <div class="fact" data-fact><b><em data-count="24">0</em><small>этажа</small></b><span>монолитный каркас, фасад из клинкерного кирпича</span></div>
+      <div class="fact" data-fact><b><em data-count="3.1" data-dec="1">0</em><small>м</small></b><span>высота потолков в квартирах, окна в пол</span></div>
+      <div class="fact" data-fact><b><em data-count="210">0</em></b><span>мест в подземном паркинге, лифт прямо на этаж</span></div>
+      <div class="fact" data-fact><b><em data-count="4">0</em><small>лифта</small></b><span>скоростные лифты Otis в каждой секции и грузовой</span></div>
     </div>
   </div>
+</section>
 
-  <!-- 3 · vertical, pinned: the circle grows, neighbours step in from the sides -->
-  <div class="lz3" id="lz3">
-    <div class="lz3-st">
-      <div class="z-word" id="z-word">двор, где знают<br>соседей</div>
-      <div class="z-circle" id="z-circle">
-        <div class="z-ring r1"></div><div class="z-ring r2"></div>
-        <div class="z-disc"><img src="media/g-pond.jpg" alt="" loading="lazy" id="z-img"></div>
+<!-- ================= LEISURE (sideways gallery, pinned) ================= -->
+<section class="sect leisure" id="leisure">
+  <div class="leisure-st">
+    <div class="l-track" id="l-track">
+      <div class="l-intro">
+        <h2 class="l-title split" data-split>дом, который умеет отдыхать</h2>
+        <p class="l-lead">Далеко ехать не нужно: вечерняя прогулка, детская площадка и утренний кофе — в нескольких шагах от подъезда.</p>
       </div>
-      <img class="z-cut zc1" id="zc1" src="media/cut-girl.webp" alt="" loading="lazy">
-      <img class="z-cut zc2" id="zc2" src="media/cut-woman.webp" alt="" loading="lazy">
-      <div class="z-pills">
-        <b class="pill">120 деревьев</b><b class="pill">3 площадки</b><b class="pill t">0 машин во дворе</b>
+      <article class="lc"><div><div class="lc-img"><img src="media/g-couple.jpg" alt="" loading="lazy"></div><h3>Вечер у воды</h3></div><p class="lc-d">Деревянный настил у пруда и тёплая подсветка дорожек.</p></article>
+      <article class="lc"><div><div class="lc-img"><img src="media/g-play.jpg" alt="" loading="lazy"></div><h3>Площадки для всех возрастов</h3></div><p class="lc-d">Тихий двор: машины остаются под землёй, а дети — на виду.</p></article>
+      <article class="lc"><div><div class="lc-img"><img src="media/g-family.jpg" alt="" loading="lazy"></div><h3>Прогулки с коляской</h3></div><p class="lc-d">Широкие ровные дорожки и сад на уровне первого этажа.</p></article>
+      <article class="lc"><div><div class="lc-img"><img src="media/g-door.jpg" alt="" loading="lazy"></div><h3>Кофе внизу</h3></div><p class="lc-d">На первом этаже — кофейня, пекарня и цветочный магазин.</p></article>
+      <div class="hx">
+        <div class="h-big" data-hk="-0.38">радость<br>ко двору</div>
+        <p class="h-txt" data-hk="0.06">Каждый человек ищет своё место в жизни, чтобы обрести в нём счастье. Мы собрали двор как коллекцию тихих уголков: сад, пруд и площадки на уровне первого этажа.</p>
+        <div class="hx-photo"><img src="media/g-low.jpg" alt="" data-ph="0.16"></div>
       </div>
-      <p class="z-lead" id="z-lead">Парковка под землёй, а наверху — взрослые деревья, пруд и тишина.</p>
-    </div>
-  </div>
-
-  <!-- 4 · horizontal: the closing panel slides over the scene -->
-  <div class="lz4" id="lz4">
-    <div class="lz4-st">
-      <div class="y-left"><div class="eyebrow"><b>[06]</b> Дальше</div><p>Нравится двор — посмотрите квартиры. Выберем планировку и этаж с видом на пруд.</p></div>
-      <div class="y-panel" id="y-panel">
-        <div class="y-bg" id="y-bg"><img src="media/g-pond.jpg" alt="" loading="lazy"></div>
-        <div class="y-big" id="y-big">квартиры</div>
-        <a class="y-btn" id="y-btn" href="#plans">выбрать<br>квартиру<i>+</i></a>
+      <div class="l-end" id="l-end">
+        <div class="l-end-bg" id="l-end-bg"><img src="media/g-pond.jpg" alt="" loading="lazy"></div>
+        <div class="l-big" id="l-big">квартиры</div>
+        <a class="l-btn" id="l-btn" href="#plans">выбрать<br>квартиру<i>+</i></a>
       </div>
     </div>
   </div>
@@ -864,7 +770,7 @@ const hero = $('.hero'), warm = $('.warm'), wSt = $('.warm-st'), wPhoto = $('#wa
 const wCap = $('#warm-cap');
 const cards = $$('.card');
 const cta = $('#cta'), ctaWin = $('#cta-win');
-let sy = scrollY, l2x = 0;
+let sy = scrollY, lx = 0;
 
 const cityPin = $('#city-pin'), cityStage = $('#city-st'), cityWorld = $('#c-world');
 const cityArcs = $$('.c-arc'), cityDots = $$('.c-dot'), cityItems = $$('.c-item'), cityPh = $$('.c-ph'), cityCaps = $$('#c-caps span'), cFocus = $('#c-focus'), cDisc = $('#c-disc'), cRing = $('#c-ring'), cPhotos = $('#c-photos'), cName = $('#c-name'), cityStepEls = $$('#c-step span'), cityBar = $('.c-bar');
@@ -876,15 +782,12 @@ function layoutCity() {
 }
 addEventListener('resize', layoutCity); layoutCity();
 
-/* ---------- leisure scenes ---------- */
-const lz1 = $('#lz1'), lz1Orbs = $$('#lz1 .orb'), lz2 = $('#lz2'), l2track = $('#lz2-track'), l2hk = $$('#lz2 [data-hk]'), l2ph = $$('#lz2 [data-ph]'), l2orbs = $$('#lz2 .orb');
-const lz3 = $('#lz3'), zWord = $('#z-word'), zCircle = $('#z-circle'), zImg = $('#z-img'), zc1 = $('#zc1'), zc2 = $('#zc2'), zLead = $('#z-lead'), zPills = $$('.z-pills .pill');
-const lz4 = $('#lz4'), yPanel = $('#y-panel'), yBg = $('#y-bg'), yBig = $('#y-big'), yBtn = $('#y-btn');
-function measureLz() { lz1Orbs.forEach(o => { o._c = o.offsetTop + o.offsetHeight / 2; }); }
+/* ---------- leisure: one sideways gallery ---------- */
+const ltrack = $('#l-track'), leis = $('#leisure'), lcards = $$('.lc'), lEnd = $('#l-end'), lEndBg = $('#l-end-bg'), lBig = $('#l-big'), lBtn = $('#l-btn');
+const hxEl = $('.hx'), l2hk = $$('#leisure [data-hk]'), l2ph = $$('#leisure [data-ph]');
 function sizeLeisure() {
-  const extra = Math.max(0, l2track.scrollWidth - vw());
-  lz2.style.height = `calc(100svh + ${extra}px)`;
-  measureLz();
+  const extra = Math.max(0, ltrack.scrollWidth - vw());
+  leis.style.height = `calc(100svh + ${extra}px)`;
 }
 addEventListener('resize', sizeLeisure);
 
@@ -1025,8 +928,10 @@ function frame() {
     cityWorld.style.transform = `translate3d(${(-pan).toFixed(1)}px,0,0)`;
 
     // circle geometry
-    const cx0 = hx - pan, cx = lerp(cx0, Wd / 2, open), cy = lerp(hy, H / 2, open);
-    const Rfull = Math.hypot(Math.max(cx, Wd - cx), Math.max(cy, H - cy)) + 4;
+    const wide = Wd / H > 1.2;                                         // wide screens: a big circle on the left, text on the right
+    const cx0 = hx - pan, cxBig = wide ? Wd * .25 : Wd / 2;
+    const cx = lerp(cx0, cxBig, open), cy = lerp(hy, H / 2, open);
+    const Rfull = wide ? Math.min(H * .84, Wd * .38) : Math.hypot(Wd / 2, H / 2) + 4;
     const R = lerp(D / 2, Rfull, open);
     cPhotos.style.clipPath = `circle(${R.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`;
     // the picture inside is scaled so the small circle shows the whole tower, then it settles to cover
@@ -1040,10 +945,10 @@ function frame() {
       im.style.left = (cx - imgW / 2).toFixed(1) + 'px'; im.style.top = (cy - imgH / 2).toFixed(1) + 'px';
     });
     // disc and ring around the circle fade out as it takes the screen
-    const ring = D / 2 + 1.1 * u, rr = lerp(ring, Rfull + 2 * u, open);
-    cRing.style.cssText = `width:${(rr * 2).toFixed(1)}px;height:${(rr * 2).toFixed(1)}px;transform:translate3d(${(cx - rr).toFixed(1)}px,${(cy - rr).toFixed(1)}px,0);opacity:${(1 - clamp(open * 2.2)).toFixed(3)}`;
-    const dr = lerp(D / 2 + 3.2 * u, Rfull + 4 * u, open);
-    cDisc.style.cssText = `width:${(dr * 2).toFixed(1)}px;height:${(dr * 2).toFixed(1)}px;transform:translate3d(${(cx - dr).toFixed(1)}px,${(cy - dr).toFixed(1)}px,0);opacity:${(1 - clamp(open * 1.6)).toFixed(3)}`;
+    const ring = D / 2 + 1.1 * u, rr = lerp(ring, Rfull + (wide ? 1.1 : 2) * u, open);
+    cRing.style.cssText = `width:${(rr * 2).toFixed(1)}px;height:${(rr * 2).toFixed(1)}px;transform:translate3d(${(cx - rr).toFixed(1)}px,${(cy - rr).toFixed(1)}px,0);opacity:${(1 - open * (wide ? .45 : 1)).toFixed(3)}`;
+    const dr = lerp(D / 2 + 3.2 * u, Rfull + (wide ? 3 : 4) * u, open);
+    cDisc.style.cssText = `width:${(dr * 2).toFixed(1)}px;height:${(dr * 2).toFixed(1)}px;transform:translate3d(${(cx - dr).toFixed(1)}px,${(cy - dr).toFixed(1)}px,0);opacity:${(1 - open * (wide ? .35 : 1)).toFixed(3)}`;
     cName.style.transform = `translate3d(${cx.toFixed(1)}px,${(cy + R + 22).toFixed(1)}px,0) translateX(-50%)`;
     cName.style.opacity = (1 - clamp(open * 5)).toFixed(3);
     cName.style.left = '0px'; cName.style.top = '0px';
@@ -1075,60 +980,35 @@ function frame() {
     cityPin.style.setProperty('--cp', pp.toFixed(4)); cityBar.style.setProperty('--cp', pp.toFixed(4));
   }
 
-  /* ---- 1 · vertical collage: circles drift at three speeds, people lean the other way ---- */
+  /* leisure: the only horizontal block, driven by vertical scroll */
+  const lr = leis.getBoundingClientRect(), lrange = leis.offsetHeight - H;
+  const lp = lrange > 0 ? clamp(-lr.top / lrange) : 0;
+  const extra = Math.max(0, ltrack.scrollWidth - vw());
+  lx += (-lp * extra - lx) * .12;
+  ltrack.style.transform = `translate3d(${lx.toFixed(1)}px,0,0)`;
+  leis.style.setProperty('--lp', lp.toFixed(4));
+  // each column: the photo opens from the left as it enters, drifts against the scroll, caption follows
+  { const rx = hxEl.getBoundingClientRect().left;       // the word is tied to its own panel: it leads while the panel arrives, then lags and rides over the photo
+    l2hk.forEach(e => { e.style.transform = `translate3d(${(rx * +e.dataset.hk).toFixed(1)}px,0,0)`; }); }
+  l2ph.forEach(e => {
+    const rc = e.parentElement.getBoundingClientRect(), k = (rc.left + rc.width / 2 - vw() / 2) / vw();
+    e.style.transform = `translate3d(${(-k * +e.dataset.ph * 260).toFixed(1)}px,0,0)`;   // bounded: the photo never leaves its frame
+  });
+  lcards.forEach(c => {
+    const r = c.getBoundingClientRect(), W = vw();
+    const e = SM(clamp((W - r.left) / (W * .42))), k = (r.left + r.width / 2 - W / 2) / W;
+    c.style.setProperty('--cr', ((1 - e) * 100).toFixed(2) + '%');
+    c.style.setProperty('--px', (-k * 70).toFixed(1) + 'px');
+    c.style.setProperty('--sc', (1.1 - .1 * e).toFixed(3));
+    c.style.setProperty('--to', clamp((e - .35) / .65).toFixed(3));
+  });
+  // closing panel slides in: sky and tower lag behind, the big word runs ahead, the button pops
   {
-    const r = lz1.getBoundingClientRect();
-    if (r.bottom > -200 && r.top < H + 200) lz1Orbs.forEach(o => {
-      const d = (r.top + o._c) - H / 2;
-      o.style.transform = `translate3d(0,${(d * +o.dataset.sp).toFixed(1)}px,0)`;
-      $('.orb-cut', o).style.transform = `translate3d(0,${(d * +o.dataset.cs).toFixed(1)}px,0)`;
-      $('.orb-i', o).style.transform = `translate3d(0,${(d * +o.dataset.is).toFixed(1)}px,0)`;
-    });
-  }
-
-  /* ---- 2 · horizontal strip: the track slides, layers add their own offset (parallax) ---- */
-  {
-    const r = lz2.getBoundingClientRect(), range = lz2.offsetHeight - H, W = vw();
-    const pp = range > 0 ? clamp(-r.top / range) : 0, extra = Math.max(0, l2track.scrollWidth - W);
-    l2x += (-pp * extra - l2x) * .12;
-    l2track.style.transform = `translate3d(${l2x.toFixed(1)}px,0,0)`;
-    l2hk.forEach(e => { e.style.transform = `translate3d(${(l2x * +e.dataset.hk).toFixed(1)}px,0,0)`; });
-    l2ph.forEach(e => {
-      const rc = e.parentElement.getBoundingClientRect(), k = (rc.left + rc.width / 2 - W / 2) / W;
-      e.style.transform = `translate3d(${(-k * +e.dataset.ph * 260).toFixed(1)}px,0,0)`;   // bounded: the photo never leaves its frame
-    });
-    l2orbs.forEach(o => {
-      const rc = o.getBoundingClientRect(), k = (rc.left + rc.width / 2 - W / 2) / W;
-      $('.orb-cut', o).style.transform = `translate3d(${(k * 14).toFixed(1)}px,0,0)`;
-      $('.orb-i', o).style.transform = `translate3d(${(-k * 10).toFixed(1)}px,0,0)`;
-    });
-  }
-
-  /* ---- 3 · vertical, pinned: the circle opens, the heading sinks behind it, neighbours step in ---- */
-  {
-    const r = lz3.getBoundingClientRect(), range = lz3.offsetHeight - H, pp = clamp(-r.top / range);
-    const grow = SM(clamp(pp / .38));
-    zCircle.style.transform = `scale(${lerp(.42, 1, grow).toFixed(3)})`;
-    zImg.style.setProperty('--zs', lerp(1.2, 1, grow).toFixed(3));
-    zImg.style.setProperty('--zy', ((pp - .5) * -60).toFixed(1) + 'px');
-    zWord.style.transform = `translate3d(0,${(pp * -18).toFixed(1)}vh,0)`;
-    zWord.style.opacity = (1 - SM(clamp((pp - .72) / .22))).toFixed(3);
-    const c1 = SM(clamp((pp - .12) / .42)), c2 = SM(clamp((pp - .3) / .42));
-    zc1.style.transform = `translate3d(${((1 - c1) * -40).toFixed(1)}vw,${((1 - c1) * 55 - pp * 14).toFixed(1)}vh,0)`;
-    zc2.style.transform = `translate3d(${((1 - c2) * 40).toFixed(1)}vw,${((1 - c2) * -45 + pp * 22).toFixed(1)}vh,0)`;
-    zPills.forEach((e, i) => e.classList.toggle('on', pp > .46 + i * .11));
-    zLead.style.setProperty('--ll', clamp((pp - .72) / .12).toFixed(3));
-  }
-
-  /* ---- 4 · horizontal: the closing panel slides in over the scene, the word runs ahead of the photo ---- */
-  {
-    const r = lz4.getBoundingClientRect(), range = lz4.offsetHeight - H, pp = clamp(-r.top / range);
-    const t = SM(clamp(pp / .72));
-    yPanel.style.transform = `translate3d(${((1 - t) * 100).toFixed(2)}%,0,0)`;
-    yBg.style.transform = `translate3d(${((1 - t) * -16).toFixed(2)}vw,0,0)`;
-    yBig.style.transform = `translate3d(${((1 - t) * 46).toFixed(2)}vw,0,0)`;
-    yBtn.style.setProperty('--bs', (.5 + .5 * SM(clamp((pp - .55) / .3))).toFixed(3));
-    yBtn.style.opacity = clamp((pp - .5) / .25).toFixed(3);
+    const r = lEnd.getBoundingClientRect(), W = vw(), t = clamp((W - r.left) / W);
+    lEndBg.style.transform = `translate3d(${((1 - t) * -9).toFixed(2)}vw,0,0)`;
+    lBig.style.transform = `translate3d(${((1 - t) * 38).toFixed(2)}vw,0,0)`;
+    lBtn.style.setProperty('--bs', (.55 + .45 * SM(clamp((t - .45) / .45))).toFixed(3));
+    lBtn.style.opacity = clamp((t - .4) / .3).toFixed(3);
   }
 
   /* CTA: the window opens to full screen */
@@ -1179,12 +1059,12 @@ async function intro() {
 }
 
 /* round button: leans toward the pointer */
-yBtn.addEventListener('pointermove', e => {
-  const r = yBtn.getBoundingClientRect();
-  yBtn.style.setProperty('--mx', ((e.clientX - r.left - r.width / 2) * .22).toFixed(1) + 'px');
-  yBtn.style.setProperty('--my', ((e.clientY - r.top - r.height / 2) * .22).toFixed(1) + 'px');
+lBtn.addEventListener('pointermove', e => {
+  const r = lBtn.getBoundingClientRect();
+  lBtn.style.setProperty('--mx', ((e.clientX - r.left - r.width / 2) * .22).toFixed(1) + 'px');
+  lBtn.style.setProperty('--my', ((e.clientY - r.top - r.height / 2) * .22).toFixed(1) + 'px');
 });
-yBtn.addEventListener('pointerleave', () => { yBtn.style.setProperty('--mx', '0px'); yBtn.style.setProperty('--my', '0px'); });
+lBtn.addEventListener('pointerleave', () => { lBtn.style.setProperty('--mx', '0px'); lBtn.style.setProperty('--my', '0px'); });
 
 /* ---------- boot ---------- */
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
