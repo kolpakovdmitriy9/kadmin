@@ -23,6 +23,7 @@ html,body{margin:0}
 html.is-locked,html.is-locked body{overflow:hidden}
 body{background:var(--cream);overflow-x:clip}
 img,video,svg{display:block}
+.lc-img,.c-ph,.card video,.card img,.warm-photo img{background-color:#c98c6c}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 h1,h2,h3,p{margin:0}
@@ -147,7 +148,7 @@ body:not(.is-ready) .fab{opacity:0}
 .warm-left p.wr{transition-delay:.55s}
 .warm-left.on .wr{opacity:1;transform:none}
 .warm-left.on .bsplit .w>span{transform:none}
-.warm-photo{position:absolute;inset:0;clip-path:inset(0 0 0 var(--wl,46%));will-change:clip-path}
+.warm-photo{background:#c98c6c;position:absolute;inset:0;clip-path:inset(0 0 0 var(--wl,46%));will-change:clip-path}
 .warm-photo img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;transform:translate3d(var(--wpx,0px),0,0) scale(var(--ws,1.25));will-change:transform}
 .warm-photo:after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(20,10,5,.78),rgba(20,10,5,.1) 55%,transparent);opacity:var(--wo,0)}
 .warm-left{position:absolute;z-index:2;left:var(--gut);top:calc(var(--hdr) + 7vh);width:calc(46% - var(--gut) * 2);opacity:var(--wlo,1);filter:blur(calc((1 - var(--wlo,1))*10px));will-change:opacity,transform}
@@ -379,6 +380,7 @@ body:not(.is-ready) .fab{opacity:0}
 }
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
+<link rel="preload" as="image" href="media/g-couple.jpg">
 </head>
 <body>
 
@@ -441,7 +443,7 @@ body:not(.is-ready) .fab{opacity:0}
 <section class="warm" id="about">
   <div class="warm-st">
     <div class="warm-bg" id="warm-bg"></div>
-    <div class="warm-photo" id="warm-photo"><img src="media/g-couple.jpg" alt="Прогулка у пруда во дворе" loading="lazy"></div>
+    <div class="warm-photo" id="warm-photo"><img src="media/g-couple.jpg" alt="Прогулка у пруда во дворе"></div>
     <div class="warm-left" id="warm-left">
       <div class="eyebrow wr"><b>[02]</b> О доме</div>
       <h2 class="h2 bsplit" data-bsplit>Простые радости жизни</h2>
