@@ -902,7 +902,7 @@ layoutHero();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutHero);
 
 // the picture follows the scroll slowly: an intro drift, then the camera keeps pushing in through the four text steps
-const REVERSE = false;   // hero.mp4 plays in its original direction: scroll down = forward
+const REVERSE = false;   // hero.mp4 is already stored pulled-away-last: scroll down = plain forward playback (smoothest to scrub)
 let introT = 0, introStart = -1, vidCur = 0, vidInit = false;
 function updateHeroVideo(sp) {
   if (!(hv.duration > 0)) return;
