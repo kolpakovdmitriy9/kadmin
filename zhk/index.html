@@ -87,10 +87,10 @@ body:not(.is-ready) .fab{opacity:0}
 
 /* ============ HERO ============ */
 .hero{position:sticky;top:0;z-index:1;height:100vh;height:100svh;min-height:560px;overflow:hidden;background:#a07a9c}
-#hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none;transform-origin:50% 66%;transform:scale(var(--a0,1));will-change:transform;background:#c98c6c}
-.hero:before{content:'';position:absolute;inset:0 0 auto;height:26%;z-index:3;background:linear-gradient(to bottom,rgba(30,12,4,.38),transparent);pointer-events:none}
+#hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none;transform-origin:50% 66%;transform:translate3d(var(--hx,0px),0,0) scale(var(--a0,1));will-change:transform;background:#c98c6c}
+.hero:before{content:'';position:absolute;inset:0 0 auto;height:clamp(150px,24vh,230px);z-index:3;background:linear-gradient(to bottom,rgba(12,5,0,.66),rgba(12,5,0,.34) 55%,transparent);pointer-events:none}
 .hero:after{content:'';position:absolute;inset:auto 0 0;height:56%;z-index:3;background:linear-gradient(to bottom,transparent,rgba(20,10,5,.62));pointer-events:none}
-.hero-hold{height:440vh}
+.hero-hold{height:340vh}
 /* the logo lives in a fixed layer so it can fly into the header */
 .dyn{position:fixed;inset:0;z-index:49;pointer-events:none;overflow:hidden}
 .wordmark{position:absolute;inset:0;margin:0;font-weight:800;font-size:var(--wf,20vw);line-height:.92;color:var(--wc,#fff);white-space:nowrap;filter:drop-shadow(0 2px 22px rgba(60,20,0,var(--ws,.3)))}
@@ -139,12 +139,13 @@ body:not(.is-ready) .fab{opacity:0}
 .thin{font-weight:200;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
 
 /* ============ WARM (pinned photo growth) ============ */
-.warm{position:relative;z-index:2;height:260vh;background:var(--peach)}
+.warm{position:relative;z-index:2;height:380vh}
 .warm-st{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.warm-bg{position:absolute;left:0;top:0;bottom:0;width:46%;background:var(--peach);transform:translate3d(var(--wx,0px),0,0);will-change:transform}
 .warm-photo{position:absolute;inset:0;clip-path:inset(0 0 0 var(--wl,46%));will-change:clip-path}
-.warm-photo img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;transform:scale(var(--ws,1.25));will-change:transform}
+.warm-photo img{width:100%;height:100%;object-fit:cover;object-position:60% 50%;transform:translate3d(var(--wpx,0px),0,0) scale(var(--ws,1.25));will-change:transform}
 .warm-photo:after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(20,10,5,.78),rgba(20,10,5,.1) 55%,transparent);opacity:var(--wo,0)}
-.warm-left{position:absolute;z-index:2;left:var(--gut);top:calc(var(--hdr) + 7vh);width:calc(46% - var(--gut) * 2);opacity:var(--wlo,1);filter:blur(calc((1 - var(--wlo,1))*10px));will-change:opacity}
+.warm-left{position:absolute;z-index:2;left:var(--gut);top:calc(var(--hdr) + 7vh);width:calc(46% - var(--gut) * 2);opacity:var(--wlo,1);filter:blur(calc((1 - var(--wlo,1))*10px));transform:translate3d(var(--wx,0px),0,0);will-change:opacity,transform}
 .warm-left .eyebrow{margin-bottom:5vh}
 .warm-left .h2{font-size:clamp(40px,5.6vw,96px)}
 .warm-left p{margin-top:5vh;max-width:380px;font-size:16px;line-height:1.5;font-weight:500;opacity:.8}
@@ -340,6 +341,7 @@ body:not(.is-ready) .fab{opacity:0}
   .book span{display:none}.book{padding:0 6px}
   .card-t{grid-template-columns:1fr}
   .warm-left{width:calc(100% - var(--gut)*2)}
+  .warm-bg{width:100%}
   .f-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
@@ -349,7 +351,7 @@ body:not(.is-ready) .fab{opacity:0}
   .logo-slot{width:80px}
   .hero-meta{display:none}
   .hero-copy{max-width:240px;font-size:14px}
-  .warm{height:250vh}
+  .warm{height:340vh}
   .fact{grid-template-columns:1fr}
   .p-row{grid-template-columns:1fr auto}.p-row .pr{grid-column:2}
   .l-intro{flex-basis:88vw}
@@ -437,10 +439,11 @@ body:not(.is-ready) .fab{opacity:0}
 <!-- ================= WARM ================= -->
 <section class="warm" id="about">
   <div class="warm-st">
+    <div class="warm-bg" id="warm-bg"></div>
     <div class="warm-photo" id="warm-photo"><img src="media/g-couple.jpg" alt="Прогулка у пруда во дворе" loading="lazy"></div>
     <div class="warm-left" id="warm-left">
       <div class="eyebrow"><b>[02]</b> О доме</div>
-      <h2 class="h2 split" data-split>Простые радости жизни</h2>
+      <h2 class="h2">Простые радости жизни</h2>
       <p>Мамины булочки по воскресеньям, соседи по имени и свет в окнах, когда возвращаешься поздно.</p>
     </div>
     <div class="eyebrow warm-cap" id="warm-cap"><b style="color:var(--sun)">[02]</b> О доме</div>
@@ -781,7 +784,7 @@ document.addEventListener('click', e => {
 
 /* ---------- scroll-driven scenes ---------- */
 const hero = $('.hero'), warm = $('.warm'), wSt = $('.warm-st'), wPhoto = $('#warm-photo'), wLeft = $('#warm-left');
-const wCap = $('#warm-cap');
+const wCap = $('#warm-cap'), wBg = $('#warm-bg');
 const cards = $$('.card');
 const cta = $('#cta'), ctaWin = $('#cta-win');
 let sy = scrollY, lx = 0;
@@ -842,16 +845,21 @@ function frame() {
   sy += (scrollY - sy) * .14;                       // eased scroll value for the "floaty" parts
   /* hero */
   /* hero: the picture scrubs with the scroll while four text steps pass over it */
-  const hp = clamp(scrollY / H), sp = clamp(scrollY / Math.max(1, heroHold.offsetHeight));
+  const hp = clamp(scrollY / H), sp = clamp(scrollY / Math.max(1, heroHold.offsetHeight + H));   // 1 = the moment the next panel starts to arrive
   updateHeroVideo(sp);
   setVars(heroEl, { '--hp': hp.toFixed(4), '--a0': (1 + .05 * sp).toFixed(4) });
   let cur = -1;
   beatRange.forEach(([a, b], i) => { const on = sp >= a && sp < b; beatEls[i].classList.toggle('on', on); if (on) cur = i; });
   beatNav.classList.toggle('on', sp > .05 && sp < .95);
   beatPills.forEach((e, i) => e.classList.toggle('on', i === Math.max(0, cur >= 0 ? cur : (sp < .3 ? 0 : sp < .5 ? 1 : sp < .7 ? 2 : 3))));
-  /* logo: the whole word shrinks and flies to the middle of the header, then the cream plate fades in and the letters turn ink */
+  /* warm panel (storyboard): it slides in from the right over the pinned video and pushes the video to the left */
+  const wr = warm.getBoundingClientRect(), wp = clamp(-wr.top / (wr.height - H));
+  const narrow = vw() <= 1000;
+  const xe = 1 - SM(clamp(wp / .27));                       // 1 = panel still off screen, 0 = in place
+  heroEl.style.setProperty('--hx', (-(1 - xe) * vw() * .3).toFixed(1) + 'px');
+  /* logo: the whole word shrinks and flies to the middle of the header; it stays white on the video, the plate comes only with the panel */
   const pl = clamp(scrollY / (H * .55)), lq = SM(pl);
-  const pe = SM(clamp((pl - .78) / .22));
+  const pe = SM(clamp((wp - .1) / .12));
   const fq = geo.F0 * Math.pow(geo.f1 / geo.F0, lq);
   const mix = (a, b) => Math.round(lerp(a, b, pe));
   setVars(dyn, {
@@ -862,17 +870,22 @@ function frame() {
   hdrBg.style.setProperty('--pe', pe.toFixed(3));
   hdrEl.classList.toggle('plated', pe > .5);
 
-  /* warm: photo grows from the right half to full-bleed, then the quote lights up */
-  const wr = warm.getBoundingClientRect(), wp = clamp(-wr.top / (wr.height - H));
-  const e1 = SM(clamp(wp / .42));
-  const startL = vw() <= 1000 ? 0 : 46;
-  wSt.style.setProperty('--wl', lerp(startL, 0, e1).toFixed(2) + '%');
-  if (vw() <= 1000) wPhoto.style.clipPath = `inset(${lerp(46, 0, e1).toFixed(2)}% 0 0 0)`; else wPhoto.style.clipPath = '';
+  /* warm: the photo follows the panel, then grows from the right half to full-bleed, then the quote lights up */
+  const e1 = SM(clamp((wp - .3) / .32));
+  const wxp = (xe * 100).toFixed(2) + 'vw';
+  wSt.style.setProperty('--wx', wxp);
+  wSt.style.setProperty('--wpx', (xe * vw() * .12).toFixed(1) + 'px');
+  if (narrow) {
+    const top = lerp(100, 46, SM(clamp((wp - .24) / .08)));
+    wPhoto.style.clipPath = `inset(${lerp(top, 0, e1).toFixed(2)}% 0 0 0)`;
+  } else {
+    wPhoto.style.clipPath = `inset(0 0 0 ${lerp(Math.min(100, xe * 100 + 46), 0, e1).toFixed(2)}%)`;
+  }
   wSt.style.setProperty('--ws', lerp(1.28, 1, e1).toFixed(3));
   wSt.style.setProperty('--wo', clamp((e1 - .3) / .7).toFixed(3));
   wLeft.style.setProperty('--wlo', (1 - clamp(e1 * 1.7)).toFixed(3));
   wLeft.style.pointerEvents = e1 > .5 ? 'none' : '';
-  const q = clamp((wp - .5) / .36), on = Math.round(q * qWords.length);
+  const q = clamp((wp - .66) / .26), on = Math.round(q * qWords.length);
   qWords.forEach((w, i) => w.classList.toggle('on', i < on));
 
   /* stacked cards: each one is pushed back while the next slides over it */
