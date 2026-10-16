@@ -919,6 +919,7 @@ function frame() {
     const panT = SM(clamp((pp - .66) / .34));
     const pan = (186 - VU) * u * panT;
     cityWorld.style.transform = `translate3d(${(-pan).toFixed(1)}px,0,0)`;
+    cityWorld.style.opacity = (1 - clamp(open * 2.5)).toFixed(3);       // nothing may peek out from under the growing circle
 
     // circle geometry
     const wide = Wd / H > 1.2;                                         // wide screens: a big circle on the left, text on the right
