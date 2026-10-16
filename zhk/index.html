@@ -836,7 +836,7 @@ function updateHeroVideo(sp) {
   if (!(hv.duration > 0)) return;
   const D = hv.duration - .04, INTRO = .3;
   if (introStart >= 0) introT = INTRO * EASE(clamp((performance.now() - introStart) / 2600));
-  const scrub = INTRO + (1 - INTRO) * sp;
+  const scrub = INTRO + (1 - INTRO) * clamp(sp / .82);   // the video finishes before the next panel starts to arrive
   const pr = Math.max(introT, scrollY > 2 ? scrub : 0);
   const want = D * (REVERSE ? 1 - pr : pr);
   if (!vidInit) { vidCur = want; vidInit = true; }
