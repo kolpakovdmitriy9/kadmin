@@ -185,16 +185,17 @@ body{background:var(--cream)}
 .close .btn{flex:none;background:var(--cream);color:var(--ink)}.close .btn i{background:var(--terra)}
 
 /* --- 11 офис продаж + карта (cream) --- */
-.contacts{background:var(--cream);padding:var(--pad) var(--gut)}
-.contacts .sh{margin-bottom:clamp(28px,5vh,52px)}
-.c-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(24px,4vw,70px);align-items:stretch}
-.map{display:block;position:relative;border-radius:28px;overflow:hidden;min-height:max(560px,75vh);background:#EFE6DA;box-shadow:0 24px 70px rgba(27,19,16,.14)}
+.contacts{background:var(--cream);padding:0}
+.c-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:stretch;min-height:max(720px,100svh)}
+.map{display:block;position:relative;min-height:max(620px,100svh);background:#EFE6DA}
 .map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
-.map span{position:absolute;left:20px;bottom:20px;background:var(--cream);border-radius:99px;padding:15px 24px;font-size:14px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.2);transition:background .4s,transform .5s var(--ease)}.map:hover span{background:#fff;transform:translateY(-3px)}
-.cinfo{display:flex;flex-direction:column;justify-content:center;gap:18px}
+.map span{position:absolute;left:28px;bottom:28px;background:var(--cream);border-radius:99px;padding:15px 24px;font-size:14px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.2);transition:background .4s,transform .5s var(--ease)}.map:hover span{background:#fff;transform:translateY(-3px)}
+.cinfo{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:clamp(40px,7vh,90px) var(--gut) clamp(40px,7vh,90px) clamp(32px,5vw,80px)}
+.cinfo .c-h{margin:6px 0 0;font-size:var(--h2);font-weight:600;letter-spacing:-.07em;line-height:.98}
+.cinfo .c-p{margin:0 0 8px;max-width:420px;color:rgba(27,19,16,.7);line-height:1.6}
 .cinfo .rows{display:grid;gap:2px;font-size:17px;line-height:1.55;font-weight:500}
 .cinfo .rows b{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);display:block;margin-top:14px}
-.cinfo .tel{display:inline-block;font-size:clamp(38px,4vw,68px);font-weight:200;letter-spacing:-.07em;line-height:1.05;transition:color .4s}.cinfo .tel:hover{color:var(--terra)}
+.cinfo .tel{display:inline-block;white-space:nowrap;font-size:clamp(30px,3vw,54px);font-weight:200;letter-spacing:-.07em;line-height:1.05;transition:color .4s}.cinfo .tel:hover{color:var(--terra)}
 .cinfo .btn{align-self:flex-start;height:72px;padding:0 10px 0 36px;font-size:18px;gap:28px;margin-top:10px}.cinfo .btn i{width:52px;height:52px}.cinfo .btn i svg{width:20px;height:20px}
 .cinfo .mail{display:inline-flex;align-items:center;min-height:44px;font-weight:700;font-size:18px;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1.5px}.cinfo .mail:hover{color:var(--terra)}
 .le-soc{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 10px}
@@ -217,6 +218,7 @@ body{background:var(--cream)}
 @media(max-width:1000px){
  .about .head{display:block}.about .head .num{display:block;margin-bottom:18px;padding:0}
  .statement,.about-row,.about-note{margin-left:0}
+ .c-grid{grid-template-columns:1fr;min-height:0}.map{min-height:380px}.cinfo{padding:40px var(--gut)}
  .sh,.close{display:block}.sh p{margin-top:18px;max-width:520px}.close .btn{margin-top:30px}
  .arch-grid{grid-template-columns:1fr;gap:44px}.acard:nth-child(2){margin-top:0}.acard .media{aspect-ratio:4/5}.acard p{max-width:520px}
  .loc-grid,.trust-grid,.ap-grid,.nb-grid,.c-grid{grid-template-columns:1fr}
@@ -336,9 +338,9 @@ body{background:var(--cream)}
 <button class="hot" data-area="0" aria-label="Кофейня и пекарня">1</button><button class="hot" data-area="1" aria-label="Детская площадка">2</button><button class="hot" data-area="2" aria-label="Пруд во дворе">3</button><div class="nb-cap">Ваше личное место силы.</div></div>
 <div class="nb-panel" aria-live="polite"><span class="num" id="area-num"></span><h3 id="area-title"></h3><p id="area-desc"></p><div class="nb-dots"><button data-area="0" aria-label="Кофейня и пекарня">1</button><button data-area="1" aria-label="Детская площадка">2</button><button data-area="2" aria-label="Пруд во дворе">3</button></div></div></div></section>
 
-<section class="contacts" id="contacts"><div class="sh reveal"><div><span class="num">08 / Офис продаж</span><h2>Приходите<br>в гости</h2></div><p>Пройдём по двору с менеджером, заглянем в лобби и покажем квартиру с отделкой.</p></div>
-<div class="c-grid reveal"><a class="map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener" aria-label="Открыть офис продаж в Яндекс Картах"><iframe title="Офис продаж на Яндекс Картах" src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe><span>Открыть в Яндекс Картах ↗</span></a>
-<div class="cinfo"><div class="rows"><b>Адрес</b>Москва, ул. Парковая, д. 12<b>Часы работы</b>Ежедневно: 09:00 — 21:00</div>
+<section class="contacts" id="contacts">
+<div class="c-grid"><a class="map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener" aria-label="Открыть офис продаж в Яндекс Картах"><iframe title="Офис продаж на Яндекс Картах" src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe><span>Открыть в Яндекс Картах ↗</span></a>
+<div class="cinfo reveal"><span class="num">08 / Офис продаж</span><h2 class="c-h">Приходите<br>в гости</h2><p class="c-p">Пройдём по двору с менеджером, заглянем в лобби и покажем квартиру с отделкой.</p><div class="rows"><b>Адрес</b>Москва, ул. Парковая, д. 12<b>Часы работы</b>Ежедневно: 09:00 — 21:00</div>
 <a class="tel" href="tel:+74950000000">+7 (495) 000-00-00</a><a class="mail" href="mailto:sales@example.ru">sales@example.ru</a>
 <div class="le-soc">
               <a href="#contacts" data-soc aria-label="VK"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.8 17.5c-6 0-9.4-4.1-9.5-10.9h3c.1 5 2.3 7.1 4.1 7.5V6.6h2.8v4.3c1.7-.2 3.5-2.1 4.1-4.3h2.8c-.5 2.6-2.400 4.500-3.700 5.300 1.300.6 3.400 2.300 4.200 5.600h-3.100c-.7-2.100-2.300-3.700-4.300-3.900v3.900h-.4Z"/></svg></a>
