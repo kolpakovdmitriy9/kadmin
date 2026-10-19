@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1B1310">
+<title>ЖК «Атлас» — Нейро</title>
+<link rel="preload" as="font" type="font/woff2" href="fonts/manrope-cyrillic-wght-normal.woff2" crossorigin>
+<link rel="stylesheet" href="tiers.css">
+<style>
+/* ===== НЕЙРО: кинематографичный первый экран, параллакс, раскрытие текста, редакторский ритм ===== */
+body{background:var(--cream)}
+#progress{position:fixed;left:0;top:0;height:3px;width:100%;background:var(--orange);transform-origin:left;transform:scaleX(0);z-index:200}
+.lab{position:fixed;left:0;right:0;top:0}
+.nav{position:absolute;left:0;right:0;top:56px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 var(--gut);color:#fff;text-shadow:0 1px 15px rgba(0,0,0,.4)}
+.nav .wm{font-size:44px}
+.nav-links{display:flex;gap:30px;font-size:14px;font-weight:600}.nav-links a:hover{opacity:.7}
+.nav-tel{font-size:14px;font-weight:700;text-align:right;line-height:1.3}.nav-tel small{display:block;font-weight:500;opacity:.8;font-size:12px}
+.hero{position:relative;height:max(760px,100svh);background:#1B1310;color:#fff;overflow:hidden}
+.hero video,.hero .poster{position:absolute;inset:-6% 0 -6%;width:100%;height:112%;object-fit:cover;transform:translate3d(0,var(--py,0px),0) scale(1.06);opacity:var(--fade,1);will-change:transform}
+.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,8,4,.5),transparent 38%,rgba(15,8,4,.82))}
+.hero-copy{position:absolute;z-index:3;left:var(--gut);bottom:clamp(120px,17vh,180px);max-width:1000px}
+.hero-copy .eyebrow{margin-bottom:22px;color:rgba(255,255,255,.9)}
+.hero h1{margin:0;font-size:clamp(60px,8.4vw,142px);font-weight:500;letter-spacing:-.075em;line-height:.92}
+.hero h1 em{display:block;font-style:normal;font-weight:200}
+.hero-badge{position:absolute;z-index:3;right:var(--gut);bottom:clamp(130px,17vh,190px);padding:18px 22px;border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(8px);font-size:13px;max-width:150px;border-radius:20px}
+.hero-badge strong{display:block;font-size:40px;font-weight:300;letter-spacing:-.05em;margin-bottom:6px}
+.hero-bar{position:absolute;z-index:3;left:var(--gut);right:var(--gut);bottom:0;display:flex;justify-content:space-between;gap:20px;padding:26px 0;border-top:1px solid rgba(255,255,255,.3);font-size:13px;color:rgba(255,255,255,.85)}
+.fab{position:fixed;z-index:60;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);height:54px;padding:0 24px;border-radius:99px;background:var(--cream);color:var(--ink);font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.25);transition:transform .5s var(--ease)}
+.fab:hover{transform:translateY(-3px)}.fab i{width:10px;height:10px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 0 rgba(242,106,46,.6);animation:fabp 2.2s infinite}
+@keyframes fabp{70%{box-shadow:0 0 0 12px rgba(242,106,46,0)}100%{box-shadow:0 0 0 0 rgba(242,106,46,0)}}
+.statement{display:flex;gap:50px;padding:clamp(80px,14vh,170px) var(--gut)}
+.statement .num{min-width:140px;padding-top:16px}
+.statement h2{margin:0;font-size:clamp(38px,5.4vw,86px);font-weight:500;letter-spacing:-.065em;line-height:1.12;max-width:1050px}
+.statement .w{opacity:.2;transition:opacity .5s}.statement .w.lit{opacity:1}
+.cols{display:grid;grid-template-columns:repeat(3,1fr)}
+.col{padding:0 clamp(20px,3vw,50px);border-left:1px solid var(--line);min-height:300px}.col:first-child{border:0;padding-left:0}
+.col .big{font-size:clamp(60px,7vw,120px);font-weight:200;letter-spacing:-.08em;line-height:.9;color:var(--terra)}
+.col h3{margin:60px 0 12px;font-size:clamp(24px,2.4vw,36px);font-weight:600;letter-spacing:-.055em}
+.col p{margin:0;max-width:320px;color:var(--muted);line-height:1.6}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:50px}
+.sh h2{margin:12px 0 0;font-size:clamp(42px,5.5vw,92px);font-weight:500;letter-spacing:-.07em;line-height:.98}.sh p{max-width:320px;margin:0;color:var(--muted);line-height:1.55}
+/* the photo opens up while you scroll */
+.grow-sec{height:240vh;position:relative}
+.grow{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;--gp:0}
+.grow .frame{position:absolute;left:50%;top:50%;width:calc(34vw + (100vw - 34vw)*var(--gp));height:calc(52vh + (100svh - 52vh)*var(--gp));transform:translate(-50%,-50%);border-radius:calc(160px*(1 - var(--gp)));overflow:hidden;background:#c98c6c}
+.grow .frame img{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.25 - .25*var(--gp)))}
+.grow .frame:after{content:'';position:absolute;inset:0;background:rgba(15,8,4,calc(.55*var(--gp)))}
+.grow .txt{position:absolute;z-index:3;left:0;right:0;text-align:center;color:#fff;opacity:calc((var(--gp) - .55)*3);padding:0 var(--gut)}
+.grow .txt h2{margin:0;font-size:clamp(46px,8vw,132px);font-weight:500;letter-spacing:-.075em;line-height:.95}
+.grow .cap{position:absolute;top:calc(50% - 26vh - 40px);left:0;right:0;text-align:center;opacity:calc(1 - var(--gp)*4);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+/* sideways strip, native scroll-snap */
+.strip{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 var(--gut) 10px;scrollbar-width:none}.strip::-webkit-scrollbar{display:none}
+.sc{flex:0 0 clamp(280px,34vw,560px);scroll-snap-align:start}
+.sc .im{aspect-ratio:4/5;border-radius:24px;overflow:hidden;background:#c98c6c}.sc img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}.sc:hover img{transform:scale(1.06)}
+.sc h3{margin:18px 0 6px;font-size:22px;font-weight:600;letter-spacing:-.04em}.sc p{margin:0;color:var(--muted);font-size:14px;line-height:1.5;max-width:340px}
+.ap{background:var(--ink);color:var(--cream)}
+.ap .sh p{color:rgba(244,238,231,.6)}
+.ap-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,4vw,80px);align-items:center}
+.plan-wrap{background:var(--cream);color:var(--ink);border-radius:8px;padding:34px}
+.tabs{display:flex;flex-wrap:wrap;gap:0;margin-bottom:30px;border-top:1px solid rgba(244,238,231,.2)}
+.tabs button{flex:1 1 33%;padding:16px 10px;text-align:left;font-size:14px;font-weight:600;border-bottom:1px solid rgba(244,238,231,.2);opacity:.55;transition:opacity .5s var(--ease),padding .6s var(--ease),color .5s}
+.tabs button[aria-selected=true]{opacity:1;color:var(--sun);padding-left:12px}
+.ap-info h3{margin:0 0 12px;font-size:clamp(32px,3.2vw,52px);font-weight:500;letter-spacing:-.06em}
+.ap .facts{color:rgba(244,238,231,.62);margin:22px 0 30px}.ap .facts b{color:#fff}
+.nb-grid{display:grid;grid-template-columns:1.5fr 1fr;min-height:560px}
+.nb-vis{position:relative;background:var(--ink);overflow:hidden}
+.nb-vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s var(--ease),transform 2s var(--ease);transform:scale(1.06)}.nb-vis img.on{opacity:1;transform:none}
+.nb-vis:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,8,4,.6),transparent 60%);pointer-events:none}
+.hot{z-index:2;animation:pls 3s infinite}.hot:nth-of-type(1){left:18%;top:48%}.hot:nth-of-type(2){left:58%;top:30%}.hot:nth-of-type(3){left:74%;top:62%}
+@keyframes pls{50%{box-shadow:0 0 0 12px rgba(255,255,255,.14)}}
+.nb-cap{position:absolute;z-index:2;left:36px;bottom:34px;color:#fff;font-size:clamp(30px,3.6vw,56px);font-weight:500;letter-spacing:-.06em;line-height:1;max-width:520px}
+.nb-panel{padding:clamp(30px,4vw,64px);display:flex;flex-direction:column;justify-content:center;background:#E8DACB}
+.nb-panel h3{margin:14px 0;font-size:clamp(28px,2.8vw,42px);font-weight:500;letter-spacing:-.06em;line-height:1.05}.nb-panel p{margin:0;color:var(--muted);line-height:1.6}
+.nb-dots{display:flex;gap:8px;margin-top:26px}.nb-dots button{width:42px;height:42px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line);font-weight:700;transition:background .4s,color .4s}.nb-dots button.active{background:var(--ink);color:var(--cream);box-shadow:none}
+.close{padding:clamp(80px,14vh,170px) var(--gut) clamp(50px,8vh,100px);display:flex;justify-content:space-between;align-items:flex-end;gap:30px}
+.close h2{margin:0;font-size:clamp(44px,6.4vw,110px);font-weight:500;letter-spacing:-.075em;line-height:.95;max-width:900px}
+.contacts{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,4vw,70px);padding:0 var(--gut) clamp(40px,6vh,80px)}
+.map{display:block;position:relative;border-radius:8px;overflow:hidden;min-height:340px;background:#EFE6DA}.map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}.map span{position:absolute;left:16px;bottom:16px;background:var(--cream);border-radius:99px;padding:10px 18px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.cinfo{display:flex;flex-direction:column;justify-content:center;gap:14px}.cinfo .tel{font-size:clamp(36px,4.4vw,72px);font-weight:200;letter-spacing:-.07em;line-height:1}
+.ft{background:var(--ink);color:var(--cream)}.ft .ft-legal{border-color:rgba(244,238,231,.18);margin-top:0;padding-top:0;border:0}
+@media(max-width:700px){.hero-bar span:nth-child(2){display:none}.hero-bar{padding-bottom:86px}}
+@media(max-width:1000px){.nav-links,.nav-tel{display:none}.statement{display:block}.statement .num{margin-bottom:22px;padding:0}.cols,.ap-grid,.nb-grid,.contacts{grid-template-columns:1fr}.col{border-left:0;border-top:1px solid var(--line);padding:26px 0;min-height:0}.col:first-child{border-top:0}.col h3{margin-top:24px}.sh,.close{display:block}.sh p{margin-top:18px}.close .btn{margin-top:26px}.hero-badge{display:none}.grow .frame{width:calc(70vw + 30vw*var(--gp))}}
+</style></head>
+<body>
+<div id="progress"></div>
+<div class="lab dark"><div><b>ЖК «Атлас»</b><span>тариф страницы</span></div>
+<nav class="tsw on-dark" aria-label="Тариф страницы"><a href="base.html">Базовый</a><a href="neuro.html" aria-current="page">Нейро</a><a href="index.html">Премиум</a></nav></div>
+<header class="nav"><a class="wm" href="#top">атлас<small>жилой комплекс</small></a>
+<nav class="nav-links"><a href="#concept">О доме</a><a href="#plans">Квартиры</a><a href="#nb">Двор</a><a href="#contacts">Контакты</a></nav>
+<a class="nav-tel" href="tel:+74950000000">+7 (495) 000-00-00<small>ежедневно 9:00–21:00</small></a></header>
+<main id="top">
+<section class="hero" data-parallax>
+  <video src="media/facade-loop.mp4" poster="media/g-low.jpg" autoplay muted loop playsinline preload="auto" aria-label="ЖК «Атлас» на закате"></video>
+  <div class="hero-copy"><div class="eyebrow">Москва · жилой квартал у парка</div><h1>Дом, в котором<em>тепло на душе.</em></h1></div>
+  <div class="hero-badge"><strong>2027</strong>сдача, IV квартал</div>
+  <div class="hero-bar"><span>ул. Парковая, 12</span><span>Клинкер. Двор без машин. Лобби в шесть метров.</span><a href="#concept">Исследовать дом ↓</a></div>
+</section>
+<a class="fab" href="#contacts"><i></i>Записаться на экскурсию</a>
+
+<div class="statement"><div class="num">Философия<br>проекта</div><h2 id="statement-text">Мы построили дом из клинкерного кирпича, который хранит тепло солнца, и двор, в котором хочется остаться дольше, чем на минуту.</h2></div>
+
+<section class="sect" id="concept" style="padding-top:20px"><div class="sh reveal"><div><span class="num">01 / О доме</span><h2>В своём ритме.<br>В своей среде.</h2></div><p>Не просто квадратные метры, а продуманные пространства для тишины, встреч и маленьких ежедневных радостей.</p></div>
+<div class="cols"><article class="col reveal"><div class="big">01</div><h3>Клинкерный кирпич</h3><p>Ручная формовка не выгорает и не требует ремонта. К вечеру стены отдают накопленное тепло солнца.</p></article>
+<article class="col reveal" data-d="120"><div class="big">02</div><h3>Двор без машин</h3><p>Автомобили остаются под землёй, а детские площадки и сад лежат на уровне первого этажа.</p></article>
+<article class="col reveal" data-d="240"><div class="big">03</div><h3>Лобби в шесть метров</h3><p>Двусветное пространство с видом на двор: здесь встречают гостей и пьют утренний кофе.</p></article></div></section>
+
+<section class="grow-sec"><div class="grow" id="grow"><div class="cap">Первый этаж — для жизни</div><div class="frame"><img src="media/g-couple.jpg" alt="Вечерняя прогулка у пруда"></div><div class="txt"><h2>Вечер у воды.</h2></div></div></section>
+
+<section class="sect" style="padding-left:0;padding-right:0"><div class="sh reveal" style="padding:0 var(--gut)"><div><span class="num">02 / Двор</span><h2>Дом, который<br>умеет отдыхать</h2></div><p>Прогулка с коляской, площадка для детей и утренний кофе — в нескольких шагах от подъезда.</p></div>
+<div class="strip">
+<article class="sc"><div class="im"><img src="media/g-couple.jpg" alt="" loading="lazy"></div><h3>Вечер у воды</h3><p>Деревянный настил у пруда и тёплая подсветка дорожек.</p></article>
+<article class="sc"><div class="im"><img src="media/g-play.jpg" alt="" loading="lazy"></div><h3>Площадки для всех возрастов</h3><p>Тихий двор: машины остаются под землёй, а дети — на виду.</p></article>
+<article class="sc"><div class="im"><img src="media/g-family.jpg" alt="" loading="lazy"></div><h3>Прогулки с коляской</h3><p>Широкие ровные дорожки и сад на уровне первого этажа.</p></article>
+<article class="sc"><div class="im"><img src="media/g-door.jpg" alt="" loading="lazy"></div><h3>Кофе внизу</h3><p>На первом этаже — кофейня, пекарня и цветочный магазин.</p></article>
+</div></section>
+
+<section class="sect ap" id="plans"><div class="sh reveal"><div><span class="num" style="color:var(--sun)">03 / Квартиры</span><h2>Выберите свою<br>планировку</h2></div><p>От студии для первого собственного дома до семейной квартиры с террасой. Площадь и полная стоимость — под каждым планом.</p></div>
+<div class="ap-grid reveal"><div class="plan-wrap"><div class="plan-box" id="plan-box"></div></div>
+<div class="ap-info"><div class="tabs" id="plan-tabs" role="tablist"></div><h3 id="plan-type"></h3><div class="bigarea" id="plan-area"></div><div class="facts" id="plan-facts"></div><button class="btn sun" data-dlg="Записаться на просмотр" data-txt="Покажем квартиру с отделкой и рассчитаем ипотеку за 15 минут. Телефон отдела продаж: +7 (495) 000-00-00.">Записаться на просмотр<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></button></div></div></section>
+
+<section class="sect" id="nb"><div class="sh reveal"><div><span class="num">04 / Окружение</span><h2>Жизнь продолжается<br>за порогом.</h2></div><p>Отдохнуть с семьёй, встретиться с друзьями или побыть наедине с собой — у дома.</p></div>
+<div class="nb-grid reveal"><div class="nb-vis"><img data-photo src="media/g-door.jpg" alt="Кофейня на первом этаже" loading="lazy"><img data-photo src="media/g-play.jpg" alt="Детская площадка" loading="lazy"><img data-photo src="media/g-pond.jpg" alt="Пруд во дворе" loading="lazy">
+<button class="hot" data-area="0" aria-label="Кофейня и пекарня">1</button><button class="hot" data-area="1" aria-label="Детская площадка">2</button><button class="hot" data-area="2" aria-label="Пруд во дворе">3</button><div class="nb-cap">Ваше личное место силы.</div></div>
+<div class="nb-panel" aria-live="polite"><span class="num" id="area-num"></span><h3 id="area-title"></h3><p id="area-desc"></p><div class="nb-dots"><button data-area="0" aria-label="1">1</button><button data-area="1" aria-label="2">2</button><button data-area="2" aria-label="3">3</button></div></div></div></section>
+
+<section class="close reveal"><h2>Почувствуйте свой новый ритм жизни.</h2><a class="btn" href="#contacts">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a></section>
+<section class="contacts" id="contacts"><a class="map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener"><iframe title="Офис продаж" src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=16&pt=37.796%2C55.794%2Cpm2rdm" loading="lazy"></iframe><span>Открыть в Яндекс Картах ↗</span></a>
+<div class="cinfo"><span class="num">Офис продаж</span><a class="tel" href="tel:+74950000000">+7 (495) 000-00-00</a><div>Москва, ул. Парковая, 12<br>ежедневно 9:00–21:00</div><a href="mailto:sales@example.ru" style="font-weight:700;text-decoration:underline">sales@example.ru</a></div></section>
+</main>
+<footer class="ft"><div class="ft-legal"><span>© ЖК «Атлас» · Тариф «Нейро»</span><span class="tier-note">Кинематографичный первый экран, параллакс, раскрытие текста и фото при прокрутке. Демонстрационный сайт: название, адрес, цены вымышлены и не являются офертой.</span></div></footer>
+<dialog class="dlg" id="dlg"><div class="dlg-b"><button class="x" aria-label="Закрыть">×</button><span class="num">ЖК «Атлас»</span><h2 id="dlg-t"></h2><p id="dlg-p"></p></div></dialog>
+<script src="plans.js"></script><script src="tiers.js"></script>
+</body></html>

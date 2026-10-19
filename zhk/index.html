@@ -60,6 +60,20 @@ h1,h2,h3,p{margin:0}
 .hdr-l,.hdr-r,.hdr-bg{transition:transform 1s var(--ease) .5s,opacity 1s var(--ease) .5s}
 body:not(.is-ready) .hdr-l,body:not(.is-ready) .hdr-r{transform:translateY(-140%);opacity:0}
 
+
+/* tariff switcher */
+.tsw{display:inline-flex;gap:2px;padding:3px;height:40px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.9);color:#fff;transition:box-shadow .5s var(--ease),color .5s var(--ease)}
+.tsw a{display:inline-flex;align-items:center;padding:0 14px;border-radius:99px;transition:background .5s var(--ease),color .5s var(--ease)}
+.tsw a:hover{background:rgba(255,255,255,.2)}
+.tsw a[aria-current=page]{background:var(--cream);color:var(--ink)}
+.hdr.plated .tsw{box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink)}
+.hdr.plated .tsw a:hover{background:rgba(27,19,16,.08)}
+.hdr.plated .tsw a[aria-current=page]{background:var(--ink);color:var(--cream)}
+.tsw-h{margin-left:6px}
+.tsw-m{display:none;position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);height:34px;font-size:11.5px;background:rgba(20,10,5,.28);backdrop-filter:blur(8px)}
+.hdr.plated .tsw-m{background:rgba(244,238,231,.9)}
+@media(max-width:1250px){.tsw-h{display:none}.tsw-m{display:inline-flex}}
+
 /* floating call */
 .fab{position:fixed;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);z-index:40;width:52px;height:52px;border-radius:50%;background:var(--sun);display:grid;place-items:center;box-shadow:0 8px 28px rgba(0,0,0,.18);transition:transform .5s var(--ease),opacity .6s}
 .fab:hover{transform:scale(1.08)}
@@ -461,7 +475,9 @@ body:not(.is-ready) .fab{opacity:0}
     <a class="hp" href="#plans">Квартиры</a>
     <a class="hc hide-t" href="#design" aria-label="О доме, 3D-тур"><span>3D<br>тур</span></a>
     <a class="hc hide-t" href="#leisure" aria-label="Жизнь во дворе"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3.2v9.6L13 8 5 3.2Z"/></svg></a>
+    <nav class="tsw tsw-h" aria-label="Тариф страницы"><a href="base.html">Базовый</a><a href="neuro.html">Нейро</a><a href="index.html" aria-current="page">Премиум</a></nav>
   </div>
+  <nav class="tsw tsw-m" aria-label="Тариф страницы"><a href="base.html">Базовый</a><a href="neuro.html">Нейро</a><a href="index.html" aria-current="page">Премиум</a></nav>
   <a class="logo-slot" href="#top" aria-label="Атлас — на главную"></a>
   <div class="hdr-r">
     <a class="phone" href="tel:+74950000000">+7 (495) 000-00-00</a>

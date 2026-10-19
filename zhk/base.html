@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#F4EEE7">
+<title>ЖК «Атлас» — Базовый</title>
+<link rel="preload" as="font" type="font/woff2" href="fonts/manrope-cyrillic-wght-normal.woff2" crossorigin>
+<link rel="stylesheet" href="tiers.css">
+<style>
+/* ===== БАЗОВЫЙ: модульные карточки, асимметрия, живые реакции ===== */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:22px var(--gut) 0}
+.nav-links{display:flex;gap:30px;font-size:14px;font-weight:600}.nav-links a{padding:8px 0;position:relative}.nav-links a:after{content:'';position:absolute;left:0;right:0;bottom:2px;height:2px;background:var(--terra);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}.nav-links a:hover:after{transform:none}
+.nav-tel{font-size:14px;font-weight:700;text-align:right;line-height:1.3}.nav-tel small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:3%;align-items:center;padding:30px var(--gut) clamp(60px,9vh,110px);min-height:min(86vh,820px)}
+.hero h1{margin:0 -170px 28px 0;font-size:clamp(54px,7.2vw,118px);font-weight:600;letter-spacing:-.075em;line-height:.93;position:relative;z-index:2}
+.hero h1 em{font-style:normal;color:var(--terra)}
+.hero-copy .eyebrow{margin-bottom:24px}
+.hero-copy p{max-width:360px;font-size:17px;line-height:1.55;color:var(--muted);margin:0 0 30px;position:relative;z-index:2}
+.hero-addr{margin-top:26px;font-size:13px;color:var(--muted)}
+.hero-photo{position:relative;height:clamp(420px,66vh,640px);border-radius:160px 10px 10px 10px;overflow:hidden;transform:rotate(2deg);background:#c98c6c}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:60% center;transform:scale(1.06);transition:transform 1.6s var(--ease)}
+.hero-photo:hover img{transform:scale(1.12)}
+.badge{position:absolute;right:22px;bottom:26px;width:126px;height:126px;border-radius:50%;background:var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-4deg);font-size:12px;font-weight:600;line-height:1.3}
+.badge strong{font-size:34px;font-weight:700;letter-spacing:-.05em;line-height:1}
+.ben-top{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:44px}
+.ben-top h2,.ap-top h2,.nb-top h2{margin:12px 0 0;font-size:clamp(40px,4.9vw,78px);font-weight:600;letter-spacing:-.065em;line-height:1}
+.ben-top p{max-width:320px;margin:0;color:var(--muted);line-height:1.55}
+.cards{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px}
+.card{min-height:340px;border-radius:32px;padding:30px;background:var(--peach);display:flex;flex-direction:column;justify-content:space-between;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .5s var(--ease)}
+.card:nth-child(1){background:#F3D9A4}.card:nth-child(2){background:#E8D8CB}
+.card:nth-child(3){background:var(--ink);color:var(--cream)}.card:nth-child(3) p{color:rgba(244,238,231,.7)}
+.card .k{display:flex;justify-content:space-between;font-size:14px;font-weight:600;opacity:.6}.card .k i{font-style:normal;font-size:28px;color:var(--terra);opacity:1}.card:nth-child(3) .k i{color:var(--sun)}
+.card h3{margin:70px 0 12px;font-size:clamp(26px,2.3vw,36px);font-weight:600;letter-spacing:-.05em;line-height:1.05}
+.card p{margin:0;max-width:320px;line-height:1.55;color:var(--muted);font-size:15px}
+.ap{background:var(--ink);color:var(--cream);border-radius:60px 60px 0 0;margin-top:10px}
+.ap-top{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:46px}.ap-top p{max-width:330px;margin:0;color:rgba(244,238,231,.65);line-height:1.55}
+.ap-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(24px,4vw,70px);align-items:center}
+.plan-wrap{background:var(--cream);color:var(--ink);border-radius:36px;padding:28px 28px 20px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.tabs button{padding:12px 20px;border-radius:99px;box-shadow:inset 0 0 0 1.5px rgba(244,238,231,.3);font-size:14px;font-weight:600;transition:background .5s var(--ease),color .5s var(--ease),transform .4s var(--ease)}
+.tabs button:hover{box-shadow:inset 0 0 0 1.5px var(--cream)}.tabs button:active{transform:scale(.96)}
+.tabs button[aria-selected=true]{background:var(--sun);color:var(--ink);box-shadow:none}
+.ap-info h3{margin:0 0 14px;font-size:clamp(32px,3vw,46px);font-weight:600;letter-spacing:-.055em}
+.ap .facts{color:rgba(244,238,231,.65);margin:20px 0 28px}.ap .facts b{color:#fff}
+.nb{padding-bottom:clamp(60px,10vh,120px)}
+.nb-top{margin-bottom:40px}
+.nb-grid{display:grid;grid-template-columns:1.3fr .7fr;border-radius:36px;overflow:hidden;min-height:470px;background:#E4D6C8}
+.nb-vis{position:relative;min-height:470px;background:var(--ink)}
+.nb-vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s var(--ease),transform 1.6s var(--ease);transform:scale(1.05)}
+.nb-vis img.on{opacity:1;transform:none}
+.nb-vis:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,10,5,.55),transparent 60%);pointer-events:none}
+.nb-vis .hot{animation:pls 3s infinite;z-index:2}.hot:nth-of-type(1){left:18%;top:46%}.hot:nth-of-type(2){left:58%;top:30%}.hot:nth-of-type(3){left:74%;top:62%}
+@keyframes pls{50%{box-shadow:0 0 0 12px rgba(255,255,255,.14)}}
+.nb-cap{position:absolute;left:32px;bottom:30px;z-index:2;color:#fff;font-size:clamp(26px,2.8vw,40px);font-weight:600;letter-spacing:-.05em;line-height:1.05;max-width:420px}
+.nb-panel{padding:clamp(28px,3vw,44px);display:flex;flex-direction:column;justify-content:center}
+.nb-panel h3{margin:14px 0;font-size:30px;font-weight:600;letter-spacing:-.05em;line-height:1.1}.nb-panel p{margin:0;color:var(--muted);line-height:1.6}
+.nb-dots{display:flex;gap:8px;margin-top:26px}.nb-dots button{width:42px;height:42px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line);font-weight:700;transition:background .4s var(--ease),color .4s var(--ease)}.nb-dots button.active{background:var(--ink);color:var(--cream);box-shadow:none}
+.cta{margin:0 var(--gut);padding:clamp(40px,6vh,80px) 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:30px}
+.cta h2{margin:0;font-size:clamp(38px,4.8vw,76px);font-weight:600;letter-spacing:-.065em;line-height:1}
+.contacts{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,60px);padding:0 var(--gut) clamp(40px,6vh,80px)}
+.map{display:block;position:relative;border-radius:30px;overflow:hidden;min-height:300px;background:#EFE6DA;box-shadow:0 0 0 1px var(--line)}
+.map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}.map span{position:absolute;left:16px;bottom:16px;background:var(--cream);border-radius:99px;padding:10px 18px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.cinfo{display:flex;flex-direction:column;justify-content:center;gap:14px}.cinfo .tel{font-size:clamp(34px,4vw,64px);font-weight:300;letter-spacing:-.06em;line-height:1}
+@media(max-width:1000px){.hero{grid-template-columns:1fr;gap:34px}.hero h1{margin-right:0}.hero-photo{height:420px;transform:rotate(1deg);border-radius:90px 10px 10px 10px}.cards{grid-template-columns:1fr}.card{min-height:240px}.card h3{margin-top:34px}.ap-grid,.nb-grid,.contacts{grid-template-columns:1fr}.ben-top,.ap-top,.cta{display:block}.ben-top p,.ap-top p{margin-top:18px}.cta .btn{margin-top:24px}.nav-links,.nav-tel{display:none}.ap{border-radius:34px 34px 0 0}}
+</style></head>
+<body>
+<div class="lab"><div><b>ЖК «Атлас»</b><span>тариф страницы</span></div>
+<nav class="tsw" aria-label="Тариф страницы"><a href="base.html" aria-current="page">Базовый</a><a href="neuro.html">Нейро</a><a href="index.html">Премиум</a></nav></div>
+<header class="nav"><a class="wm" href="#top">атлас<small>жилой комплекс</small></a>
+<nav class="nav-links"><a href="#concept">О доме</a><a href="#plans">Квартиры</a><a href="#nb">Двор</a><a href="#contacts">Контакты</a></nav>
+<a class="nav-tel" href="tel:+74950000000">+7 (495) 000-00-00<small>ежедневно 9:00–21:00</small></a></header>
+<main id="top">
+<section class="hero">
+  <div class="hero-copy"><div class="eyebrow">Москва · жилой квартал у парка</div>
+    <h1>Дом, в котором <em>тепло</em> на душе</h1>
+    <p>Клинкерный кирпич, двор без машин и лобби высотой шесть метров. Простые радости жизни, объединённые одним именем.</p>
+    <a class="btn" href="#plans">Выбрать квартиру<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a>
+    <div class="hero-addr">ул. Парковая, 12</div></div>
+  <div class="hero-photo"><img src="media/g-low.jpg" alt="ЖК «Атлас» на закате" fetchpriority="high"><div class="badge"><strong>2027</strong>сдача<br>IV квартал</div></div>
+</section>
+
+<section class="sect" id="concept"><div class="ben-top reveal"><div><span class="num">01 / О доме</span><h2>В своём ритме.<br>В своей среде.</h2></div><p>Не просто квадратные метры, а продуманные пространства для тишины, встреч и маленьких ежедневных радостей.</p></div>
+<div class="cards">
+<article class="card reveal" data-tilt><div class="k">01 <i>✳</i></div><div><h3>Клинкерный кирпич</h3><p>Ручная формовка не выгорает и не требует ремонта. К вечеру стены отдают накопленное тепло солнца.</p></div></article>
+<article class="card reveal" data-tilt data-d="90"><div class="k">02 <i>◌</i></div><div><h3>Двор без машин</h3><p>Автомобили остаются под землёй, а детские площадки и сад лежат на уровне первого этажа.</p></div></article>
+<article class="card reveal" data-tilt data-d="180"><div class="k">03 <i>⌘</i></div><div><h3>Лобби в шесть метров</h3><p>Двусветное пространство с видом на двор: здесь встречают гостей и пьют утренний кофе.</p></div></article>
+</div></section>
+
+<section class="sect ap" id="plans"><div class="ap-top reveal"><div><span class="num" style="color:var(--sun)">02 / Квартиры</span><h2>Выберите свою<br>планировку</h2></div><p>Шесть типов квартир: от студии для первого собственного дома до семейной квартиры с террасой.</p></div>
+<div class="ap-grid reveal"><div class="plan-wrap"><div class="plan-box" id="plan-box"></div></div>
+<div class="ap-info"><div class="tabs" id="plan-tabs" role="tablist"></div><h3 id="plan-type"></h3><div class="bigarea" id="plan-area"></div><div class="facts" id="plan-facts"></div><button class="btn sun" data-dlg="Записаться на просмотр" data-txt="Покажем квартиру с отделкой и рассчитаем ипотеку за 15 минут. Телефон отдела продаж: +7 (495) 000-00-00.">Записаться на просмотр<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></button></div></div></section>
+
+<section class="sect nb" id="nb"><div class="nb-top reveal"><span class="num">03 / Двор</span><h2>Жизнь продолжается<br>за порогом.</h2></div>
+<div class="nb-grid reveal"><div class="nb-vis"><img data-photo src="media/g-door.jpg" alt="Кофейня на первом этаже" loading="lazy"><img data-photo src="media/g-play.jpg" alt="Детская площадка" loading="lazy"><img data-photo src="media/g-pond.jpg" alt="Пруд во дворе" loading="lazy">
+<button class="hot" data-area="0" aria-label="Кофейня и пекарня">1</button><button class="hot" data-area="1" aria-label="Детская площадка">2</button><button class="hot" data-area="2" aria-label="Пруд во дворе">3</button><div class="nb-cap">Ваше личное место силы.</div></div>
+<div class="nb-panel" aria-live="polite"><span class="num" id="area-num"></span><h3 id="area-title"></h3><p id="area-desc"></p><div class="nb-dots"><button data-area="0" aria-label="1">1</button><button data-area="1" aria-label="2">2</button><button data-area="2" aria-label="3">3</button></div></div></div></section>
+
+<section class="cta reveal"><h2>Почувствуйте свой<br>новый ритм жизни.</h2><a class="btn" href="#contacts">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a></section>
+<section class="contacts" id="contacts"><a class="map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener"><iframe title="Офис продаж" src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=16&pt=37.796%2C55.794%2Cpm2rdm" loading="lazy"></iframe><span>Открыть в Яндекс Картах ↗</span></a>
+<div class="cinfo"><span class="num">Офис продаж</span><a class="tel" href="tel:+74950000000">+7 (495) 000-00-00</a><div>Москва, ул. Парковая, 12<br>ежедневно 9:00–21:00</div><a href="mailto:sales@example.ru" style="font-weight:700;text-decoration:underline">sales@example.ru</a></div></section>
+</main>
+<footer class="ft"><div class="ft-legal"><span>© ЖК «Атлас» · Тариф «Базовый»</span><span class="tier-note">Модульные карточки, реакции на курсор, пульсирующие метки. Демонстрационный сайт: название, адрес, цены вымышлены и не являются офертой.</span></div></footer>
+<dialog class="dlg" id="dlg"><div class="dlg-b"><button class="x" aria-label="Закрыть">×</button><span class="num">ЖК «Атлас»</span><h2 id="dlg-t"></h2><p id="dlg-p"></p></div></dialog>
+<script src="plans.js"></script><script src="tiers.js"></script>
+</body></html>
