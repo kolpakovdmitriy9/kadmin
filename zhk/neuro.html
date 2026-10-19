@@ -17,16 +17,16 @@ main>section,.ft{position:relative}
 .head p{max-width:340px;margin:0;line-height:1.55;color:var(--muted);font-size:16px}
 /* hero */
 .hero{display:grid;grid-template-columns:1.05fr 1fr;gap:3%;align-items:center;padding:30px var(--gut) clamp(90px,12vh,130px);min-height:min(86vh,820px);background:var(--cream)}
-.hero h1{margin:0 -170px 28px 0;font-size:clamp(50px,7.2vw,118px);font-weight:600;letter-spacing:-.075em;line-height:.93;position:relative;z-index:2}
+.hero h1{margin:0 0 28px;font-size:clamp(48px,6.3vw,104px);font-weight:600;letter-spacing:-.075em;line-height:.93;position:relative;z-index:2}
 .hero h1 em{font-style:normal;color:var(--terra)}
 .hero-copy .eyebrow{margin-bottom:24px}
 .hero-copy p{max-width:380px;font-size:17px;line-height:1.55;color:var(--muted);margin:0 0 30px;position:relative;z-index:2}
 .hero-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px}
 .hero-addr{font-size:13px;color:var(--muted);font-weight:600}
-.hero-photo{position:relative;height:clamp(420px,66vh,640px);border-radius:160px 10px 10px 10px;overflow:hidden;transform:rotate(2deg);background:#c98c6c}
+.hero-photo{position:relative;height:clamp(420px,66vh,640px);border-radius:36px;overflow:hidden;background:#c98c6c}
 .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:60% center;transform:scale(1.06);transition:transform 1.6s var(--ease)}
 .hero-photo:hover img{transform:scale(1.12)}
-.badge{position:absolute;right:22px;bottom:26px;width:126px;height:126px;border-radius:50%;background:var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-4deg);font-size:12px;font-weight:600;line-height:1.3}
+.badge{position:absolute;right:22px;bottom:26px;width:126px;height:126px;border-radius:50%;background:var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;line-height:1.3}
 .badge strong{font-size:34px;font-weight:700;letter-spacing:-.05em;line-height:1}
 .chip{position:absolute;left:20px;top:26px;background:rgba(255,251,246,.92);border-radius:99px;padding:11px 18px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px}
 .chip:before{content:'';width:10px;height:10px;border-radius:50%;background:var(--orange);animation:pls2 2.4s infinite}
@@ -38,16 +38,15 @@ main>section,.ft{position:relative}
 .about .lead{font-size:clamp(19px,1.8vw,26px);line-height:1.45;max-width:520px;margin:0 0 32px;letter-spacing:-.02em}
 .pills{display:flex;flex-wrap:wrap;gap:10px}.pills span{background:rgba(255,251,246,.6);border-radius:99px;padding:12px 18px;font-size:14px;font-weight:700}
 .about-photo{position:relative}
-.about-photo .ph{border-radius:10px 140px 10px 10px;overflow:hidden;aspect-ratio:4/5;max-height:620px;width:100%;transform:rotate(-2deg)}
+.about-photo .ph{border-radius:36px;overflow:hidden;aspect-ratio:4/5;max-height:620px;width:100%}
 .about-photo img{width:100%;height:100%;object-fit:cover}
-.about-photo .note{position:absolute;left:-26px;bottom:34px;max-width:230px;background:var(--paper);border-radius:22px;padding:18px 20px;font-size:14px;line-height:1.45;font-weight:600;transform:rotate(2deg);box-shadow:0 14px 40px rgba(60,20,5,.16)}
+.about-photo .note{position:absolute;left:-26px;bottom:34px;max-width:230px;background:var(--paper);border-radius:22px;padding:18px 20px;font-size:14px;line-height:1.45;font-weight:600;box-shadow:0 14px 40px rgba(60,20,5,.16)}
 /* architecture */
 .arch{background:var(--paper)}
-.cards{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:18px;align-items:start}
-.cards>div:nth-child(2){margin-top:44px}.cards>div:nth-child(3){margin-top:16px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
 .card{border-radius:32px;overflow:hidden;background:var(--cream);transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .5s var(--ease),box-shadow .5s var(--ease);box-shadow:0 0 0 1px var(--line);height:100%}
 .card:hover{box-shadow:0 24px 60px rgba(60,20,5,.16)}
-.card .im{aspect-ratio:4/3;overflow:hidden}.card:first-child .im{aspect-ratio:5/4}
+.card .im{aspect-ratio:4/3;overflow:hidden}
 .card .im img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}.card:hover .im img{transform:scale(1.06)}
 .card .bd{padding:26px 28px 30px}
 .card .k{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--terra)}
@@ -64,9 +63,8 @@ main>section,.ft{position:relative}
 .drow .l{font-size:18px;font-weight:600;letter-spacing:-.02em}
 .drow .p{background:var(--ink);color:var(--cream);border-radius:99px;padding:10px 16px;font-size:13px;font-weight:700;white-space:nowrap}
 .drow:nth-child(2) .p,.drow:nth-child(1) .p{background:var(--terra)}
-.loc-vis{position:relative;border-radius:36px 36px 120px 36px;overflow:hidden;min-height:420px;background:var(--ink)}
-.loc-vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
-.loc-vis:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,10,5,.6),transparent 55%)}
+.loc-vis{position:relative;border-radius:36px;overflow:hidden;min-height:420px;background:var(--ink)}
+.loc-vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .rings{position:absolute;left:50%;top:44%;width:0;height:0;z-index:2}
 .rings i{position:absolute;border-radius:50%;border:1.5px solid rgba(255,255,255,.55);transform:translate(-50%,-50%);animation:ring 4s infinite}
 .rings i:nth-child(1){width:90px;height:90px}.rings i:nth-child(2){width:190px;height:190px;animation-delay:.8s}.rings i:nth-child(3){width:300px;height:300px;animation-delay:1.6s}
@@ -79,7 +77,6 @@ main>section,.ft{position:relative}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .stat{border-radius:30px;padding:28px 26px 30px;background:rgba(244,238,231,.07);box-shadow:inset 0 0 0 1px rgba(244,238,231,.14);transition:transform .5s var(--ease),background .4s var(--ease);min-height:260px;display:flex;flex-direction:column;justify-content:space-between}
 .stat:hover{transform:translateY(-6px);background:rgba(244,238,231,.12)}
-.stat:nth-child(2){margin-top:30px}.stat:nth-child(4){margin-top:30px}
 .stat b{font-size:clamp(56px,6vw,104px);font-weight:200;letter-spacing:-.07em;line-height:.9;color:var(--sun)}.stat b small{font-size:.28em;font-weight:600;letter-spacing:0;margin-left:6px;color:var(--cream)}
 .stat span{font-size:15px;line-height:1.5;color:rgba(244,238,231,.72)}
 /* plans */
@@ -87,7 +84,7 @@ main>section,.ft{position:relative}
 .ap .num,.trust .num{color:var(--sun)}
 .ap .head p{color:rgba(255,249,242,.8)}
 .ap-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(24px,4vw,70px);align-items:center}
-.plan-wrap{background:var(--cream);color:var(--ink);border-radius:36px;padding:28px 28px 20px;transform:rotate(-1deg);box-shadow:0 30px 70px rgba(40,10,0,.3)}
+.plan-wrap{background:var(--cream);color:var(--ink);border-radius:36px;padding:28px 28px 20px;box-shadow:0 30px 70px rgba(40,10,0,.3)}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
 .tabs button{min-height:44px;padding:0 20px;border-radius:99px;box-shadow:inset 0 0 0 1.5px rgba(255,249,242,.5);font-size:14px;font-weight:600;transition:background .5s var(--ease),color .5s var(--ease),transform .4s var(--ease)}
 .tabs button:hover{box-shadow:inset 0 0 0 1.5px #fff}.tabs button:active{transform:scale(.96)}
@@ -112,12 +109,14 @@ main>section,.ft{position:relative}
 .office{background:var(--cream)}
 .office .head{margin-bottom:34px}
 .off-grid{display:grid;grid-template-columns:3fr 2fr;gap:clamp(18px,2.4vw,32px);align-items:stretch}
-.map{display:block;position:relative;border-radius:36px 36px 36px 120px;overflow:hidden;min-height:max(520px,70vh);background:#EFE6DA;box-shadow:0 0 0 1px var(--line)}
+.map{display:block;position:relative;border-radius:36px;overflow:hidden;min-height:max(520px,70vh);background:#EFE6DA;box-shadow:0 0 0 1px var(--line)}
 .map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
 .map span{position:absolute;left:20px;top:20px;background:var(--cream);border-radius:99px;padding:13px 20px;font-size:14px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:background .4s,color .4s}.map:hover span{background:var(--ink);color:#fff}
 .cinfo{background:var(--paper);border-radius:36px;padding:clamp(26px,3vw,44px);display:flex;flex-direction:column;justify-content:center;gap:22px;box-shadow:0 0 0 1px var(--line)}
 .cinfo .tel{font-size:clamp(32px,3.4vw,54px);font-weight:300;letter-spacing:-.06em;line-height:1;transition:color .3s}.cinfo .tel:hover{color:var(--terra)}
 .cinfo .rows{display:grid;gap:4px;font-size:17px;line-height:1.5;font-weight:500}.cinfo .rows span{color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:12px}.cinfo .rows span:first-child{margin-top:0}
+.cinfo .c-title{margin:0;font-size:clamp(30px,3vw,46px);font-weight:600;letter-spacing:-.06em;line-height:1}
+.cinfo .btn{align-self:flex-start;height:68px;padding:0 10px 0 32px;font-size:17px;gap:26px;margin-top:6px}.cinfo .btn i{width:48px;height:48px}
 .cinfo .mail{font-weight:700;font-size:18px;text-decoration:underline;text-underline-offset:4px;min-height:44px;display:inline-flex;align-items:center}
 .le-soc{display:flex;gap:clamp(14px,1.4vw,22px);flex-wrap:wrap}
 .le-soc a{width:clamp(64px,5.6vw,92px);height:clamp(64px,5.6vw,92px);border-radius:50%;background:#E9DFD3;color:var(--ink);display:grid;place-items:center;transition:background .4s var(--ease),color .4s var(--ease),transform .5s var(--ease)}
@@ -131,13 +130,13 @@ main>section,.ft{position:relative}
 .ft-legal{border-color:rgba(244,238,231,.18)}
 .ft :focus-visible{outline-color:var(--sun)}
 @media(max-width:1000px){
-.hero{grid-template-columns:1fr;gap:34px;padding-bottom:90px}.hero h1{margin-right:0}.hero-photo{height:420px;transform:rotate(1deg);border-radius:90px 10px 10px 10px}
+.hero{grid-template-columns:1fr;gap:34px;padding-bottom:90px}.hero h1{margin-right:0}.hero-photo{height:420px;border-radius:28px}
 .cards,.loc-grid,.ap-grid,.nb-grid,.off-grid,.about-grid{grid-template-columns:1fr}.cards>div{margin-top:0!important}
 .head{display:block}.head p{margin-top:18px}
 .stats{grid-template-columns:1fr 1fr}.stat{min-height:200px}.stat:nth-child(n){margin-top:0}
 .nav{flex-wrap:wrap}.nav-tel{display:none}.nav-links{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;gap:22px;scrollbar-width:none}.nav-links a{white-space:nowrap}
 .sec{border-radius:30px 30px 0 0;margin-top:-30px;padding-top:calc(clamp(60px,9vh,90px) + 30px)}.ft{border-radius:30px 30px 0 0;margin-top:-30px}
-.about-photo .note{left:12px}.loc-vis{min-height:340px}.map{min-height:460px;border-radius:30px 30px 30px 70px}
+.about-photo .note{left:12px}.loc-vis{min-height:340px}.map{min-height:460px;border-radius:28px}
 }
 @media(max-width:560px){.drow{grid-template-columns:auto 1fr;padding:18px 20px}.drow .p{grid-column:1/-1;justify-self:start}.stats{grid-template-columns:1fr}.stat{min-height:0;gap:24px}.nb-vis{min-height:380px}.badge{width:104px;height:104px}.badge strong{font-size:28px}.plan-wrap{padding:18px 14px 10px}.hero-photo{height:360px}.hero h1{letter-spacing:-.07em}}
 </style></head>
@@ -150,7 +149,7 @@ main>section,.ft{position:relative}
 <main id="top">
 <section class="hero">
   <div class="hero-copy"><div class="eyebrow">Москва · жилой квартал у парка</div>
-    <h1>Дом, в котором <em>тепло</em> на душе</h1>
+    <h1>Дом, в котором<br><em>тепло</em> на душе</h1>
     <p>Жилой квартал у парка. Клинкерный кирпич, двор без машин и лобби высотой шесть метров.</p>
     <div class="hero-row"><a class="btn" href="#plans">Выбрать квартиру<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a><span class="hero-addr">ул. Парковая, 12 · 24 этажа</span></div></div>
   <div class="hero-photo"><img src="media/g-low.jpg" alt="ЖК «Атлас» на закате" fetchpriority="high"><div class="chip">Идёт строительство</div><div class="badge"><strong>2027</strong>сдача<br>IV квартал</div></div>
@@ -176,7 +175,7 @@ main>section,.ft{position:relative}
 <div class="drow reveal" data-d="80"><div class="n">1,2<small>км</small></div><div class="l">парк «Лесной»</div><div class="p">14 мин пешком</div></div>
 <div class="drow reveal" data-d="160"><div class="n">5<small>км</small></div><div class="l">выезд на ТТК</div><div class="p">5 мин на авто</div></div>
 <div class="drow reveal" data-d="240"><div class="n">8<small>км</small></div><div class="l">Садовое кольцо</div><div class="p">15 мин на авто</div></div></div>
-<div class="loc-vis reveal" data-d="120"><img src="media/g-evening.jpg" alt="Вечерний двор ЖК «Атлас»" loading="lazy"><div class="rings" aria-hidden="true"><i></i><i></i><i></i><b></b></div><div class="cap">5, 10, 15 минут — и вы в центре города</div></div></div></section>
+<div class="loc-vis reveal" data-d="120"><img src="media/g-evening.jpg" alt="Вечерний двор ЖК «Атлас»" loading="lazy"></div></div></section>
 
 <section class="sec trust" id="trust"><div class="head reveal"><div><span class="num">04 / Надёжность</span><h2>Дом, на который можно положиться</h2></div><p>Монолитный каркас, клинкер вместо штукатурки и инженерия, которую не слышно. Всё, что должно работать годами, сделано с запасом.</p></div>
 <div class="stats">
@@ -195,15 +194,15 @@ main>section,.ft{position:relative}
 <button class="hot" data-area="0" aria-label="Кофейня и пекарня">1</button><button class="hot" data-area="1" aria-label="Детская площадка">2</button><button class="hot" data-area="2" aria-label="Пруд во дворе">3</button><div class="nb-cap">Ваше личное место силы.</div></div>
 <div class="nb-panel" aria-live="polite"><span class="num" id="area-num"></span><h3 id="area-title"></h3><p id="area-desc"></p><div class="nb-dots"><button data-area="0" aria-label="Кофейня и пекарня">1</button><button data-area="1" aria-label="Детская площадка">2</button><button data-area="2" aria-label="Пруд во дворе">3</button></div></div></div></section>
 
-<section class="sec office" id="contacts"><div class="head reveal"><div><span class="num">07 / Офис продаж</span><h2>Почувствуйте свой<br>новый ритм жизни.</h2></div><a class="btn" href="tel:+74950000000">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a></div>
+<section class="sec office" id="contacts"><div class="head reveal"><div><span class="num">07 / Офис продаж</span><h2>Почувствуйте свой<br>новый ритм жизни.</h2></div></div>
 <div class="off-grid reveal"><a class="map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener" aria-label="Открыть в Яндекс Картах"><iframe title="Офис продаж на Яндекс Картах" src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" loading="lazy"></iframe><span>Открыть в Яндекс Картах ↗</span></a>
-<div class="cinfo"><div class="rows"><span>Адрес</span>Москва, ул. Парковая, д. 12<span>Часы работы</span>Ежедневно, 9:00–21:00</div>
+<div class="cinfo"><h3 class="c-title">Контакты</h3><div class="rows"><span>Адрес</span>Москва, ул. Парковая, д. 12<span>Часы работы</span>Ежедневно, 9:00–21:00</div>
 <a class="tel" href="tel:+74950000000">+7 (495) 000-00-00</a><a class="mail" href="mailto:sales@example.ru">sales@example.ru</a>
 <div class="le-soc">
               <a href="#" target="_blank" rel="noopener" aria-label="VK"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.8 17.5c-6 0-9.4-4.1-9.5-10.9h3c.1 5 2.3 7.1 4.1 7.5V6.6h2.8v4.3c1.7-.2 3.5-2.1 4.1-4.3h2.8c-.5 2.6-2.400 4.500-3.700 5.300 1.300.6 3.400 2.300 4.200 5.600h-3.100c-.7-2.100-2.300-3.700-4.300-3.900v3.900h-.4Z"/></svg></a>
               <a href="#" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
               <a href="#" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.600 15.100L2 22l5-1.300A10 10 0 1 0 12 2Zm5.200 14.200c-.2.600-1.300 1.200-1.800 1.200-.5.100-1 .2-3.300-.7-2.800-1.200-4.600-4-4.700-4.200-.1-.2-1.100-1.500-1.100-2.900s.7-2 1-2.300c.2-.3.500-.3.700-.3h.5c.2 0 .4 0 .6.500l.9 2.100c.1.200.1.400 0 .5l-.4.600c-.1.200-.3.300-.1.600.7 1.100 1.500 1.900 2.700 2.500.3.200.5.100.7-.1l.8-1c.2-.3.400-.2.600-.1l2 1c.3.100.4.200.5.300.1.200.1.800-.1 1.400Z"/></svg></a>
-            </div></div></div></section>
+            </div><a class="btn" href="tel:+74950000000">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a></div></div></section>
 </main>
 <footer class="ft"><div class="ft-grid"><div><a class="wm" href="#top">атлас<small>жилой комплекс</small></a><p>Москва, ул. Парковая, 12. Сдача — IV квартал 2027.</p></div>
 <div><h4>Разделы</h4><a href="#about">О доме</a><br><a href="#arch">Архитектура</a><br><a href="#loc">Расположение</a><br><a href="#plans">Квартиры</a><br><a href="#nb">Двор</a></div>
