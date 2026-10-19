@@ -75,11 +75,10 @@ body:not(.is-ready) .hdr-l,body:not(.is-ready) .hdr-r{transform:translateY(-140%
 @media(max-width:1250px){.tsw-h{display:none}.tsw-m{display:inline-flex}}
 
 /* floating call */
-.fab{position:fixed;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);z-index:40;width:52px;height:52px;border-radius:50%;background:var(--sun);display:grid;place-items:center;box-shadow:0 8px 28px rgba(0,0,0,.18);transition:transform .5s var(--ease),opacity .6s}
-.fab:hover{transform:scale(1.08)}
-.fab:before{content:'';position:absolute;inset:0;border-radius:50%;background:var(--sun);animation:pulse 2.4s ease-out infinite;z-index:-1}
-.fab svg{width:22px;height:22px}
-@keyframes pulse{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.7);opacity:0}}
+.fab{position:fixed;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);z-index:40;height:56px;padding:0 26px;border-radius:99px;background:var(--cream);color:var(--ink);display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px;white-space:nowrap;box-shadow:0 8px 28px rgba(0,0,0,.22);transition:transform .5s var(--ease),opacity .6s,background .4s}
+.fab:hover{transform:translateY(-3px);background:#fff}
+.fab i{width:10px;height:10px;border-radius:50%;background:var(--orange);animation:fabdot 2.2s infinite}
+@keyframes fabdot{0%{box-shadow:0 0 0 0 rgba(242,106,46,.6)}70%{box-shadow:0 0 0 12px rgba(242,106,46,0)}100%{box-shadow:0 0 0 0 rgba(242,106,46,0)}}
 body:not(.is-ready) .fab{opacity:0}
 
 /* menu overlay */
@@ -323,7 +322,7 @@ body:not(.is-ready) .fab{opacity:0}
 .lb-row{display:flex;gap:clamp(24px,5vw,90px);font-size:14px;line-height:1.8;width:100%}
 .lb-row span,.lb-row a{display:block}.lb-doc{opacity:.65}
 .off-foot .f-word{margin:0;font-size:clamp(56px,9vw,170px);line-height:.85;color:var(--ink);letter-spacing:-.07em;text-align:left}
-.off-foot .lb-fine{font-size:11px;opacity:.5;max-width:none;padding-right:70px}
+.off-foot .lb-fine{font-size:11px;opacity:.5;max-width:none;padding-right:290px}
 .l-map{flex:0 0 50vw;height:100%;padding:calc(var(--hdr) + 4vh) clamp(36px,5.5vw,112px) 5vh 0;display:flex}
 .le-map{position:relative;flex:1;display:block;border-radius:clamp(22px,2.4vw,40px);overflow:hidden;background:#EFE6DA;box-shadow:0 0 0 1px rgba(27,19,16,.08);transform:translateZ(0);contain:layout paint}
 .le-open-m{display:none;font-weight:700;font-size:14px;text-decoration:underline}
@@ -502,7 +501,7 @@ body:not(.is-ready) .fab{opacity:0}
   <div class="menu-foot"><span>+7 (495) 000-00-00</span><span>Офис продаж: ул. Парковая, 12 · ежедневно 9:00–21:00</span></div>
 </div>
 
-<a class="fab" href="tel:+74950000000" aria-label="Позвонить"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></a>
+<a class="fab" href="#contacts"><i></i>Записаться на экскурсию</a>
 
 <!-- ================= HERO ================= -->
 <section class="hero" id="top">

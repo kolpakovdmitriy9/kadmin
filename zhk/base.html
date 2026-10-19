@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="tiers.css">
 <style>
 /* ===== НЕЙРО: кинематографичный первый экран, параллакс, раскрытие текста, одна закреплённая сцена ===== */
-:root{--sunsoft:#FBDD9B;--paper:#fff;--h2:clamp(40px,5.6vw,92px);--pad:clamp(72px,11vh,140px)}
+:root{--paper:#fff;--h2:clamp(40px,5.6vw,92px);--pad:clamp(72px,11vh,140px)}
 body{background:var(--cream)}
 .sect{padding:var(--pad) var(--gut)}
 
@@ -16,7 +16,7 @@ body{background:var(--cream)}
 .sh{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:clamp(36px,6vh,64px)}
 .sh h2,.h2{margin:12px 0 0;font-size:var(--h2);font-weight:500;letter-spacing:-.07em;line-height:.98}
 .sh p{max-width:340px;margin:0;color:var(--muted);line-height:1.6;font-size:16px}
-.on-ink{color:var(--cream)}.on-ink .num{color:var(--sun)}.on-ink .sh p{color:rgba(244,238,231,.68)}
+.on-ink{color:var(--cream)}.on-ink .num{color:#E8B49A}.on-ink .sh p{color:rgba(244,238,231,.68)}
 
 /* --- меню / шапка поверх первого экрана --- */
 .nav{position:absolute;left:0;right:0;top:58px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 var(--gut);color:#fff;text-shadow:0 1px 15px rgba(0,0,0,.4)}
@@ -30,7 +30,7 @@ body{background:var(--cream)}
 .mnav{position:fixed;inset:0;z-index:150;background:var(--ink);color:var(--cream);display:flex;flex-direction:column;justify-content:center;gap:2px;padding:90px var(--gut) 40px;opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s}
 .mnav.open{opacity:1;visibility:visible}
 .mnav a{display:block;padding:10px 0;font-size:clamp(34px,9vw,52px);font-weight:500;letter-spacing:-.06em;border-bottom:1px solid rgba(244,238,231,.14)}
-.mnav a:hover{color:var(--sun)}
+.mnav a:hover{color:#E8B49A}
 .mnav .mx{position:absolute;right:var(--gut);top:64px;width:48px;height:48px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(244,238,231,.4);font-size:26px}
 .mnav small{margin-top:26px;color:rgba(244,238,231,.6);font-size:14px}
 
@@ -45,14 +45,15 @@ body{background:var(--cream)}
 .hero-badge{position:absolute;z-index:3;right:var(--gut);bottom:clamp(130px,17vh,190px);padding:18px 22px;border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(8px);font-size:13px;max-width:160px;border-radius:20px;line-height:1.35}
 .hero-badge strong{display:block;font-size:40px;font-weight:300;letter-spacing:-.05em;margin-bottom:6px}
 .hero-bar{position:absolute;z-index:3;left:var(--gut);right:var(--gut);bottom:0;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 230px 18px 0;border-top:1px solid rgba(255,255,255,.3);font-size:13px;color:rgba(255,255,255,.88)}
-.hero-bar a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;color:#fff}.hero-bar a:hover{color:var(--sun)}
+.hero-bar a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;color:#fff}.hero-bar a:hover{color:#E8B49A}
 
 /* --- fixed round CTA --- */
-.fab{position:fixed;z-index:60;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);height:56px;padding:0 24px;border-radius:99px;background:var(--cream);color:var(--ink);font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.28);transition:transform .5s var(--ease),opacity .4s,visibility .4s;border:1px solid rgba(27,19,16,.08)}
-.fab:hover{transform:translateY(-3px);background:#fff}.fab:active{transform:scale(.97)}
-.fab i{width:10px;height:10px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 0 rgba(242,106,46,.6);animation:fabp 2.2s infinite}
+.fab{position:fixed;z-index:60;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);width:56px;height:56px;border-radius:50%;background:#F7B733;display:grid;place-items:center;box-shadow:0 8px 28px rgba(0,0,0,.18);transition:transform .5s var(--ease),opacity .6s,visibility .6s}
+.fab:hover{transform:scale(1.08)}.fab:active{transform:scale(.96)}
+.fab:before{content:'';position:absolute;inset:0;border-radius:50%;background:#F7B733;animation:fabp 2.4s ease-out infinite;z-index:-1}
+.fab svg{width:24px;height:24px}
 .fab.off{opacity:0;visibility:hidden;transform:translateY(20px);pointer-events:none}
-@keyframes fabp{70%{box-shadow:0 0 0 12px rgba(242,106,46,0)}100%{box-shadow:0 0 0 0 rgba(242,106,46,0)}}
+@keyframes fabp{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.7);opacity:0}}
 
 /* --- 2 о доме (cream) --- */
 .about{background:var(--cream);padding:var(--pad) var(--gut) clamp(64px,10vh,120px)}
@@ -121,7 +122,7 @@ body{background:var(--cream)}
 .trust p{margin:0;max-width:440px;color:rgba(244,238,231,.7);line-height:1.65;font-size:17px}
 .facts4{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(244,238,231,.2)}
 .fact{padding:30px 22px 34px 0;border-bottom:1px solid rgba(244,238,231,.2)}.fact:nth-child(even){padding-left:26px;border-left:1px solid rgba(244,238,231,.2)}
-.fact b{display:flex;align-items:baseline;gap:8px;font-size:clamp(56px,6.4vw,112px);font-weight:200;letter-spacing:-.08em;line-height:.95;color:var(--sun)}
+.fact b{display:flex;align-items:baseline;gap:8px;font-size:clamp(56px,6.4vw,112px);font-weight:200;letter-spacing:-.08em;line-height:.95;color:#E8B49A}
 .fact b small{font-size:.26em;font-weight:600;letter-spacing:0;color:var(--cream)}
 .fact span{display:block;margin-top:14px;color:rgba(244,238,231,.7);font-size:14.5px;line-height:1.5;max-width:240px}
 
@@ -137,33 +138,33 @@ body{background:var(--cream)}
 .plans .facts{margin:22px 0 30px}
 
 /* --- 7 двор: растущее фото (terra) --- */
-.grow-sec{height:240vh;position:relative;background:var(--terra)}
+.grow-sec{height:520vh;position:relative;background:var(--ink)}
 .grow{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;--gp:0}
 .grow .frame{position:absolute;left:50%;top:50%;width:calc(34vw + (100vw - 34vw)*var(--gp));height:calc(52vh + (100svh - 52vh)*var(--gp));transform:translate(-50%,-50%);border-radius:calc(160px*(1 - var(--gp)));overflow:hidden;background:#c98c6c}
 .grow .frame img{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.25 - .25*var(--gp)))}
-.grow .frame:after{content:'';position:absolute;inset:0;background:rgba(15,8,4,calc(.5*var(--gp)))}
-.grow .txt{position:absolute;z-index:3;left:0;right:0;text-align:center;color:#fff;opacity:calc((var(--gp) - .55)*3);padding:0 var(--gut)}
-.grow .txt h2{margin:0;font-size:clamp(46px,8vw,132px);font-weight:500;letter-spacing:-.075em;line-height:.95}
-.grow .txt p{margin:18px auto 0;max-width:480px;font-size:17px;line-height:1.55;opacity:.9}
+.grow .frame:after{content:'';position:absolute;inset:0;background:rgba(15,8,4,calc(.6*var(--gp)))}
+.grow .phs{position:absolute;inset:0;z-index:3;display:grid;place-items:center;pointer-events:none}
+.ph{grid-area:1/1;max-width:1200px;text-align:center;color:#fff;padding:0 var(--gut);opacity:0;transform:translateY(46px);transition:opacity .9s var(--ease),transform 1.2s var(--ease)}.ph.on{opacity:1;transform:none}
+.ph h2{margin:0 0 30px;font-size:clamp(40px,6.6vw,108px);font-weight:500;letter-spacing:-.07em;line-height:.98;text-shadow:0 2px 30px rgba(0,0,0,.35)}
+.ph p{margin:0 auto;max-width:540px;font-size:clamp(16px,1.4vw,20px);line-height:1.6;opacity:.92;text-shadow:0 1px 18px rgba(0,0,0,.4)}
+.gcount{position:absolute;z-index:3;right:var(--gut);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;opacity:calc((var(--gp) - .9)*10)}
+.gcount i{width:6px;height:22px;border-radius:3px;background:rgba(255,255,255,.35);transition:background .5s,height .5s var(--ease)}.gcount i.on{background:#fff;height:40px}
 .grow .cap{position:absolute;top:calc(50% - 26vh - 44px);left:0;right:0;text-align:center;color:var(--cream);opacity:calc(1 - var(--gp)*4);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .grow .scrollhint{position:absolute;z-index:3;bottom:28px;left:0;right:0;text-align:center;color:var(--cream);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:calc(1 - var(--gp)*6)}
 
 /* --- 8 двор: полоса со scroll-snap (peach) --- */
 .yard{background:var(--peach);padding:var(--pad) 0}
 .yard .sh{padding:0 var(--gut)}
-.strip-nav{display:flex;gap:10px;margin-top:20px}
-.strip-nav button{width:52px;height:52px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(27,19,16,.35);display:grid;place-items:center;transition:background .4s,color .4s,transform .4s var(--ease)}
-.strip-nav button:hover{background:var(--ink);color:var(--cream)}.strip-nav button:active{transform:scale(.94)}
-.strip-nav svg{width:18px;height:18px}
-.strip{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 var(--gut) 14px;scroll-padding-left:var(--gut);scrollbar-width:none;-webkit-overflow-scrolling:touch}.strip::-webkit-scrollbar{display:none}
-.sc{flex:0 0 clamp(270px,32vw,520px);scroll-snap-align:start}
+.marq{overflow:hidden;padding:0 0 14px}
+.mtrack{display:flex;gap:20px;width:max-content;animation:marq 70s linear infinite}
+.marq:hover .mtrack{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(calc(-50% - 10px))}}
+.sc{flex:0 0 clamp(260px,27vw,440px)}
 .sc .im{aspect-ratio:4/5;border-radius:26px;overflow:hidden;background:#c98c6c}.sc img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}.sc:hover img{transform:scale(1.06)}
 .sc h3{margin:20px 0 8px;font-size:clamp(22px,2vw,28px);font-weight:600;letter-spacing:-.05em}.sc p{margin:0;color:rgba(27,19,16,.72);font-size:15px;line-height:1.55;max-width:360px}
-.sc.quote{display:flex;flex-direction:column;justify-content:flex-end;aspect-ratio:auto;padding:0 0 4px}
-.sc.quote .big{font-size:clamp(52px,6.4vw,110px);font-weight:200;letter-spacing:-.08em;line-height:.92;color:var(--terra);margin-bottom:22px}
 
 /* --- 9 окружение: хотспоты (sun) --- */
-.nb{background:var(--sun);color:var(--ink)}
+.nb{background:#FBF7F2;color:var(--ink)}
 .nb .num{color:var(--ink);opacity:.75}.nb .sh p{color:rgba(27,19,16,.75)}
 .nb-grid{display:grid;grid-template-columns:1.5fr 1fr;min-height:560px;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(120,60,0,.25)}
 .nb-vis{position:relative;background:var(--ink);overflow:hidden;min-height:420px}
@@ -194,9 +195,10 @@ body{background:var(--cream)}
 .cinfo .rows{display:grid;gap:2px;font-size:17px;line-height:1.55;font-weight:500}
 .cinfo .rows b{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);display:block;margin-top:14px}
 .cinfo .tel{display:inline-block;font-size:clamp(38px,4vw,68px);font-weight:200;letter-spacing:-.07em;line-height:1.05;transition:color .4s}.cinfo .tel:hover{color:var(--terra)}
+.cinfo .btn{align-self:flex-start;height:72px;padding:0 10px 0 36px;font-size:18px;gap:28px;margin-top:10px}.cinfo .btn i{width:52px;height:52px}.cinfo .btn i svg{width:20px;height:20px}
 .cinfo .mail{display:inline-flex;align-items:center;min-height:44px;font-weight:700;font-size:18px;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1.5px}.cinfo .mail:hover{color:var(--terra)}
 .le-soc{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 10px}
-.le-soc a{width:clamp(64px,5.6vw,84px);height:clamp(64px,5.6vw,84px);border-radius:50%;background:var(--ink);color:var(--cream);display:grid;place-items:center;transition:background .4s,transform .5s var(--ease)}
+.le-soc a{width:clamp(48px,3.4vw,58px);height:clamp(48px,3.4vw,58px);border-radius:50%;background:var(--ink);color:var(--cream);display:grid;place-items:center;transition:background .4s,transform .5s var(--ease)}
 .le-soc a:hover{background:var(--orange);color:#fff;transform:translateY(-4px) rotate(-6deg)}.le-soc a:active{transform:scale(.94)}
 .le-soc svg{width:42%;height:42%}
 
@@ -204,7 +206,7 @@ body{background:var(--cream)}
 .ft{background:var(--ink);color:var(--cream);position:relative;overflow:hidden;padding-bottom:20px}
 .ft-grid{position:relative;z-index:1}
 .ft .wm{font-size:48px}.ft .blurb{margin:18px 0 0;max-width:320px;color:rgba(244,238,231,.62);font-size:14px;line-height:1.6}
-.ft .col a{display:flex;align-items:center;min-height:44px;color:rgba(244,238,231,.85);transition:color .3s,padding .4s var(--ease)}.ft .col a:hover{color:var(--sun);padding-left:6px}
+.ft .col a{display:flex;align-items:center;min-height:44px;color:rgba(244,238,231,.85);transition:color .3s,padding .4s var(--ease)}.ft .col a:hover{color:#E8B49A;padding-left:6px}
 .ft .col .t{font-size:clamp(26px,2.6vw,40px);font-weight:300;letter-spacing:-.05em;min-height:0;padding:0;display:block;color:#fff}
 .ft .col .t:hover{padding:0}
 .ft .col span{display:block;color:rgba(244,238,231,.62);font-size:14px;padding:8px 0}
@@ -230,7 +232,7 @@ body{background:var(--cream)}
  .about-row{grid-template-columns:1fr 1fr}.about-row div:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--line);margin-top:24px}
  .facts4{grid-template-columns:1fr 1fr}.fact{padding-right:12px}.fact:nth-child(even){padding-left:16px}
  .dist li{grid-template-columns:44px 1fr}.dist li .pill{grid-column:2;justify-self:start;margin-top:8px}
- .fab{padding:0 20px}
+ 
 }
 @media(prefers-reduced-motion:reduce){.hero video{transform:none}.viz *{transition:none!important}.viz .ring,.viz .spoke{stroke-dashoffset:0}.viz .dot,.viz .rl,.viz .disc{opacity:1;transform:none}}
 </style></head>
@@ -252,7 +254,7 @@ body{background:var(--cream)}
   <div class="hero-badge"><strong>2027</strong>сдача, IV квартал</div>
   <div class="hero-bar"><span>24 этажа · ул. Парковая, 12</span><span>Клинкер. Двор без машин. Лобби в шесть метров.</span><a href="#about">Исследовать дом ↓</a></div>
 </section>
-<a class="fab" id="fab" href="#contacts"><i></i>Записаться на экскурсию</a>
+<a class="fab" id="fab" href="tel:+74950000000" aria-label="Позвонить"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></a>
 
 <section class="about" id="about">
   <div class="head"><span class="num">01 / О доме</span><h2>Простые радости жизни</h2></div>
@@ -317,24 +319,22 @@ body{background:var(--cream)}
 <div class="ap-grid reveal"><div class="plan-wrap"><div class="plan-box" id="plan-box"></div></div>
 <div class="ap-info"><div class="tabs" id="plan-tabs" role="tablist" aria-label="Тип квартиры"></div><h3 id="plan-type"></h3><div class="bigarea" id="plan-area"></div><div class="facts" id="plan-facts"></div><button class="btn" data-dlg="Записаться на просмотр" data-txt="Покажем квартиру с отделкой и рассчитаем ипотеку за 15 минут. Телефон отдела продаж: +7 (495) 000-00-00.">Записаться на просмотр<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></button></div></div></section>
 
-<section class="grow-sec" id="yard"><div class="grow" id="grow"><div class="cap">Двор · 1,2 га без машин</div><div class="frame"><img src="media/g-couple.jpg" alt="Вечерняя прогулка у пруда"></div><div class="txt"><h2>Вечер у воды.</h2><p>Деревянный настил, тёплая подсветка дорожек и скамьи с видом на пруд.</p></div><div class="scrollhint">листайте ↓</div></div></section>
+<section class="grow-sec" id="yard"><div class="grow" id="grow2"><div class="cap">Двор · 1,2 га без машин</div><div class="frame"><img src="media/g-couple.jpg" alt="Вечерняя прогулка у пруда"></div>
+<div class="phs" aria-live="polite">
+<div class="ph"><h2>Дом, который хранит тепло солнца</h2><p>Клинкер ручной формовки отдаёт вечером накопленное за день тепло.</p></div>
+<div class="ph"><h2>1,2 гектара без машин</h2><p>Автомобили остаются под землёй, а двор — для прогулок, детей и тишины.</p></div>
+<div class="ph"><h2>Лобби высотой шесть метров</h2><p>Камень, дуб и тёплая штукатурка, консьерж 24/7 и колясочная.</p></div>
+<div class="ph"><h2>Свет в каждом окне</h2><p>Перфорированные панели вечером подсвечиваются изнутри.</p></div>
+<div class="ph"><h2>Здесь знают соседей по имени</h2><p>Кофейня, пекарня и цветы — на первом этаже, в минуте от подъезда.</p></div></div>
+<div class="gcount" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="scrollhint">листайте ↓</div></div></section>
 
-<section class="yard" id="yard-strip"><div class="sh reveal"><div><span class="num">06 / Двор</span><h2>Дом, который<br>умеет отдыхать</h2></div><div><p>Далеко ехать не нужно: вечерняя прогулка, детская площадка и утренний кофе — в нескольких шагах от подъезда.</p>
-<div class="strip-nav"><button type="button" data-dir="-1" aria-label="Назад"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 8H3M7 4 3 8l4 4"/></svg></button><button type="button" data-dir="1" aria-label="Вперёд"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button></div></div></div>
-<div class="strip" id="strip" tabindex="0" aria-label="Галерея двора">
-<article class="sc"><div class="im"><img src="media/g-evening.jpg" alt="" loading="lazy"></div><h3>Свет в каждом окне</h3><p>Перфорированные панели вечером подсвечиваются изнутри, а двор встречает тёплыми огнями.</p></article>
-<article class="sc"><div class="im"><img src="media/g-family.jpg" alt="" loading="lazy"></div><h3>Прогулки с коляской</h3><p>Широкие ровные дорожки и сад на уровне первого этажа.</p></article>
-<article class="sc"><div class="im"><img src="media/g-entrance.jpg" alt="" loading="lazy"></div><h3>Подъезды — прямо во двор</h3><p>Консьерж, колясочная и почтовая комната ждут в двусветном лобби.</p></article>
-<article class="sc"><div class="im"><img src="media/g-low.jpg" alt="" loading="lazy"></div><h3>Дом на закате</h3><p>Клинкер отдаёт накопленное за день тепло, а вода пруда повторяет цвет неба.</p></article>
-<article class="sc quote"><div class="big">радость<br>ко двору</div><p>Каждый человек ищет своё место в жизни, чтобы обрести в нём счастье. Мы собрали двор как коллекцию тихих уголков: сад, пруд и площадки на уровне первого этажа.</p></article>
-</div></section>
+<section class="yard" id="yard-strip"><div class="sh reveal"><div><span class="num">06 / Двор</span><h2>Дом, который<br>умеет отдыхать</h2></div><p>Далеко ехать не нужно: вечерняя прогулка, детская площадка и утренний кофе — в нескольких шагах от подъезда.</p></div>
+<div class="marq" aria-label="Галерея двора"><div class="mtrack"><article class="sc"><div class="im"><img src="media/g-evening.jpg" alt="" loading="lazy"></div><h3>Свет в каждом окне</h3><p>Перфорированные панели вечером подсвечиваются изнутри, а двор встречает тёплыми огнями.</p></article><article class="sc"><div class="im"><img src="media/g-family.jpg" alt="" loading="lazy"></div><h3>Прогулки с коляской</h3><p>Широкие ровные дорожки и сад на уровне первого этажа.</p></article><article class="sc"><div class="im"><img src="media/g-entrance.jpg" alt="" loading="lazy"></div><h3>Подъезды — прямо во двор</h3><p>Консьерж, колясочная и почтовая комната ждут в двусветном лобби.</p></article><article class="sc"><div class="im"><img src="media/g-low.jpg" alt="" loading="lazy"></div><h3>Дом на закате</h3><p>Клинкер отдаёт накопленное за день тепло, а вода пруда повторяет цвет неба.</p></article><article class="sc"><div class="im"><img src="media/g-play.jpg" alt="" loading="lazy"></div><h3>Площадки для всех возрастов</h3><p>Тихий двор: машины остаются под землёй, а дети — на виду.</p></article><article class="sc" aria-hidden="true"><div class="im"><img src="media/g-evening.jpg" alt="" loading="lazy"></div><h3>Свет в каждом окне</h3><p>Перфорированные панели вечером подсвечиваются изнутри, а двор встречает тёплыми огнями.</p></article><article class="sc" aria-hidden="true"><div class="im"><img src="media/g-family.jpg" alt="" loading="lazy"></div><h3>Прогулки с коляской</h3><p>Широкие ровные дорожки и сад на уровне первого этажа.</p></article><article class="sc" aria-hidden="true"><div class="im"><img src="media/g-entrance.jpg" alt="" loading="lazy"></div><h3>Подъезды — прямо во двор</h3><p>Консьерж, колясочная и почтовая комната ждут в двусветном лобби.</p></article><article class="sc" aria-hidden="true"><div class="im"><img src="media/g-low.jpg" alt="" loading="lazy"></div><h3>Дом на закате</h3><p>Клинкер отдаёт накопленное за день тепло, а вода пруда повторяет цвет неба.</p></article><article class="sc" aria-hidden="true"><div class="im"><img src="media/g-play.jpg" alt="" loading="lazy"></div><h3>Площадки для всех возрастов</h3><p>Тихий двор: машины остаются под землёй, а дети — на виду.</p></article></div></div></section>
 
 <section class="sect nb" id="nb"><div class="sh reveal"><div><span class="num">07 / В деталях</span><h2>Жизнь продолжается<br>за порогом.</h2></div><p>Отдохнуть с семьёй, встретиться с друзьями или побыть наедине с собой — у дома.</p></div>
 <div class="nb-grid reveal"><div class="nb-vis"><img data-photo src="media/g-door.jpg" alt="Кофейня на первом этаже" loading="lazy"><img data-photo src="media/g-play.jpg" alt="Детская площадка" loading="lazy"><img data-photo src="media/g-pond.jpg" alt="Пруд во дворе" loading="lazy">
 <button class="hot" data-area="0" aria-label="Кофейня и пекарня">1</button><button class="hot" data-area="1" aria-label="Детская площадка">2</button><button class="hot" data-area="2" aria-label="Пруд во дворе">3</button><div class="nb-cap">Ваше личное место силы.</div></div>
 <div class="nb-panel" aria-live="polite"><span class="num" id="area-num"></span><h3 id="area-title"></h3><p id="area-desc"></p><div class="nb-dots"><button data-area="0" aria-label="Кофейня и пекарня">1</button><button data-area="1" aria-label="Детская площадка">2</button><button data-area="2" aria-label="Пруд во дворе">3</button></div></div></div></section>
-
-<section class="close" id="close"><h2>Почувствуйте свой новый ритм жизни.</h2><a class="btn" href="#contacts">Записаться на экскурсию<i><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></i></a></section>
 
 <section class="contacts" id="contacts"><div class="sh reveal"><div><span class="num">08 / Офис продаж</span><h2>Приходите<br>в гости</h2></div><p>Пройдём по двору с менеджером, заглянем в лобби и покажем квартиру с отделкой.</p></div>
 <div class="c-grid reveal"><a class="map" href="https://yandex.ru/maps/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" target="_blank" rel="noopener" aria-label="Открыть офис продаж в Яндекс Картах"><iframe title="Офис продаж на Яндекс Картах" src="https://yandex.ru/map-widget/v1/?ll=37.796%2C55.794&z=17&pt=37.796%2C55.794%2Cpm2rdm" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe><span>Открыть в Яндекс Картах ↗</span></a>
@@ -394,10 +394,6 @@ body{background:var(--cream)}
   const par = () => { if (reduce) return; const H = innerHeight; cards.forEach(m => { const r = m.getBoundingClientRect(); if (r.bottom < -50 || r.top > H + 50) return; m.firstElementChild.style.setProperty('--ay', ((r.top + r.height / 2 - H / 2) / H * -34).toFixed(1) + 'px'); }); };
   addEventListener('scroll', () => requestAnimationFrame(par), { passive: true }); addEventListener('resize', par); par();
 
-  /* strip arrows */
-  const strip = $('#strip');
-  $$('.strip-nav [data-dir]').forEach(b => b.addEventListener('click', () => { const c = $('.sc', strip); strip.scrollBy({ left: +b.dataset.dir * (c.getBoundingClientRect().width + 18), behavior: 'smooth' }); }));
-
   /* mobile menu */
   const menu = $('#mnav'), bur = $('#burger');
   const setMenu = o => { menu.classList.toggle('open', o); menu.setAttribute('aria-hidden', !o); bur.setAttribute('aria-expanded', o); document.body.style.overflow = o ? 'hidden' : ''; if (o) $('#mnav-x').focus(); else if (document.activeElement && menu.contains(document.activeElement)) bur.focus(); };
@@ -409,6 +405,21 @@ body{background:var(--cream)}
   /* placeholder social links must not jump */
   $$('[data-soc]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
   if (reduce) { const hv = $('.hero video'); if (hv) hv.pause(); }
+})();
+</script>
+<script>
+(() => {
+  const g = document.getElementById('grow2'); if (!g) return;
+  const clamp = (v, a = 0, c = 1) => Math.min(c, Math.max(a, v)), phs = [...g.querySelectorAll('.ph')], bars = [...g.querySelectorAll('.gcount i')];
+  let t = false;
+  const upd = () => {
+    t = false; const r = g.parentElement.getBoundingClientRect(), p = clamp(-r.top / (r.height - innerHeight));
+    const gp = clamp(p / .16), e = gp * gp * (3 - 2 * gp);              // the photo opens, then it stays still
+    g.style.setProperty('--gp', e.toFixed(4));
+    const i = Math.min(phs.length - 1, Math.floor(clamp((p - .16) / .84) * phs.length));
+    phs.forEach((x, k) => x.classList.toggle('on', gp > .98 && k === i)); bars.forEach((x, k) => x.classList.toggle('on', gp > .98 && k === i));
+  };
+  addEventListener('scroll', () => { if (!t) { t = true; requestAnimationFrame(upd); } }, { passive: true }); addEventListener('resize', upd); upd();
 })();
 </script>
 </body></html>
