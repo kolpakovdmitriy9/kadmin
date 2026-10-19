@@ -18,7 +18,7 @@
 :root{
   --ink:#1B1310;--peach:#EBCABB;--cream:#F4EEE7;--terra:#C4552D;--orange:#F26A2E;--sun:#F7B733;
   --ease:cubic-bezier(.25,.74,.22,.99);
-  --gut:clamp(16px,2vw,32px);--hdr:68px;
+  --gut:clamp(16px,2vw,32px);--hdr:calc(68px + var(--lab));
   font-family:Manrope,Arial,sans-serif;color:var(--ink);background:var(--cream);font-synthesis:none;
   -webkit-font-smoothing:antialiased;
 }
@@ -34,8 +34,8 @@ h1,h2,h3,p{margin:0}
 .nb{white-space:nowrap}
 
 /* ============ header ============ */
-.hdr-bg{position:fixed;inset:0 0 auto 0;height:var(--hdr);z-index:48;background:var(--cream);box-shadow:0 1px 0 rgba(27,19,16,.08);opacity:var(--pe,0);pointer-events:none}
-.hdr{position:fixed;inset:0 0 auto 0;height:var(--hdr);z-index:50;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 var(--gut);font-size:14px;font-weight:600;color:#fff;pointer-events:none}
+.hdr-bg{position:fixed;inset:var(--lab) 0 auto 0;height:calc(var(--hdr) - var(--lab));z-index:48;background:var(--cream);box-shadow:0 1px 0 rgba(27,19,16,.08);opacity:var(--pe,0);pointer-events:none}
+.hdr{position:fixed;inset:var(--lab) 0 auto 0;height:calc(var(--hdr) - var(--lab));z-index:50;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 var(--gut);font-size:14px;font-weight:600;color:#fff;pointer-events:none}
 .hdr>*{pointer-events:auto}
 .hdr-l,.hdr-r{display:flex;align-items:center;gap:8px}
 .hdr-r{justify-content:flex-end;gap:10px}
@@ -61,18 +61,15 @@ h1,h2,h3,p{margin:0}
 body:not(.is-ready) .hdr-l,body:not(.is-ready) .hdr-r{transform:translateY(-140%);opacity:0}
 
 
-/* tariff switcher */
-.tsw{display:inline-flex;gap:2px;padding:3px;height:40px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.9);color:#fff;transition:box-shadow .5s var(--ease),color .5s var(--ease)}
-.tsw a{display:inline-flex;align-items:center;padding:0 14px;border-radius:99px;transition:background .5s var(--ease),color .5s var(--ease)}
-.tsw a:hover{background:rgba(255,255,255,.2)}
-.tsw a[aria-current=page]{background:var(--cream);color:var(--ink)}
-.hdr.plated .tsw{box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink)}
-.hdr.plated .tsw a:hover{background:rgba(27,19,16,.08)}
-.hdr.plated .tsw a[aria-current=page]{background:var(--ink);color:var(--cream)}
-.tsw-h{margin-left:6px}
-.tsw-m{display:none;position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);height:34px;font-size:11.5px;background:rgba(20,10,5,.28);backdrop-filter:blur(8px)}
-.hdr.plated .tsw-m{background:rgba(244,238,231,.9)}
-@media(max-width:1250px){.tsw-h{display:none}.tsw-m{display:inline-flex}}
+/* tariff bar (same on every page) */
+:root{--lab:48px}
+.lab{position:fixed;left:0;right:0;top:0;z-index:52;height:var(--lab);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 var(--gut);background:rgba(244,238,231,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(27,19,16,.14);font-size:13px;font-weight:600;color:var(--ink)}
+.lab b{letter-spacing:.14em;text-transform:uppercase;font-size:11.5px}.lab span{color:rgba(27,19,16,.62);margin-left:10px}
+.tsw{display:inline-flex;gap:2px;padding:3px;height:36px;border-radius:99px;background:rgba(27,19,16,.08);font-size:12.5px;font-weight:700;white-space:nowrap}
+.tsw a{display:inline-flex;align-items:center;padding:0 16px;border-radius:99px;transition:background .5s var(--ease),color .5s var(--ease)}
+.tsw a:hover{background:rgba(27,19,16,.1)}
+.tsw a[aria-current=page]{background:var(--ink);color:var(--cream)}
+@media(max-width:800px){.lab span{display:none}}
 
 /* floating call */
 .fab{position:fixed;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);z-index:40;height:56px;padding:0 26px;border-radius:99px;background:var(--cream);color:var(--ink);display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px;white-space:nowrap;box-shadow:0 8px 28px rgba(0,0,0,.22);transition:transform .5s var(--ease),opacity .6s,background .4s}
@@ -426,7 +423,7 @@ body:not(.is-ready) .fab{opacity:0}
   .f-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
-  :root{--hdr:60px}
+  :root{--hdr:calc(60px + var(--lab))}
   .hp,.hc{height:36px}.hc{width:36px}.hp-menu{width:58px}
   .hdr-l .hp:not(.hp-menu),.hdr-l .hc,.hdr-r .hp.out,.hdr-r .hc.hide-m{display:none}
   .logo-slot{width:80px}
@@ -467,6 +464,7 @@ body:not(.is-ready) .fab{opacity:0}
   <div class="c-count"><span id="c-val">0</span><small>%</small></div>
 </div>
 
+<div class="lab"><div><b>ЖК «Атлас»</b><span>тариф страницы</span></div><nav class="tsw" aria-label="Тариф страницы"><a href="neuro.html">Нейро</a><a href="base.html">Базовый</a><a href="index.html" aria-current="page">Премиум</a></nav></div>
 <div class="hdr-bg" id="hdr-bg"></div>
 <header class="hdr" id="hdr">
   <div class="hdr-l">
@@ -474,9 +472,7 @@ body:not(.is-ready) .fab{opacity:0}
     <a class="hp" href="#plans">Квартиры</a>
     <a class="hc hide-t" href="#design" aria-label="О доме, 3D-тур"><span>3D<br>тур</span></a>
     <a class="hc hide-t" href="#leisure" aria-label="Жизнь во дворе"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3.2v9.6L13 8 5 3.2Z"/></svg></a>
-    <nav class="tsw tsw-h" aria-label="Тариф страницы"><a href="neuro.html">Нейро</a><a href="base.html">Базовый</a><a href="index.html" aria-current="page">Премиум</a></nav>
   </div>
-  <nav class="tsw tsw-m" aria-label="Тариф страницы"><a href="neuro.html">Нейро</a><a href="base.html">Базовый</a><a href="index.html" aria-current="page">Премиум</a></nav>
   <a class="logo-slot" href="#top" aria-label="Атлас — на главную"></a>
   <div class="hdr-r">
     <a class="phone" href="tel:+74950000000">+7 (495) 000-00-00</a>
@@ -1039,11 +1035,11 @@ function layoutHero() {
   const W = vw(), H = vh();
   const wl = $('.wl', wmEl);
   wl.style.fontSize = '100px'; geo.k = wl.offsetWidth / 100; wl.style.fontSize = '';
-  const hh = hdrBg.offsetHeight || 68;
+  const lab = $(".lab").offsetHeight || 0, hh = hdrBg.offsetHeight || 68;
   geo.f1 = W <= 640 ? 22 : 26;                           // docked size in the header
-  geo.wtf = hh / 2 - geo.f1 * .5;
+  geo.wtf = lab + hh / 2 - geo.f1 * .5;
   geo.F0 = Math.min(W * .84 / geo.k, H * (W <= 640 ? .3 : .52));
-  geo.wt0 = Math.max(hh + 8, H * (W <= 640 ? .2 : .34) - geo.F0 * .5);   // the word lies across the tower
+  geo.wt0 = Math.max(lab + hh + 8, H * (W <= 640 ? .2 : .34) - geo.F0 * .5);   // the word lies across the tower
 }
 addEventListener('resize', layoutHero);
 layoutHero();
