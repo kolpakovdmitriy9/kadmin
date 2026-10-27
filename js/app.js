@@ -237,7 +237,7 @@
       }
       if (s.type === 'variants') {
         const f = s.fields; const sw = (k, l) => tog('slides.' + p.slides.indexOf(s) + '.fields.' + k, f[k] !== false, l);
-        return `<div class="card-b"><b>Блок по CMS</b><div class="muted">Для каждого включённого варианта CMS создаются страницы. Какие тарифы показывать и в каких таблицах — во вкладке «Тарифы и цены».</div><div class="row" style="flex-wrap:wrap;gap:16px;margin-top:10px">${sw('compare', 'Сравнение тарифов')}${sw('examples', 'Кнопка «Показать примеры» на сравнении')}${sw('packages', 'Пакеты дизайна (только 1-й вариант)')}${sw('payment', 'Порядок оплаты')}${sw('estimate', 'Сметы')}</div></div>`;
+        return `<div class="card-b"><b>Блок по CMS</b><div class="muted">Для каждого включённого варианта CMS создаются страницы. Какие тарифы показывать и в каких таблицах — во вкладке «Тарифы и цены».</div><div class="row" style="flex-wrap:wrap;gap:16px;margin-top:10px">${sw('compare', 'Сравнение тарифов')}${sw('packages', 'Слайд «Пакеты разработки сайтов»')}${sw('examples', 'Кнопка «Показать примеры» на слайде пакетов')}${sw('payment', 'Порядок оплаты')}${sw('estimate', 'Сметы')}</div></div>`;
       }
       if (s.type === 'extras') return `<div class="card-b"><b>Дополнительные расходы</b><label class="l">Строки: «Название | цена». Из Google-таблицы подтягиваются автоматически.</label><textarea data-x="extras" style="min-height:160px">${esc((p.extras || []).map((e) => e.name + ' | ' + e.price).join('\n'))}</textarea></div>`;
       if (s.asset === 'timeline') { const i = p.slides.indexOf(s), f = s.fields || {};

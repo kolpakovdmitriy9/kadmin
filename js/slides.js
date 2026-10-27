@@ -149,10 +149,47 @@
     const red = 'border:1px solid #EE3824;color:#EE3824;background:#fff;';
     h += cell(x0, y, W, 64, red + 'font-size:18px;padding-left:20px;', 'Стоимость');
     ts.forEach((t, i) => (h += cell(x0 + (W + G) * (i + 1), y, W, 64, red + 'justify-content:center;font-size:24px;font-weight:500;', rub(tariffTotal(t)))));
-    // кнопка-капсула «Показать примеры» справа на уровне заголовка, по правому краю таблицы (ссылка кликабельна в PDF)
+    return wrap(h);
+  }
+
+  // ---------- «Пакеты разработки сайтов»: колонка на каждый включённый тариф (Нейро / Базовый / Премиум) ----------
+  const PACKAGES = {
+    'Нейро': { title: 'Пакет «Нейро»', lead: 'Быстрый и бюджетный запуск сайта с помощью ИИ.',
+      text: 'На основе информации о компании, услугах и ваших пожеланий мы создаём готовый сайт с простой современной структурой и аккуратным дизайном.',
+      items: ['одна готовая концепция;', 'простой современный дизайн;', 'создание сайта с помощью ИИ;', 'адаптация под мобильные устройства;', 'система управления контентом.'],
+      note: ['Важно:', 'бесплатные правки после создания концепции не предусмотрены.'],
+      fit: 'важны минимальный бюджет и быстрый запуск.' },
+    'Базовый': { title: 'Пакет «Базовый дизайн»', lead: 'Индивидуальная разработка сайта нашей командой без сложной дизайнерской проработки.',
+      text: 'Мы прорабатываем структуру, содержание, страницы и функциональность под задачи бизнеса. Дизайн остаётся лаконичным и современным, с использованием фирменных цветов.',
+      items: ['индивидуальная структура сайта;', 'разработка всех необходимых страниц;', 'простой современный дизайн;', 'фирменные цвета и стилистика;', 'необходимый функционал.'],
+      note: ['Без:', 'сложной графики, фирменных паттернов, нестандартных визуальных решений и сложных анимаций.'],
+      fit: 'нужен полноценный индивидуальный сайт, не требуется сложный дизайн и выраженное визуальное отличие от конкурентов.' },
+    'Премиум': { title: 'Пакет «Премиум-дизайн»', lead: 'Индивидуальный сайт с полной дизайнерской проработкой.',
+      text: 'Разрабатываем уникальную визуальную концепцию, детально прорабатываем страницы, графику, мобильные версии, анимацию и нестандартные элементы интерфейса.',
+      items: ['индивидуальная структура и прототипы;', 'уникальная дизайн-концепция;', 'детальная проработка страниц;', 'авторская графика и визуальные решения;', 'анимации;', 'проработка мобильных версий;', 'несколько этапов согласования;', 'возможность реализации сложного функционала.'],
+      fit: 'сайт должен работать на имидж бренда и заметно выделяться среди конкурентов.' },
+  };
+  // какие пакеты показывать: типы включённых тарифов во всех включённых CMS, по порядку Нейро → Базовый → Премиум
+  const packageKinds = (p) => ORDER.filter((k) => (p.variants || []).some((v) => v.enabled !== false && v.tariffs.some((t) => t.enabled && (t.profile || profileFor(t.name)) === k)));
+  function renderPackages(it) {
+    const kinds = packageKinds(it.p);
+    const L = 123, R = 1797, G = 26, n = Math.max(kinds.length, 1), w = (R - L - G * (n - 1)) / n;
+    let h = A(L, 92, 1100, 80, 'font-size:64px;line-height:80px;font-weight:500;letter-spacing:-0.5px;white-space:nowrap;', 'Пакеты разработки сайтов');
+    if (!kinds.length) h += A(L, 240, R - L, 200, 'border:2px dashed #e53935;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:30px;color:#e53935;', 'Нет включённых тарифов Нейро / Базовый / Премиум.<br><small style="font-size:22px">В PDF эта страница не попадёт.</small>');
+    kinds.forEach((k, i) => {
+      const P = PACKAGES[k], x = L + (w + G) * i;
+      h += A(x, 216, w, 62, GRAD + 'display:flex;align-items:center;padding-left:30px;font-size:26px;', esc(P.title));
+      h += A(x, 300, n === 1 ? Math.min(w, 900) : w - 10, null, 'font-size:18px;line-height:26px;color:#151515;',
+        `<p style="margin:0 0 6px;font-weight:600">${esc(P.lead)}</p><p style="margin:0">${esc(P.text)}</p>` +
+        `<div style="font-size:30px;line-height:36px;font-weight:500;margin:34px 0 14px">Что входит:</div>` +
+        `<ul style="margin:0;padding-left:26px;line-height:28px">${P.items.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` +
+        (P.note ? `<div style="font-size:30px;line-height:36px;font-weight:500;margin:34px 0 12px">${esc(P.note[0])}</div><p style="margin:0;line-height:28px;max-width:470px">${esc(P.note[1])}</p>` : '') +
+        `<p style="margin:34px 0 0;font-weight:600;max-width:470px">Подходит, если: ${esc(P.fit)}</p>`);
+    });
+    // кнопка-капсула «Показать примеры» справа на уровне заголовка (ссылка кликабельна и в PDF)
     const url = String((KP.store && KP.store.settings && KP.store.settings.examplesUrl) || '').trim();
-    if (url && (it.f || {}).examples !== false) {
-      const right = x0 + (W + G) * (ts.length + 1) - G;
+    if (url && kinds.length && (it.f || {}).examples !== false) {
+      const right = R;
       h += `<a class="abs" href="${esc(url)}" target="_blank" rel="noopener" style="left:${right}px;top:67px;transform:translateX(-100%);height:60px;${GRAD}border-radius:999px;display:flex;align-items:center;gap:16px;padding:0 8px 0 32px;font-size:22px;font-weight:500;text-decoration:none;white-space:nowrap">Показать примеры<span style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="#E5200B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>`;
     }
     return wrap(h);
@@ -273,7 +310,7 @@
           const vb = { ...base, off: base.off || !v.enabled, v, f };
           const on = (arr) => v.tariffs.filter((t) => t.enabled && arr(t));
           if (f.compare !== false && (on((t) => t.inCompare).length || includeDisabled)) push({ ...vb, key: `${s.id}:${v.id}:cmp`, kind: 'compare', label: `Сравнение · ${v.cms}` });
-          if (f.packages !== false && vi === 0) push({ ...vb, key: `${s.id}:${v.id}:pk`, kind: 'static', asset: 'packages', label: 'Пакеты: Базовый / Премиум дизайн' });
+          if (f.packages !== false && vi === 0 && (packageKinds(p).length || includeDisabled)) push({ ...vb, off: !packageKinds(p).length, key: `${s.id}:${v.id}:pk`, kind: 'packages', label: 'Пакеты: ' + (packageKinds(p).join(' / ') || 'нет тарифов') });
           if (f.payment !== false && (on((t) => t.inPayment && tariffTotal(t) > 0).length || includeDisabled)) push({ ...vb, key: `${s.id}:${v.id}:pay`, kind: 'payment', label: `Порядок оплаты · ${v.cms}` });
           if (f.estimate !== false) v.tariffs.forEach((t) => { if ((t.estimate && tariffRows(t).length && (t.enabled || includeDisabled))) push({ ...vb, off: vb.off || !t.enabled, key: `${s.id}:${v.id}:${t.id}`, kind: 'estimate', t, label: `Смета · ${v.cms} · ${t.name}` }); });
         });
@@ -282,9 +319,9 @@
     return out;
   }
 
-  const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
+  const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, packages: renderPackages, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
-  const ASSET_V = '20261027c';
+  const ASSET_V = '20261027d';
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|jpg|svg))/g, `assets/$1?v=${ASSET_V}`);
 
   Object.assign(KP, { termText, sortTariffs, payStages, payPlan, tariffDiscount, discountedTotal, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
