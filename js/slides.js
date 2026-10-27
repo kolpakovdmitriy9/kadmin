@@ -278,7 +278,7 @@
 
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
-  const ASSET_V = '20261013i';
+  const ASSET_V = '20261027a';
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|jpg|svg))/g, `assets/$1?v=${ASSET_V}`);
 
   Object.assign(KP, { termText, payStages, payPlan, tariffDiscount, discountedTotal, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
