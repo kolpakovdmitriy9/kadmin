@@ -95,7 +95,6 @@
   // ---------- хелперы разметки ----------
   const A = (x, y, w, h, st, inner, cls) => `<div class="abs ${cls || ''}" style="left:${x}px;top:${y}px;${w != null ? 'width:' + w + 'px;' : ''}${h != null ? 'height:' + h + 'px;' : ''}${st || ''}">${inner ?? ''}</div>`;
   const checkSvg = `<svg width="28" height="28" viewBox="0 0 28 28"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5A47"/><stop offset="1" stop-color="#E5200B"/></linearGradient></defs><circle cx="14" cy="14" r="14" fill="url(#g)"/><path d="M8.5 14.4l3.8 3.7 7.3-7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const badge = (txt, left, top, center) => A(center ? 0 : left, top, null, 71, `${center ? 'left:' + (center) + 'px;transform:translateX(-50%);' : ''}border:1.5px solid #1a1a1a;padding:0 11px 17px;display:flex;align-items:center;font-size:40px;line-height:1;white-space:nowrap;`, esc(txt));
   const GRAD = 'background:linear-gradient(135deg,#FF5A47,#E5200B);color:#fff;';
   const cell = (x, y, w, h, st, inner) => A(x, y, w, h, `border:1px solid #d9d9d9;border-radius:6px;box-sizing:border-box;display:flex;align-items:center;${st || ''}`, inner);
   // Логотип (кириллица) на тёмных слайдах — слева, по левому краю текста
@@ -129,10 +128,9 @@
   function renderCompare(it) {
     const { v } = it;
     const ts = v.tariffs.filter((t) => t.enabled && t.inCompare);
-    const withBadge = v.compareBadge !== false;
-    const x0 = withBadge ? 265 : 251, y0 = withBadge ? 195 : 173, W = 344, G = 4;
-    let h = withBadge ? `<img class="abs" src="assets/t_compare.png" style="left:255px;top:70px;width:685px;height:75px">` + badge(v.cms, 967, 83)
-      : `<img class="abs" src="assets/t_compare_a.png" style="left:241px;top:60px;width:684px;height:75px">`;
+    // плашку CMS («Битрикс» и т. п.) на слайдах не показываем
+    const x0 = 251, y0 = 173, W = 344, G = 4;
+    let h = `<img class="abs" src="assets/t_compare_a.png" style="left:241px;top:60px;width:684px;height:75px">`;
     h += cell(x0, y0, W, 64, 'background:#1a1a1a;color:#fff;font-size:18px;padding-left:20px;border-color:#1a1a1a;', 'Критерий сравнения');
     ts.forEach((t, i) => (h += A(x0 + (W + G) * (i + 1), y0, W, 64, `${GRAD}border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;`, esc(t.name))));
     let y = y0 + 68;
@@ -147,11 +145,11 @@
     const red = 'border:1px solid #EE3824;color:#EE3824;background:#fff;';
     h += cell(x0, y, W, 64, red + 'font-size:18px;padding-left:20px;', 'Стоимость');
     ts.forEach((t, i) => (h += cell(x0 + (W + G) * (i + 1), y, W, 64, red + 'justify-content:center;font-size:24px;font-weight:500;', rub(tariffTotal(t)))));
-    // кнопка-капсула «Показать примеры» под таблицей, по правому краю (ссылка кликабельна в PDF)
+    // кнопка-капсула «Показать примеры» справа на уровне заголовка, по правому краю таблицы (ссылка кликабельна в PDF)
     const url = String((KP.store && KP.store.settings && KP.store.settings.examplesUrl) || '').trim();
     if (url && (it.f || {}).examples !== false) {
       const right = x0 + (W + G) * (ts.length + 1) - G;
-      h += `<a class="abs" href="${esc(url)}" target="_blank" rel="noopener" style="left:${right}px;top:${y + 64 + 26}px;transform:translateX(-100%);height:60px;${GRAD}border-radius:999px;display:flex;align-items:center;gap:16px;padding:0 8px 0 32px;font-size:22px;font-weight:500;text-decoration:none;white-space:nowrap">Показать примеры<span style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="#E5200B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>`;
+      h += `<a class="abs" href="${esc(url)}" target="_blank" rel="noopener" style="left:${right}px;top:67px;transform:translateX(-100%);height:60px;${GRAD}border-radius:999px;display:flex;align-items:center;gap:16px;padding:0 8px 0 32px;font-size:22px;font-weight:500;text-decoration:none;white-space:nowrap">Показать примеры<span style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="#E5200B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>`;
     }
     return wrap(h);
   }
@@ -159,7 +157,7 @@
   function renderPayment(it) {
     const { v, f } = it;
     const ts = v.tariffs.filter((t) => t.enabled && t.inPayment && tariffTotal(t) > 0);
-    let h = `<img class="abs" src="assets/t_payment.png" style="left:130px;top:80px;width:415px;height:65px">` + (v.paymentBadge !== false ? badge(v.cms, 561, 81) : '');
+    let h = `<img class="abs" src="assets/t_payment.png" style="left:130px;top:80px;width:415px;height:65px">`;
     const B = 'border:1px solid #e2e2e2;box-sizing:border-box;';
     const x0 = 139, lw = 422, cw = 380;
     // в PDF такая страница не попадает; в редакторе подсказываем, почему пусто
@@ -209,7 +207,6 @@
     const X = (x) => Math.round(123 + (x - 292) * K), Wd = (w) => Math.round(w * K);
     let h = `<img class="abs" src="assets/t_estimate.png" style="left:${280 + DX}px;top:${105 + DY}px;width:175px;height:70px">`;
     h += A(484 + DX, 124 + DY, null, 52, 'background:#EE3824;color:#fff;border-radius:26px;padding:0 24px;display:flex;align-items:center;font-size:20px;white-space:nowrap;', 'пакет ' + esc(t.name));
-    if (v.estimateBadge !== false) h += badge(v.cms, 0, 114 + DY, X(1630)).replace('translateX(-50%)', 'translateX(-100%)'); // правым краем к таблице
     const hd = 'font-size:20px;font-weight:500;line-height:42px;padding-top:2px;';
     h += A(X(290), 223 + DY, Wd(600), 42, hd, 'Этап работ') + A(X(979), 223 + DY, Wd(240), 42, hd, 'Стоимость часа, ₽') + A(X(1232), 223 + DY, Wd(180), 42, hd, 'Кол-во часов') + A(X(1431), 223 + DY, Wd(200), 42, hd, 'Стоимость, ₽');
     rows.forEach((l, i) => {
