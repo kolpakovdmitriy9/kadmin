@@ -60,19 +60,24 @@
           let name = T(g[r][c - 1]).replace(/\s*задача\s*$/i, '');
           for (let u = r - 1; !name && u >= Math.max(0, r - 3); u--) name = T((g[u] || [])[c - 1]);
           name = KP.normTariffName(name || 'Тариф ' + (tariffs.length + 1));
-          const rows = [], fixes = []; let total = 0, hours = 0, empty = 0, months = '', discount = null, pay = null;
+          const rows = [], fixes = []; let total = 0, hours = 0, empty = 0, months = '', discount = null, payments = 0;
           for (let k = r + 1; k < g.length; k++) {
             const nm = T((g[k] || [])[c - 1]);
             if (/^итого/i.test(nm)) {
               total = KP.num(g[k][c + 2]); hours = KP.num(g[k][c + 1]);
               // под «Итого»: «Рассрочка на N» → N мес. («-» — без рассрочки), «Скидка N%» с суммой → скидка N%
-              // (прочерк — не трогаем: скидку можно поставить вручную), «100% предоплата» → вся сумма в первом этапе
+              // (прочерк — не трогаем: скидку можно поставить вручную), «Два/Три платежа», «100% предоплата» → число платежей
               for (let j = k + 1; j < Math.min(k + 8, g.length); j++) {
                 const lb = low((g[j] || [])[c + 1]), val = T((g[j] || [])[c + 2]);
                 const on = val && val !== '-' && KP.num(val) > 0;
                 if (/^рассрочка/.test(lb) && months === '') { const n = lb.match(/(\d+)/); months = n && on ? +n[1] : 0; }
                 else if (/^скидка/.test(lb) && on) { const n = lb.match(/(\d+(?:[.,]\d+)?)\s*%/); if (n) discount = parseFloat(n[1].replace(',', '.')); }
-                else if (/100\s*%\s*предоплат/.test(lb) && on) pay = ['100%', '-', '-', '-', '-', '-'];
+                else if (/100\s*%\s*предоплат/.test(lb) && on) payments = 1;
+                else if (/платеж/.test(lb) && on) {           // «Два платежа», «Три платежа», «2 платежа» …
+                  const n = lb.match(/(\d+)\s*платеж/);
+                  const w = { 'один': 1, 'одним': 1, 'два': 2, 'двумя': 2, 'три': 3, 'тремя': 3, 'четыре': 4, 'пять': 5 };
+                  payments = n ? +n[1] : (w[(lb.match(/^([а-я]+)/) || [])[1]] || payments);
+                }
               }
               break;
             }
@@ -87,7 +92,7 @@
               if (rate && Math.abs(rate * hrs - cost) > 0.5) fixes.push(`«${nm}»: ${KP.grp(rate)} × ${String(hrs).replace('.', ',')} = ${KP.grp(rate * hrs)}, а в таблице ${KP.grp(cost)}`);
             }
           }
-          if (rows.length) tariffs.push({ name, rows, total, hours, fixes, months, discount, pay });
+          if (rows.length) tariffs.push({ name, rows, total, hours, fixes, months, discount, payments });
         }
       }
     }
@@ -123,6 +128,14 @@
   // «4000руб/год» → «4 000 ₽/год», «от 200 р/год» → «от 200 ₽/год»
   KP.fmtPrice = (s) => String(s).replace(/(\d[\d\s]*)\s*(?:руб(?:лей|\.)?|р\.?|₽)(?=[\s\/]|$)/gi, (m, n) => KP.grp(parseInt(n.replace(/\s/g, ''), 10)) + ' ₽').replace(/\u00a0/g, ' ');
 
+  /** Сколько платежей указано в таблице → ячейки этапов: 1 — всё в предоплату; меньше, чем этапов, —
+      первый и последние этапы делят сумму поровну, промежуточные — прочерк («Два платежа»: предоплата + по готовности сайта). */
+  function payCells(n, stages) {
+    if (n >= stages) return Array(stages).fill('');
+    if (n <= 1) return ['100%', ...Array(stages - 1).fill('-')];
+    return Array.from({ length: stages }, (_, i) => (i === 0 || i >= stages - (n - 1) ? '' : '-'));
+  }
+
   /** Применяет таблицу к КП: каждому варианту (CMS) соответствует лист. Возвращает отчёт. */
   KP.syncFromSheet = async function (p, settings, info = {}) {
     const report = [];
@@ -146,7 +159,7 @@
           t = { id: KP.uid(), name: rt.name, profile: KP.profileFor(rt.name), enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] };
           v.tariffs.push(t);
         }
-        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; if (rt.discount !== null) { t.discount = rt.discount; t.discountOn = true; } if (rt.pay) t.pay = rt.pay; seen.add(t.id);
+        t.rows = rt.rows; t.total = ''; if (rt.months !== '') t.months = rt.months; if (rt.discount !== null) { t.discount = rt.discount; t.discountOn = true; } if (rt.payments) t.pay = payCells(rt.payments, KP.payStages(p).length); seen.add(t.id);
         rt.fixes.forEach((x) => report.push(`⚠ ${v.cms} · ${rt.name}: ${x}`));
         const sum = KP.tariffTotal(t);
         if (rt.total && Math.abs(sum - rt.total) > 0.5) report.push(`⚠ ${v.cms} · ${rt.name}: сумма строк ${KP.rub(sum)}, а «Итого» в таблице ${KP.rub(rt.total)}`);

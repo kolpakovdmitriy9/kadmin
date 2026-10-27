@@ -257,6 +257,7 @@
   /** Разворачивает КП в список страниц {key,kind,...}; includeDisabled — для списка слева */
   function expand(p, includeDisabled) {
     (p.variants || []).forEach(sortTariffs);
+    if ((p.variants || []).length === 1) p.variants[0].enabled = true;   // единственную CMS выключить нельзя — иначе пропадают все её страницы
     const out = [];
     const push = (o) => out.push(Object.assign({ p }, o));
     (p.slides || []).forEach((s) => {

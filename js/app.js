@@ -183,7 +183,8 @@
         ${tog('syncEnables', p.syncEnables, 'Таблица сама включает только найденные в ней тарифы')}
         <button class="btn pri" style="margin-top:10px;width:100%" data-a="sync">↻ Из таблицы</button></div>`;
       p.variants.forEach((v, vi) => {
-        h += `<div class="card-b"><div class="row"><label class="sw"><input type="checkbox" data-p="variants.${vi}.enabled" data-t="bool" ${v.enabled ? 'checked' : ''}><i></i></label><input class="g" type="text" data-p="variants.${vi}.cms" value="${esc(v.cms)}" placeholder="CMS / вариант"><input type="text" style="width:130px" data-p="variants.${vi}.sheetTab" value="${esc(v.sheetTab || '')}" placeholder="лист таблицы"><button class="btn sm ghost dng" data-a="delV" data-vi="${vi}">✕</button></div>`;
+        // тумблер «показывать страницы этой CMS» — только когда вариантов несколько (одна CMS включена всегда)
+        h += `<div class="card-b"><div class="row">${p.variants.length > 1 ? `<label class="sw" title="Показывать в КП страницы этой CMS (сравнение, оплата, сметы)"><input type="checkbox" data-p="variants.${vi}.enabled" data-t="bool" ${v.enabled ? 'checked' : ''}><i></i></label>` : ''}<input class="g" type="text" data-p="variants.${vi}.cms" value="${esc(v.cms)}" placeholder="CMS / вариант"><input type="text" style="width:130px" data-p="variants.${vi}.sheetTab" value="${esc(v.sheetTab || '')}" placeholder="лист таблицы"><button class="btn sm ghost dng" data-a="delV" data-vi="${vi}">✕</button></div>`;
         v.tariffs.forEach((t, ti) => {
           const b = `variants.${vi}.tariffs.${ti}`;
           h += `<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div class="row"><label class="sw"><input type="checkbox" data-p="${b}.enabled" data-t="bool" ${t.enabled ? 'checked' : ''}><i></i></label>
