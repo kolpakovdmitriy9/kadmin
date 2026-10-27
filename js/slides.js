@@ -67,6 +67,10 @@
   const ALIAS = { 'база': 'Базовый', 'базовый': 'Базовый', 'оптимальный': 'Базовый', 'премиум': 'Премиум', 'премиальный': 'Премиум', 'нейро': 'Нейро' };
   const normTariffName = (n) => { const k = String(n || '').trim().toLowerCase().replace(/ё/g, 'е'); return k === 'база' ? 'Базовый' : String(n || '').trim(); };
   const profileFor = (name) => ALIAS[String(name || '').trim().toLowerCase()] || 'Базовый';
+  // порядок столбцов везде: Нейро → Базовый → Премиум (по типу тарифа из выпадашки), остальное — после
+  const ORDER = ['Нейро', 'Базовый', 'Премиум'];
+  const rank = (t) => { const i = ORDER.indexOf(t.profile || profileFor(t.name)); return i < 0 ? ORDER.length : i; };
+  const sortTariffs = (v) => { if (v && v.tariffs) v.tariffs = v.tariffs.map((t, i) => [t, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map((x) => x[0]); };
 
   const PAY_STAGES = ['Предоплата', 'По факту готовности дизайна', 'По факту готовности сайта'];
   const payStages = (p) => (p && p.payStages && p.payStages.length ? p.payStages : PAY_STAGES);
@@ -252,6 +256,7 @@
 
   /** Разворачивает КП в список страниц {key,kind,...}; includeDisabled — для списка слева */
   function expand(p, includeDisabled) {
+    (p.variants || []).forEach(sortTariffs);
     const out = [];
     const push = (o) => out.push(Object.assign({ p }, o));
     (p.slides || []).forEach((s) => {
@@ -278,8 +283,8 @@
 
   const RENDER = { cover: renderCover, static: renderStatic, compare: renderCompare, payment: renderPayment, estimate: renderEstimate, extras: renderExtras };
   // версия картинок: меняйте при обновлении файлов в assets/, чтобы браузер не брал старые из кэша
-  const ASSET_V = '20261027b';
+  const ASSET_V = '20261027c';
   const renderItem = (it) => (RENDER[it.kind] ? RENDER[it.kind](it) : '').replace(/assets\/([\w.-]+\.(?:webp|png|jpg|svg))/g, `assets/$1?v=${ASSET_V}`);
 
-  Object.assign(KP, { termText, payStages, payPlan, tariffDiscount, discountedTotal, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
+  Object.assign(KP, { termText, sortTariffs, payStages, payPlan, tariffDiscount, discountedTotal, TYPES, STATIC, PROFILES, expand, renderItem, esc, lines, uid, num, rub, grp, tariffTotal, tariffHours, tariffRows, tariffMonths, lineCost, plural, normTariffName, profileFor, dateRu, DEFAULT_RULES, autoMonths });
 })();

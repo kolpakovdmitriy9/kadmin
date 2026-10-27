@@ -99,11 +99,21 @@
       ${rows.map((p) => `<tr data-id="${p.id}"><td><a href="#/p/${p.id}"><b>${esc(p.client)}</b></a></td><td>${summary(p)}</td><td class="muted">${fmtDate(p.updatedAt)}</td>
         <td style="white-space:nowrap"><button class="btn sm" data-a="open">Открыть</button> <button class="btn sm pri" data-a="pdf">PDF</button> <button class="btn sm" data-a="dup">Копия</button> <button class="btn sm dng" data-a="del">✕</button></td></tr>`).join('') || '<tr><td colspan="4" class="muted">Пока пусто — создайте первое КП.</td></tr>'}
       </tbody></table>
-      <div class="row" style="margin-top:18px"><button class="btn sm" data-a="pull">⬇ Загрузить из GitHub</button><button class="btn sm" data-a="push">⬆ Сохранить в GitHub</button><span class="g"></span><button class="btn sm" data-a="exp">Экспорт JSON</button><label class="btn sm">Импорт JSON<input type="file" id="imp" accept=".json" hidden></label></div>
+      <div class="row" style="margin-top:18px"><button class="btn sm" data-a="pull">⬇ Загрузить из GitHub</button><button class="btn sm" data-a="push">⬆ Сохранить в GitHub</button><span class="g"></span><button class="btn sm" data-a="exp">Экспорт JSON</button><label class="btn sm">Импорт JSON<input type="file" id="imp" accept=".json" hidden></label><label class="btn sm pri" title="PDF, скачанный кнопкой «Сохранить в PDF» — откроется для правки">⬆ Открыть PDF<input type="file" id="imppdf" accept=".pdf,application/pdf" hidden></label></div>
       <p class="muted">Данные хранятся в этом браузере и, по кнопке, в вашем GitHub-репозитории (см. «Настройки»).</p></div>`;
     $('#q').oninput = (e) => { viewList(e.target.value); const q = $('#q'); q.focus(); q.setSelectionRange(99, 99); };
     $('#imp').onchange = async (e) => {
       try { store.importJSON(await e.target.files[0].text()); toast('Импортировано'); viewList(); } catch (er) { toast('Ошибка: ' + er.message); }
+    };
+    $('#imppdf').onchange = async (e) => {
+      const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+      try {
+        const p = await KP.proposalFromPdf(file);
+        const has = !!store.get(p.id);
+        const replace = has && confirm(`КП «${p.client}» уже есть в админке.\nОК — заменить его версией из PDF, Отмена — открыть как отдельную копию.`);
+        const q = store.importProposal(p, replace);
+        toast('КП открыто из PDF — можно править и скачать снова'); location.hash = '#/p/' + q.id;
+      } catch (er) { toast('Ошибка: ' + er.message, 8000); }
     };
     app.oninput = null; app.onchange = null;
     app.onclick = async (e) => {
@@ -177,7 +187,7 @@
         v.tariffs.forEach((t, ti) => {
           const b = `variants.${vi}.tariffs.${ti}`;
           h += `<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div class="row"><label class="sw"><input type="checkbox" data-p="${b}.enabled" data-t="bool" ${t.enabled ? 'checked' : ''}><i></i></label>
-            <input class="g" type="text" data-p="${b}.name" value="${esc(t.name)}"><select data-p="${b}.profile" style="width:105px" title="Какой столбец сравнения использовать">${Object.keys(KP.PROFILES).map((k) => `<option ${t.profile === k ? 'selected' : ''}>${k}</option>`).join('')}</select><button class="btn sm ghost dng" data-a="delT" data-vi="${vi}" data-ti="${ti}">✕</button></div>
+            <select class="g" data-p="${b}.profile" data-tariff="1" title="Тариф: название, колонка сравнения и место в таблицах (Нейро → Базовый → Премиум)">${Object.keys(KP.PROFILES).map((k) => `<option ${t.profile === k ? 'selected' : ''}>${k}</option>`).join('')}</select>${KP.normTariffName(t.name) !== t.profile ? `<span class="muted" style="font-size:12px" title="Название из таблицы">«${esc(t.name)}»</span>` : ''}<button class="btn sm ghost dng" data-a="delT" data-vi="${vi}" data-ti="${ti}">✕</button></div>
             <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:12px">${tog(b + '.inCompare', t.inCompare, 'Сравнение')}${tog(b + '.inPayment', t.inPayment, 'Оплата')}${tog(b + '.estimate', t.estimate, 'Смета')}</div>
             <div class="row" style="margin-top:6px"><span class="muted g">Рассрочка, мес.</span><input type="number" style="width:116px" data-p="${b}.months" data-t="blank" value="${t.months ?? ''}" placeholder="авто: ${KP.autoMonths(tariffTotal(t))}"></div>
             <div class="row" style="margin-top:6px"><span class="muted g">Итого без сметы</span><input type="number" style="width:120px" data-p="${b}.total" data-t="num" value="${t.total ?? ''}" ${tariffRows(t).length ? 'disabled' : ''}></div>
@@ -268,6 +278,8 @@
         if (el.dataset.t === 'num') v = el.value === '' ? '' : num(el.value);
         if (el.dataset.t === 'blank') v = el.value === '' ? '' : num(el.value);
         setPath(p, el.dataset.p, v);
+        // тариф выбирается из выпадашки: имя = тип, порядок столбцов пересчитывается сам (Нейро → Базовый → Премиум)
+        if (el.dataset.tariff) { const [, vi, , ti] = el.dataset.p.split('.'); p.variants[+vi].tariffs[+ti].name = v; KP.sortTariffs(p.variants[+vi]); }
         save(); refreshComputed(); refreshPreviewOnly(); { const tp = $('#termpv'), it = curItem(); if (tp && it) tp.textContent = KP.termText(it.slide.fields); }
         if (el.dataset.disc) {
           const t = p.variants[+el.dataset.p.split('.')[1]].tariffs[+el.dataset.p.split('.')[3]];
@@ -304,7 +316,7 @@
         else if (a === 'dn' && i < p.slides.length - 1) { [p.slides[i + 1], p.slides[i]] = [p.slides[i], p.slides[i + 1]]; save(); renderSide(); }
         else if (a === 'addV') { p.variants.push({ id: KP.uid(), cms: 'Новая CMS', enabled: true, sheetTab: '', tariffs: [{ id: KP.uid(), name: 'Базовый', profile: 'Базовый', enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] }] }); save(); renderSide(); }
         else if (a === 'delV') { if (confirm('Удалить вариант вместе с тарифами?')) { p.variants.splice(vi, 1); save(); repaint(); } }
-        else if (a === 'addT') { p.variants[vi].tariffs.push({ id: KP.uid(), name: 'Новый тариф', profile: 'Базовый', enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] }); save(); renderSide(); }
+        else if (a === 'addT') { p.variants[vi].tariffs.push({ id: KP.uid(), name: 'Базовый', profile: 'Базовый', enabled: true, inCompare: true, inPayment: true, estimate: true, months: '', total: '', rows: [] }); save(); renderSide(); }
         else if (a === 'delT') { if (confirm('Удалить тариф?')) { p.variants[vi].tariffs.splice(ti, 1); save(); repaint(); } }
         else if (a === 'addL') { p.variants[vi].tariffs[ti].rows.push({ id: KP.uid(), name: '', rate: '', hours: '', fixed: '' }); save(); renderSide(); }
         else if (a === 'delL') { p.variants[vi].tariffs[ti].rows.splice(li, 1); save(); repaint(); }
@@ -352,6 +364,17 @@
     const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => fail(new Error('Не загрузилась библиотека PDF — проверьте интернет'));
     document.head.appendChild(s);
   });
+  KP.PDF_MARK = 'KPDATA1:';
+  /** Достаёт КП из PDF, сохранённого кнопкой «Сохранить в PDF» (данные лежат в Keywords как base64 JSON). */
+  KP.proposalFromPdf = async function (file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let txt = ''; for (let i = 0; i < bytes.length; i += 0x8000) txt += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    const m = txt.match(new RegExp(KP.PDF_MARK + '([A-Za-z0-9+/=\\\\\\r\\n]+)'));
+    if (!m) throw new Error('В этом PDF нет данных КП. Открыть можно только PDF, скачанный кнопкой «⬇ Сохранить в PDF» (не через «Печать»).');
+    const p = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/[\\\r\n]/g, '')))));
+    if (!p || !Array.isArray(p.slides) || !Array.isArray(p.variants)) throw new Error('Данные КП в PDF повреждены');
+    return p;
+  };
   async function savePdf(p, btn) {
     const st = $('#st'), was = btn.textContent;
     btn.disabled = true;
@@ -365,6 +388,8 @@
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       const slides = [...document.querySelectorAll('#pages > .slide')];
       const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'px', format: [1920, 1080], hotfixes: ['px_scaling'], compress: true });
+      // данные КП кладём в свойства PDF — по кнопке «Открыть PDF» на главной файл откроется обратно для правки
+      pdf.setProperties({ title: 'КП — ' + p.client, keywords: KP.PDF_MARK + btoa(unescape(encodeURIComponent(JSON.stringify(p)))) });
       for (let i = 0; i < slides.length; i++) {
         btn.textContent = `Страница ${i + 1} из ${slides.length}…`;
         const c = slides[i].cloneNode(true); c.style.zoom = '1'; c.style.boxShadow = 'none';

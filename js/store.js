@@ -36,6 +36,14 @@
       return c;
     },
 
+    // КП, вытащенное из PDF: если такое уже есть — заменяем (replace=true) или кладём копией с новым id
+    importProposal(p, replace) {
+      const has = S.data.proposals.some((x) => x.id === p.id);
+      if (has && replace) S.data.proposals = S.data.proposals.map((x) => (x.id === p.id ? p : x));
+      else { if (has || !p.id) p.id = KP.uid(); S.data.proposals.push(p); }
+      p.updatedAt = new Date().toISOString(); S.persist(); return p;
+    },
+
     exportJSON() { return JSON.stringify(S.data, null, 2); },
     importJSON(txt) {
       const d = JSON.parse(txt);
