@@ -120,13 +120,13 @@ function skyline(seed, tile, base, color, cap, zones, win) {
     }
   };
 }
-scroller(900, skyline(11, 900, 700, '#a2cdd1', null, [{ end: 1, w: [34, 86], h: [150, 240] }]), 0.05);
-scroller(1100, skyline(22, 1100, 700, '#92c3c7', '#86b9be', [{ end: 1, w: [60, 120], h: [100, 170] }]), 0.12);
+scroller(900, skyline(11, 900, 700, '#a2cdd1', null, [{ end: 1, w: [34, 86], h: [220, 300] }]), 0.05);
+scroller(1100, skyline(22, 1100, 700, '#92c3c7', '#86b9be', [{ end: 1, w: [60, 120], h: [170, 260] }]), 0.12);
 scroller(1800, skyline(33, 1800, 700, '#7db5b9', '#6aa3a8', [
-  { end: .33, w: [80, 140], h: [58, 96], gap: 6 },
-  { end: .55, w: [80, 116], h: [40, 70], roof: true, gap: 12 },
-  { end: .75, w: [30, 46], h: [50, 84], kind: 'trees', leaf: '#6eab9f', trunk: '#5b8f8d', gap: 12 },
-  { end: 1, w: [70, 130], h: [60, 110], gap: 10 }
+  { end: .33, w: [80, 140], h: [120, 190], gap: 6 },
+  { end: .55, w: [80, 116], h: [80, 120], roof: true, gap: 12 },
+  { end: .75, w: [30, 46], h: [70, 110], kind: 'trees', leaf: '#6eab9f', trunk: '#5b8f8d', gap: 12 },
+  { end: 1, w: [70, 130], h: [120, 200], gap: 10 }
 ], '#5d979c'), 0.3);
 scroller(1500, skyline(44, 1500, 704, '#5f9d96', null, [
   { end: .3, w: [26, 40], h: [40, 62], kind: 'trees', leaf: '#5f9d96', trunk: '#4e8582', gap: 40 },
@@ -155,14 +155,17 @@ const carrot = h('g', {}, car);               // everything that sits behind the
 /* steering wheel + hand resting on top of it (left), traced from the reference */
 const wheel = h('g', {}, carrot);
 const wheelRot = h('g', {}, wheel);
-h('rect', { x: 201, y: 815, width: 11, height: 38, rx: 5.5, fill: '#e8871a' }, wheelRot);      // finger to the right of the bar
+h('rect', { x: 163, y: 822, width: 52, height: 30, rx: 14, fill: '#e8871a' }, wheelRot);       // palm: joins thumb and fingers under the bar
+h('rect', { x: 200, y: 810, width: 13, height: 40, rx: 6.5, fill: '#e8871a' }, wheelRot);       // fingers
+h('rect', { x: 160, y: 820, width: 22, height: 14, rx: 7, fill: '#e8871a', transform: 'rotate(10 171 827)' }, wheelRot);   // thumb, same piece as the palm
 h('line', { x1: 173, y1: 789, x2: 192, y2: 856, stroke: '#3b3b3b', 'stroke-width': 17, 'stroke-linecap': 'round' }, wheelRot);
-h('rect', { x: 165, y: 824, width: 17, height: 10, rx: 5, fill: '#e8871a', transform: 'rotate(8 174 829)' }, wheelRot);   // stub on the left
+h('rect', { x: 163, y: 826, width: 17, height: 11, rx: 5.5, fill: '#e8871a' }, wheelRot);       // thumb tip in front of the bar
 
 /* greens: three bubbles that flutter independently around the stem */
 h('path', { d: 'M383 486 Q379 504 383 522', fill: 'none', stroke: '#6b8f23', 'stroke-width': 7, 'stroke-linecap': 'round' }, carrot);
 const greens = h('g', { transform: 'translate(383 517)' }, carrot);
-const leafL = h('g', {}, greens), leafR = h('g', {}, greens), leafM = h('g', {}, greens);
+const leafAll = h('g', {}, greens);   // all bubbles + highlights move as ONE rigid piece
+const leafL = leafAll, leafR = leafAll, leafM = leafAll;
 function leaf(p, cx, cy, r, hx, hy, hr) {
   h('circle', { cx: cx - 383, cy: cy - 517, r, fill: '#8bb934' }, p);
   h('circle', { cx: hx - 383, cy: hy - 517, r: hr, fill: '#a5cd55', opacity: .55 }, p);
@@ -201,8 +204,8 @@ const shineG = h('g', { 'clip-path': 'url(#lensClip)' }, face);
 const shine = h('rect', { x: 200, y: 670, width: 30, height: 110, fill: '#fff', opacity: 0, transform: 'skewX(-24)' }, shineG);
 const shine2 = h('rect', { x: 200, y: 670, width: 12, height: 110, fill: '#fff', opacity: 0, transform: 'skewX(-24)' }, shineG);
 const mouth = h('g', {}, face);
-h('path', { d: 'M318 772 Q364 790 414 762 Q412 786 372 806 Q336 806 318 772 Z', fill: '#fff', stroke: '#d57a1a', 'stroke-width': 4.5, 'stroke-linejoin': 'round' }, mouth);
-h('path', { d: 'M326 779 Q366 797 408 771', fill: 'none', stroke: '#e9d7c4', 'stroke-width': 2.5, 'stroke-linecap': 'round' }, mouth);
+h('path', { d: 'M320 772 C344 790 388 788 414 764 C413 790 393 809 366 809 C342 809 324 794 320 772 Z', fill: '#fff', stroke: '#d57a1a', 'stroke-width': 4.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, mouth);
+h('path', { d: 'M330 778 C352 792 386 790 407 772', fill: 'none', stroke: '#e9d7c4', 'stroke-width': 2.5, 'stroke-linecap': 'round' }, mouth);
 
 /* the yellow taxi body, drawn over the base of the carrot */
 const hood = h('g', {}, car);
@@ -218,8 +221,9 @@ const armLayer = h('g', {}, car);
 const arm = h('g', {}, armLayer);
 const armRot = h('g', {}, arm);
 h('path', { d: 'M413 802 L440 799.5 C470 797 484 815 483 840 C482 862 474 877 458 887', fill: 'none', stroke: '#d4811b', 'stroke-width': 13, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, armRot);
-h('rect', { x: 434, y: 874, width: 23, height: 26, rx: 6.5, fill: '#c9741a' }, armRot);   // fist
-h('rect', { x: 436, y: 894, width: 9.5, height: 16, rx: 4.75, fill: '#c9741a' }, armRot);  // finger pointing down
+const mit = h('g', { fill: '#c9741a', transform: 'rotate(-6 446 892)' }, armRot);   // mitten: one rounded body + thumb
+h('path', { d: 'M436 880 Q436 872 446 872 Q457 872 457 882 L457 896 Q457 910 446 910 Q436 910 436 896 Z' }, mit);
+h('ellipse', { cx: 434.5, cy: 890, rx: 6.5, ry: 11, transform: 'rotate(14 434.5 890)' }, mit);
 
 /* ---------- timeline ---------- */
 const GLINTS = [2.7, 5.4, 8.2];
@@ -248,7 +252,7 @@ function render(t) {
   });
 
   halo.setAttribute('r', 40 + 2.5 * Math.sin(t * 1.6));
-  sun.setAttribute('transform', `translate(389 ${431 - 4 * Math.sin(t * .35)})`);
+  sun.setAttribute('transform', `translate(389 ${318 - 4 * Math.sin(t * .35)})`);
 
   // the whole taxi rises from below the frame, then keeps bouncing on the road
   const carOff = 330 * (1 - outBack(prog(t, 0.2, 1.25), 0.7));
@@ -260,14 +264,12 @@ function render(t) {
   const bodyT = `translate(0 ${rel}) rotate(${lean} 353 880)`;
   carrot.setAttribute('transform', bodyT);
 
-  // greens are blown back (to the right) because the taxi drives left
+  // greens are blown back (to the right) because the taxi drives left — one rigid bunch, one pivot
   const wind = A;
   const fl = (ph, f) => Math.sin(2 * Math.PI * f * t + ph);
-  leafL.setAttribute('transform', `rotate(${(10 + 9 * fl(0, 1.7)) * wind + 3 - st * .3}) translate(${5 * wind} ${3 * fl(1, 3.1) * wind})`);
-  leafM.setAttribute('transform', `rotate(${(7 + 7 * fl(1.3, 1.4)) * wind + 2 - st * .3}) translate(${4 * wind} ${3 * fl(2, 2.6) * wind})`);
-  leafR.setAttribute('transform', `rotate(${(14 + 11 * fl(2.2, 1.9)) * wind - st * .3}) translate(${8 * wind} ${2 * fl(3, 3.4) * wind})`);
   const rising = 1 - prog(t, 1.4, 2.4);
-  if (rising > 0) leafM.setAttribute('transform', leafM.getAttribute('transform') + ` rotate(${7 * rising * fl(0, 3)})`);
+  const gAng = (8 + 5 * fl(0, 1.6) + 2 * fl(1.7, 3.1)) * wind + 2 - st * .3 + 7 * rising * fl(0, 3);
+  leafAll.setAttribute('transform', `rotate(${gAng}) translate(${3 * wind} ${1.5 * fl(1, 2.7) * wind})`);
 
   // steering: the hand on the wheel turns it, the outside arm swings after the carrot has risen
   wheelRot.setAttribute('transform', `rotate(${-st * 1.4} 190 846)`);
