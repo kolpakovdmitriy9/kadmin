@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gallery motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0b0b; }
+  body { display: grid; place-items: center; }
+  #gm { width: min(96vw, 1200px); aspect-ratio: 4 / 3; border-radius: 12px; }
+</style>
+</head>
+<body>
+<div id="gm"></div>
+<script type="module">
+  import { mountGalleryMotion } from './gallery-motion.js';
+  const q = new URLSearchParams(location.search);
+  const gm = mountGalleryMotion(document.getElementById('gm'), { autoplay: !q.has('t') && !q.has('manual'), preserveDrawingBuffer: true });
+  window.gm = gm;
+  if (q.has('t')) gm.seek(parseFloat(q.get('t')));
+</script>
+</body>
+</html>
