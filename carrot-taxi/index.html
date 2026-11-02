@@ -14,11 +14,13 @@
 <div id="wrap"><svg id="s" viewBox="0 0 476 820" xmlns="http://www.w3.org/2000/svg"></svg></div>
 <script>
 const NS = 'http://www.w3.org/2000/svg';
-const W = 476, HORIZON = 690;
+const W = 476;
+const K0 = 476 / 720;              // reference (720x1041) -> canvas (476 wide)
+const WORLD_Y = 820 - 1041 * K0;   // keeps the bottom of the reference glued to the bottom edge
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const prog = (t, a, b) => clamp((t - a) / (b - a));
 const sstep = u => u * u * (3 - 2 * u);
-const outBack = u => { const c1 = 1.25, c3 = c1 + 1; return 1 + c3 * Math.pow(u - 1, 3) + c1 * Math.pow(u - 1, 2); };
+const outBack = (u, c1 = 1.1) => { const c3 = c1 + 1; return 1 + c3 * Math.pow(u - 1, 3) + c1 * Math.pow(u - 1, 2); };
 const gauss = (t, c, w) => Math.exp(-Math.pow((t - c) / w, 2));
 const mod = (a, n) => ((a % n) + n) % n;
 
@@ -36,53 +38,50 @@ function rng(seed) {
 const svg = document.getElementById('s');
 const defs = h('defs', {}, svg);
 const sky = h('linearGradient', { id: 'sky', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
-h('stop', { offset: 0, 'stop-color': '#a3dbe1' }, sky);
-h('stop', { offset: .62, 'stop-color': '#b7e2e7' }, sky);
-h('stop', { offset: 1, 'stop-color': '#cdeaed' }, sky);
+h('stop', { offset: 0, 'stop-color': '#a8dde2' }, sky);
+h('stop', { offset: .6, 'stop-color': '#b3e0e6' }, sky);
+h('stop', { offset: 1, 'stop-color': '#c4e6ea' }, sky);
 h('rect', { x: 0, y: 0, width: W, height: 820, fill: 'url(#sky)' }, svg);
 
-/* ---------- speed model ---------- */
-const VMAX = 300; // px/s of the nearest layer
-function dist(t) { // integral of speed, with a soft start and gentle surging
+h('rect', { x: 0, y: 698, width: W, height: 130, fill: '#78afb2' }, svg);   // ground behind the skyline
+
+/* ---------- speed model: the taxi drives to the LEFT, the world slides to the right ---------- */
+const VMAX = 300;
+function dist(t) {
   const s = t / 1.6;
   const base = s < 1 ? 1.6 * (s * s * s - s * s * s * s / 2) : 1.6 * 0.5 + (t - 1.6);
   const surge = 0.1 * (1 - Math.cos(0.7 * t)) / 0.7 * sstep(prog(t, 1.2, 3));
   return VMAX * (base + surge);
 }
 
-/* ---------- scrolling tiles ---------- */
+/* ---------- scrolling tiles (move right) ---------- */
 const scrollers = [];
-function scroller(tile, build, k, drift = 0, yFn) {
+function scroller(tile, build, k, drift = 0) {
   const g = h('g', {}, svg);
   const a = h('g', {}, g), b = h('g', {}, g);
   build(a); build(b);
-  scrollers.push({ a, b, tile, k, drift, yFn });
+  scrollers.push({ a, b, tile, k, drift });
   return g;
 }
-
 function cloudShape(p, x, y, s, op) {
-  const g = h('g', { transform: `translate(${x} ${y}) scale(${s})`, opacity: op, fill: '#e3f4f5' }, p);
+  const g = h('g', { transform: `translate(${x} ${y}) scale(${s})`, opacity: op, fill: '#dff2f4' }, p);
   h('rect', { x: 0, y: 24, width: 150, height: 36, rx: 18 }, g);
   h('rect', { x: 30, y: 2, width: 76, height: 42, rx: 21 }, g);
   h('rect', { x: 84, y: 14, width: 54, height: 34, rx: 17 }, g);
-  return g;
 }
 
-/* sun (behind the clouds) */
-const sun = h('g', { transform: 'translate(362 318)' }, svg);
-const halo = h('circle', { r: 46, fill: '#ffd25c', opacity: .32 }, sun);
+/* sun (behind the clouds), as in the reference: right of the carrot */
+const sun = h('g', {}, svg);
+const halo = h('circle', { r: 40, fill: '#ffd25c', opacity: .3 }, sun);
 h('circle', { r: 31, fill: '#ffc53a' }, sun);
 
-/* clouds: far + near layers */
 scroller(900, p => {
-  const r = rng(5);
-  [[30, 360, 1.0], [250, 300, 1.25], [520, 392, .8], [700, 330, 1.1]].forEach(([x, y, s]) => cloudShape(p, x, y, s, .8));
+  [[40, 350, 1.0], [300, 336, 1.2], [560, 372, .85], [760, 340, 1.05]].forEach(([x, y, s]) => cloudShape(p, x, y, s, .78));
 }, 0.03, 9);
 scroller(1250, p => {
-  [[-20, 440, 1.0], [330, 462, 1.35], [650, 410, .9], [930, 470, 1.2]].forEach(([x, y, s]) => cloudShape(p, x, y, s, .72));
+  [[-30, 420, .95], [310, 452, 1.35], [640, 432, .9], [900, 500, 1.1], [1100, 540, .8]].forEach(([x, y, s]) => cloudShape(p, x, y, s, .72));
 }, 0.07, 16);
 
-/* ---------- skyline layers ---------- */
 function skyline(seed, tile, base, color, cap, zones, win) {
   return p => {
     const r = rng(seed);
@@ -95,198 +94,206 @@ function skyline(seed, tile, base, color, cap, zones, win) {
       if (w < 6) break;
       const hh = z.h[0] + r() * (z.h[1] - z.h[0]);
       if (z.kind === 'trees') {
-        const tr = h('g', {}, g);
-        const rad = 16 + r() * 14;
-        h('rect', { x: x + w / 2 - 3, y: base - hh * .55, width: 6, height: hh * .55 + 4, fill: z.trunk || '#5a8b86' }, tr);
-        h('circle', { cx: x + w / 2, cy: base - hh * .55 - rad * .5, r: rad, fill: z.leaf }, tr);
-        h('circle', { cx: x + w / 2 + rad * .6, cy: base - hh * .55 + rad * .1, r: rad * .7, fill: z.leaf }, tr);
-        x += w + (z.gap || 8);
-        continue;
+        const rad = 12 + r() * 10;
+        h('rect', { x: x + w / 2 - 2.5, y: base - hh * .5, width: 5, height: hh * .5 + 4, fill: z.trunk }, g);
+        h('circle', { cx: x + w / 2, cy: base - hh * .5 - rad * .4, r: rad, fill: z.leaf }, g);
+        h('circle', { cx: x + w / 2 + rad * .6, cy: base - hh * .5 + rad * .1, r: rad * .7, fill: z.leaf }, g);
+        x += w + (z.gap || 8); continue;
       }
       if (z.kind === 'poles') {
-        h('rect', { x: x, y: base - hh, width: 4, height: hh + 4, fill: z.leaf }, g);
+        h('rect', { x, y: base - hh, width: 4, height: hh + 4, fill: z.leaf }, g);
         h('rect', { x: x - 10, y: base - hh, width: 24, height: 4, rx: 2, fill: z.leaf }, g);
-        x += w + (z.gap || 40);
-        continue;
+        x += w + (z.gap || 40); continue;
       }
       h('rect', { x, y: base - hh, width: w, height: hh + 4 }, g);
       if (cap) h('rect', { x: x - 2, y: base - hh, width: w + 4, height: 7, fill: cap }, g);
-      if (z.roof) h('path', { d: `M${x - 3} ${base - hh} L${x + w / 2} ${base - hh - 26} L${x + w + 3} ${base - hh} Z`, fill: cap || color }, g);
+      if (z.roof) h('path', { d: `M${x - 3} ${base - hh} L${x + w / 2} ${base - hh - 22} L${x + w + 3} ${base - hh} Z`, fill: cap || color }, g);
       if (win && w > 40) {
-        const cols = Math.floor((w - 14) / 18), rows = Math.floor((hh - 24) / 24);
+        const cols = Math.floor((w - 12) / 22), rows = Math.floor((hh - 20) / 22);
         for (let c = 0; c < cols; c++) for (let rr = 0; rr < rows; rr++) {
-          const wx = x + 9 + c * 18, wy = base - hh + 18 + rr * 24;
-          h('rect', { x: wx, y: wy, width: 12, height: 15, fill: win, rx: 1 }, g);
-          h('path', { d: `M${wx} ${wy + 15} L${wx + 12} ${wy} L${wx + 12} ${wy + 15} Z`, fill: 'rgba(255,255,255,.14)' }, g);
+          const wx = x + 9 + c * 22, wy = base - hh + 16 + rr * 22;
+          h('rect', { x: wx, y: wy, width: 15, height: 14, fill: win, rx: 1 }, g);
+          h('path', { d: `M${wx} ${wy + 14} L${wx + 15} ${wy} L${wx + 15} ${wy + 14} Z`, fill: 'rgba(255,255,255,.13)' }, g);
         }
       }
       x += w + (z.gap || 0);
     }
   };
 }
-scroller(900, skyline(11, 900, 700, '#aad4d7', null, [{ end: 1, w: [34, 80], h: [120, 250] }]), 0.05);
-scroller(1100, skyline(22, 1100, 700, '#97c7cb', '#8bbcc1', [{ end: 1, w: [50, 110], h: [90, 200] }]), 0.12);
-scroller(1800, skyline(33, 1800, 700, '#7db5b9', '#6ba4a9', [
-  { end: .33, w: [66, 104], h: [150, 270], gap: 6 },
-  { end: .55, w: [80, 116], h: [60, 116], roof: true, gap: 12 },
-  { end: .75, w: [30, 46], h: [60, 110], kind: 'trees', leaf: '#6eab9f', trunk: '#5b8f8d', gap: 12 },
-  { end: 1, w: [60, 100], h: [110, 210], gap: 10 }
+scroller(900, skyline(11, 900, 700, '#a2cdd1', null, [{ end: 1, w: [34, 86], h: [150, 240] }]), 0.05);
+scroller(1100, skyline(22, 1100, 700, '#92c3c7', '#86b9be', [{ end: 1, w: [60, 120], h: [100, 170] }]), 0.12);
+scroller(1800, skyline(33, 1800, 700, '#7db5b9', '#6aa3a8', [
+  { end: .33, w: [80, 140], h: [58, 96], gap: 6 },
+  { end: .55, w: [80, 116], h: [40, 70], roof: true, gap: 12 },
+  { end: .75, w: [30, 46], h: [50, 84], kind: 'trees', leaf: '#6eab9f', trunk: '#5b8f8d', gap: 12 },
+  { end: 1, w: [70, 130], h: [60, 110], gap: 10 }
 ], '#5d979c'), 0.3);
-scroller(1500, skyline(44, 1500, 702, '#5f9d96', null, [
-  { end: .3, w: [26, 40], h: [64, 96], kind: 'trees', leaf: '#5f9d96', trunk: '#4e8582', gap: 30 },
-  { end: .45, w: [20, 28], h: [120, 150], kind: 'poles', leaf: '#4e8582', gap: 160 },
-  { end: .8, w: [26, 40], h: [70, 110], kind: 'trees', leaf: '#5f9d96', trunk: '#4e8582', gap: 70 },
-  { end: 1, w: [20, 28], h: [120, 150], kind: 'poles', leaf: '#4e8582', gap: 190 }
+scroller(1500, skyline(44, 1500, 704, '#5f9d96', null, [
+  { end: .3, w: [26, 40], h: [40, 62], kind: 'trees', leaf: '#5f9d96', trunk: '#4e8582', gap: 40 },
+  { end: .45, w: [20, 28], h: [90, 110], kind: 'poles', leaf: '#4e8582', gap: 170 },
+  { end: .8, w: [26, 40], h: [44, 70], kind: 'trees', leaf: '#5f9d96', trunk: '#4e8582', gap: 90 },
+  { end: 1, w: [20, 28], h: [90, 110], kind: 'poles', leaf: '#4e8582', gap: 200 }
 ]), 0.85);
 
-/* wind streaks for the feeling of speed */
 const streaks = [];
 {
   const r = rng(77);
   const g = h('g', {}, svg);
   for (let i = 0; i < 9; i++) {
     const e = h('rect', { height: 2.2, rx: 1.1, fill: '#fff', opacity: .4 }, g);
-    streaks.push({ e, x0: r() * (W + 240), y: 520 + r() * 150, len: 30 + r() * 50, k: 1.8 + r() * 1.2 });
+    streaks.push({ e, x0: r() * (W + 260), y: 520 + r() * 150, len: 30 + r() * 50, k: 1.8 + r() * 1.2 });
   }
 }
 
-/* ---------- car + carrot ---------- */
-const car = h('g', {}, svg);
-const carrot = h('g', {}, car);
+/* =====================================================================
+   Taxi + carrot — drawn in the reference's own coordinates (720 x 1041)
+   ===================================================================== */
+const world = h('g', { transform: `translate(0 ${WORLD_Y}) scale(${K0})` }, svg);
+const car = h('g', {}, world);
+const carrot = h('g', {}, car);               // everything that sits behind the hood
 
-// steering wheel (left) with orange hand
-const wheel = h('g', { transform: 'translate(-112 0)' }, carrot);
+/* steering wheel + hand resting on top of it (left) */
+const wheel = h('g', {}, carrot);
 const wheelRot = h('g', {}, wheel);
-h('rect', { x: -8, y: -12, width: 11, height: 26, rx: 5, fill: '#d97c1b', transform: 'rotate(-14 -3 4)' }, wheelRot);
-h('rect', { x: -2, y: -8, width: 9, height: 22, rx: 4.5, fill: '#e98a1b', transform: 'rotate(10 2 4)' }, wheelRot);
-h('rect', { x: -4, y: -64, width: 13, height: 70, rx: 6.5, fill: '#3c3c3c', transform: 'rotate(14 0 4)' }, wheelRot);
+h('rect', { x: 166, y: 778, width: 24, height: 76, rx: 12, fill: '#3b3b3b', transform: 'rotate(8 178 846)' }, wheelRot);
+h('rect', { x: 166, y: 818, width: 15, height: 34, rx: 7.5, fill: '#e8871a', transform: 'rotate(-12 173 846)' }, wheelRot);
+h('rect', { x: 186, y: 806, width: 14, height: 44, rx: 7, fill: '#e8871a', transform: 'rotate(4 193 846)' }, wheelRot);
+h('rect', { x: 202, y: 814, width: 12, height: 36, rx: 6, fill: '#d97c1b', transform: 'rotate(10 208 846)' }, wheelRot);
 
-// greens (separate groups so they flutter independently)
-const greens = h('g', { transform: 'translate(0 -252)' }, carrot);
-h('rect', { x: -1.8, y: -26, width: 3.6, height: 30, rx: 1.8, fill: '#7a9a28' }, greens);
-const leafL = h('g', {}, greens), leafM = h('g', {}, greens), leafR = h('g', {}, greens);
-function leaf(p, cx, cy, r) {
-  h('circle', { cx, cy, r, fill: '#8cb82f' }, p);
-  h('circle', { cx: cx - r * .35, cy: cy - r * .3, r: r * .38, fill: '#a3c84a', opacity: .75 }, p);
+/* greens: three bubbles that flutter independently around the stem */
+h('path', { d: 'M383 486 Q379 504 383 522', fill: 'none', stroke: '#6b8f23', 'stroke-width': 7, 'stroke-linecap': 'round' }, carrot);
+const greens = h('g', { transform: 'translate(383 517)' }, carrot);
+const leafL = h('g', {}, greens), leafR = h('g', {}, greens), leafM = h('g', {}, greens);
+function leaf(p, cx, cy, r, hx, hy, hr) {
+  h('circle', { cx: cx - 383, cy: cy - 517, r, fill: '#8bb934' }, p);
+  h('circle', { cx: hx - 383, cy: hy - 517, r: hr, fill: '#a5cd55', opacity: .55 }, p);
 }
-leaf(leafL, -34, -44, 22); leaf(leafR, 36, -44, 22); leaf(leafM, 0, -68, 32);
+leaf(leafL, 297, 460, 44, 280, 442, 14);
+leaf(leafR, 468, 448, 40, 457, 436, 14);
+leaf(leafM, 383, 433, 58, 366, 418, 20);
 
-// body
+/* body */
+const bodyD = 'M281 548 Q281 517 312 517 L458 517 Q490 517 495 556 L425 845 L281 845 Z';
 const clip = h('clipPath', { id: 'bodyClip' }, defs);
-const bodyD = 'M-60 -236 Q-60 -252 -44 -252 L42 -252 Q56 -252 59 -236 L64 -150 L20 0 L-60 0 Z';
 h('path', { d: bodyD }, clip);
 h('path', { d: bodyD, fill: '#f7941d' }, carrot);
 const shade = h('g', { 'clip-path': 'url(#bodyClip)' }, carrot);
-h('path', { d: 'M38 -252 L66 -252 L68 -150 L22 0 L-2 0 L26 -150 Z', fill: '#e8851a' }, shade);
-h('rect', { x: -52, y: -208, width: 56, height: 8, rx: 4, fill: '#e98a1b' }, shade);
-h('rect', { x: -52, y: -160, width: 76, height: 8, rx: 4, fill: '#e98a1b' }, shade);
-[[-42, -112], [-30, -86], [-52, -64]].forEach(([x, y]) => h('circle', { cx: x, cy: y, r: 2, fill: '#e07f17' }, shade));
+h('path', { d: 'M458 517 Q490 517 495 556 L425 845 L386 845 Z', fill: '#e8871a' }, shade);
+h('rect', { x: 400, y: 575, width: 52, height: 15, rx: 7.5, fill: '#e8871a' }, shade);
+h('rect', { x: 383, y: 658, width: 66, height: 15, rx: 7.5, fill: '#e8871a' }, shade);
+h('circle', { cx: 411, cy: 567, r: 5, fill: '#e8871a' }, shade);
+h('circle', { cx: 431, cy: 622, r: 3.5, fill: '#e8871a' }, shade);
+h('circle', { cx: 298, cy: 775, r: 4.2, fill: '#e8871a' }, shade);
+h('circle', { cx: 311, cy: 788, r: 3, fill: '#e8871a' }, shade);
 
-// arm (pivot at the shoulder)
-const arm = h('g', { transform: 'translate(52 -38)' }, carrot);
-const armRot = h('g', {}, arm);
-h('path', { d: 'M0 0 Q44 -10 42 34 Q41 52 30 66', fill: 'none', stroke: '#d97c1b', 'stroke-width': 13, 'stroke-linecap': 'round' }, armRot);
-h('circle', { cx: 30, cy: 70, r: 8, fill: '#c9701a' }, armRot);
-
-// face: mouth + sunglasses
+/* face: sunglasses + wide smirk */
 const face = h('g', {}, carrot);
-h('path', { d: 'M-16 -52 Q-2 -40 18 -58 L12 -50 Q0 -38 -10 -44 Z', fill: '#fff', stroke: '#c8751a', 'stroke-width': 3, 'stroke-linejoin': 'round' }, face);
+const lensL = 'M225 690 H348 V706 Q348 757 287 757 Q225 757 225 706 Z';
+const lensR = 'M357 690 H474 V706 Q474 757 416 757 Q357 757 357 706 Z';
 const lensClip = h('clipPath', { id: 'lensClip' }, defs);
-const lensL = 'M-86 -114 L-6 -114 L-6 -102 Q-6 -66 -46 -66 Q-86 -66 -86 -102 Z';
-const lensR = 'M4 -114 L82 -114 L82 -102 Q82 -66 43 -66 Q4 -66 4 -102 Z';
 h('path', { d: lensL }, lensClip); h('path', { d: lensR }, lensClip);
 h('path', { d: lensL, fill: '#3d3d3d' }, face);
 h('path', { d: lensR, fill: '#3d3d3d' }, face);
-h('rect', { x: -10, y: -116, width: 18, height: 7, rx: 3, fill: '#3d3d3d' }, face);
-h('rect', { x: 60, y: -116, width: 34, height: 6, rx: 3, fill: '#3d3d3d' }, face);
-const diaL = h('path', { d: 'M0 -7 L5.5 0 L0 7 L-5.5 0 Z', fill: '#fff' }, face);
-const diaR = h('path', { d: 'M0 -7 L5.5 0 L0 7 L-5.5 0 Z', fill: '#fff' }, face);
+h('rect', { x: 338, y: 690, width: 28, height: 12, rx: 3, fill: '#3d3d3d' }, face);
+h('rect', { x: 462, y: 690, width: 30, height: 12, rx: 6, fill: '#3d3d3d' }, face);
+const diaL = h('path', { d: 'M0 -10 L10 0 L0 10 L-10 0 Z', fill: '#fff' }, face);
+const diaR = h('path', { d: 'M0 -10 L10 0 L0 10 L-10 0 Z', fill: '#fff' }, face);
 const shineG = h('g', { 'clip-path': 'url(#lensClip)' }, face);
-const shine = h('rect', { x: -20, y: -130, width: 22, height: 80, fill: '#fff', opacity: 0, transform: 'skewX(-24)' }, shineG);
-const shine2 = h('rect', { x: -20, y: -130, width: 9, height: 80, fill: '#fff', opacity: 0, transform: 'skewX(-24)' }, shineG);
+const shine = h('rect', { x: 200, y: 670, width: 30, height: 110, fill: '#fff', opacity: 0, transform: 'skewX(-24)' }, shineG);
+const shine2 = h('rect', { x: 200, y: 670, width: 12, height: 110, fill: '#fff', opacity: 0, transform: 'skewX(-24)' }, shineG);
+const mouth = h('g', {}, face);
+h('path', { d: 'M318 772 Q364 790 414 762 Q412 786 372 806 Q336 806 318 772 Z', fill: '#fff', stroke: '#d57a1a', 'stroke-width': 6, 'stroke-linejoin': 'round' }, mouth);
+h('path', { d: 'M326 779 Q366 797 408 771', fill: 'none', stroke: '#e9d7c4', 'stroke-width': 2.5, 'stroke-linecap': 'round' }, mouth);
 
-// hood (drawn over the base of the carrot)
+/* the yellow taxi body, drawn over the base of the carrot */
 const hood = h('g', {}, car);
-h('rect', { x: -10, y: HORIZON, width: W + 20, height: 140, fill: '#ffc929' }, hood);
-h('rect', { x: -10, y: HORIZON, width: W + 20, height: 24, fill: '#ffd54a' }, hood);
-const check = h('g', { transform: 'translate(160 752) scale(1.35)', fill: '#3c3c3c' }, hood);
-[[0, 0], [2, 0], [1, 1], [0, 2], [2, 2], [1, 3]].forEach(([c, r]) => h('rect', { x: c * 19, y: r * 19, width: 19, height: 19 }, check));
-// a slim highlight line along the hood that sweeps with speed
-const hoodShine = h('rect', { x: -60, y: HORIZON + 30, width: 70, height: 3, rx: 1.5, fill: '#fff', opacity: .0 }, hood);
+h('rect', { x: -30, y: 845, width: 780, height: 330, fill: '#ffc929' }, hood);
+h('rect', { x: -30, y: 845, width: 780, height: 48, fill: '#ffd54a' }, hood);
+const check = h('g', { fill: '#3b3b3b' }, hood);
+[268, 346, 425].forEach(x => h('rect', { x, y: 930, width: 40, height: 39 }, check));
+[307, 386].forEach(x => h('rect', { x, y: 969, width: 40, height: 39 }, check));
+const hoodShine = h('rect', { x: -100, y: 905, width: 110, height: 5, rx: 2.5, fill: '#fff', opacity: 0 }, hood);
+
+/* the right arm hangs outside, over the door (in front of the yellow body) */
+const armLayer = h('g', {}, car);
+const arm = h('g', {}, armLayer);
+const armRot = h('g', {}, arm);
+h('path', { d: 'M412 803 Q470 790 479 836 Q484 870 450 888', fill: 'none', stroke: '#d4781a', 'stroke-width': 17, 'stroke-linecap': 'round' }, armRot);
+h('rect', { x: 431, y: 872, width: 18, height: 38, rx: 8, fill: '#c9701a', transform: 'rotate(-8 440 890)' }, armRot);
 
 /* ---------- timeline ---------- */
-const GLINTS = [2.5, 5.3, 8.1];
+const GLINTS = [2.7, 5.4, 8.2];
 function steer(t) {
   const calm = 2.6 * Math.sin(1.25 * t) + 1.6 * Math.sin(2.9 * t + 1);
   const turns = 11 * gauss(t, 4.1, .55) - 13 * gauss(t, 6.7, .6) + 9 * gauss(t, 8.7, .5);
-  return (calm * sstep(prog(t, 1.2, 2.4)) + turns);
+  return calm * sstep(prog(t, 1.4, 2.6)) + turns;
 }
 function render(t) {
   const D = dist(t);
-  const A = sstep(prog(t, 0.2, 1.6));                  // how rough the road feels
+  const A = sstep(prog(t, 0.3, 1.6));
   const bump = (ph, amp) => A * amp * (1.1 * Math.sin(2 * Math.PI * 2.1 * t + ph) + .6 * Math.sin(2 * Math.PI * 3.4 * t + ph * 1.7 + 1));
   const st = steer(t);
 
-  // scrolling layers (parallax)
   scrollers.forEach(sc => {
     const off = mod(D * sc.k + t * sc.drift, sc.tile);
     const dy = bump(0, 0.35) * sc.k * 2;
-    sc.a.setAttribute('transform', `translate(${-off} ${dy})`);
-    sc.b.setAttribute('transform', `translate(${sc.tile - off} ${dy})`);
+    sc.a.setAttribute('transform', `translate(${off - sc.tile} ${dy})`);
+    sc.b.setAttribute('transform', `translate(${off} ${dy})`);
   });
+  const sp = A * 0.75 + 0.25 * sstep(prog(t, 0, 1));
   streaks.forEach(s => {
-    const sp = A * 0.75 + 0.25 * sstep(prog(t, 0, 1));
-    const x = mod(s.x0 - D * s.k * 0.9, W + 260) - 130;
-    s.e.setAttribute('x', x); s.e.setAttribute('y', s.y); s.e.setAttribute('width', s.len * (0.4 + sp));
-    s.e.setAttribute('opacity', 0.38 * sp);
+    const x = mod(s.x0 + D * s.k * 0.9, W + 260) - 130;
+    s.e.setAttribute('x', x - s.len); s.e.setAttribute('y', s.y); s.e.setAttribute('width', s.len * (0.4 + sp));
+    s.e.setAttribute('opacity', 0.36 * sp);
   });
 
-  // sun
-  halo.setAttribute('r', 46 + 3 * Math.sin(t * 1.6));
-  sun.setAttribute('transform', `translate(362 ${318 - 4 * Math.sin(t * .35)})`);
+  halo.setAttribute('r', 40 + 2.5 * Math.sin(t * 1.6));
+  sun.setAttribute('transform', `translate(389 ${431 - 4 * Math.sin(t * .35)})`);
 
-  // car body bounce + lean
-  const hoodY = bump(0, 1.1);
-  car.setAttribute('transform', `translate(0 ${hoodY})`);
-  const rise = 470 * (1 - outBack(prog(t, 0.45, 1.95)));
-  const cy = HORIZON + rise + bump(-0.5, 0.9) - hoodY * 0.2;
-  const lean = st * 0.28 + 0.6 * A * Math.sin(2 * Math.PI * 2.1 * t - 0.8);
-  carrot.setAttribute('transform', `translate(246 ${cy}) rotate(${lean}) scale(1.22)`);
+  // the whole taxi rises from below the frame, then keeps bouncing on the road
+  const carOff = 330 * (1 - outBack(prog(t, 0.2, 1.25), 0.7));
+  const bumpRef = bump(0, 1.1) / K0;
+  car.setAttribute('transform', `translate(0 ${carOff + bumpRef})`);
+  // the carrot then rises out of the taxi
+  const rel = 640 * (1 - outBack(prog(t, 0.75, 2.2), 1.15));
+  const lean = st * 0.3 + 0.6 * A * Math.sin(2 * Math.PI * 2.1 * t - 0.8);
+  const bodyT = `translate(0 ${rel + bump(-0.5, 0.9) / K0 * 0.5}) rotate(${lean} 353 845)`;
+  carrot.setAttribute('transform', bodyT);
 
-  // greens in the wind: blown back (to the left) while driving
+  // greens are blown back (to the right) because the taxi drives left
   const wind = A;
   const fl = (ph, f) => Math.sin(2 * Math.PI * f * t + ph);
-  leafL.setAttribute('transform', `rotate(${-(10 + 9 * fl(0, 1.7)) * wind - 3 + st * .3} 0 0) translate(${-4 * wind} ${1.5 * fl(1, 3.1) * wind})`);
-  leafM.setAttribute('transform', `rotate(${-(7 + 7 * fl(1.3, 1.4)) * wind - 2 + st * .3} 0 0) translate(${-3 * wind} ${2 * fl(2, 2.6) * wind})`);
-  leafR.setAttribute('transform', `rotate(${-(12 + 10 * fl(2.2, 1.9)) * wind + st * .3} 0 0) translate(${-6 * wind} ${1.5 * fl(3, 3.4) * wind})`);
-  // extra flutter while the carrot is still rising
-  const rising = 1 - prog(t, 1.3, 2.2);
-  if (rising > 0) {
-    leafM.setAttribute('transform', leafM.getAttribute('transform') + ` rotate(${6 * rising * fl(0, 3)} 0 0)`);
-  }
+  leafL.setAttribute('transform', `rotate(${(10 + 9 * fl(0, 1.7)) * wind + 3 - st * .3}) translate(${5 * wind} ${3 * fl(1, 3.1) * wind})`);
+  leafM.setAttribute('transform', `rotate(${(7 + 7 * fl(1.3, 1.4)) * wind + 2 - st * .3}) translate(${4 * wind} ${3 * fl(2, 2.6) * wind})`);
+  leafR.setAttribute('transform', `rotate(${(14 + 11 * fl(2.2, 1.9)) * wind - st * .3}) translate(${8 * wind} ${2 * fl(3, 3.4) * wind})`);
+  const rising = 1 - prog(t, 1.4, 2.4);
+  if (rising > 0) leafM.setAttribute('transform', leafM.getAttribute('transform') + ` rotate(${7 * rising * fl(0, 3)})`);
 
-  // arm steers, wheel turns with it
-  const armA = st * 1.0 + 2.2 * Math.sin(2 * Math.PI * 1.1 * t);
-  armRot.setAttribute('transform', `rotate(${armA} 0 0)`);
-  wheelRot.setAttribute('transform', `rotate(${-st * 1.2} 0 4)`);
+  // steering: the hand on the wheel turns it, the outside arm swings after the carrot has risen
+  wheelRot.setAttribute('transform', `rotate(${-st * 1.4} 190 846)`);
+  const swing = 1 - outBack(prog(t, 2.0, 2.8), 1.3);
+  armLayer.setAttribute('transform', bodyT);
+  armLayer.setAttribute('opacity', prog(t, 1.95, 2.15));
+  armRot.setAttribute('transform', `rotate(${-80 * swing + st * 0.9 + 2.2 * Math.sin(2 * Math.PI * 1.1 * t)} 415 803)`);
 
-  // face: glasses glint + slight head offset from lean
-  face.setAttribute('transform', `translate(${lean * 0.4} 0)`);
+  // face
+  face.setAttribute('transform', `translate(${-lean * 1.2} 0)`);
   let g = 0;
   GLINTS.forEach(c => { g = Math.max(g, gauss(t, c + .12, .13)); });
-  const ds = 0.85 + 0.55 * g + 0.08 * Math.sin(t * 5);
-  diaL.setAttribute('transform', `translate(-34 -99) scale(${ds}) rotate(${g * 45})`);
-  diaR.setAttribute('transform', `translate(44 -99) scale(${ds}) rotate(${g * 45})`);
+  const ds = 0.85 + 0.6 * g + 0.06 * Math.sin(t * 5);
+  diaL.setAttribute('transform', `translate(326 712) scale(${ds}) rotate(${g * 45})`);
+  diaR.setAttribute('transform', `translate(456 712) scale(${ds}) rotate(${g * 45})`);
   let sh = -1, so = 0;
   GLINTS.forEach(c => { const u = (t - c) / .6; if (u > 0 && u < 1) { sh = u; so = Math.sin(Math.PI * u); } });
   if (sh >= 0) {
-    const x = -70 + 170 * sh;
+    const x = 190 + 300 * sh;
     shine.setAttribute('x', x); shine.setAttribute('opacity', .38 * so);
-    shine2.setAttribute('x', x + 30); shine2.setAttribute('opacity', .3 * so);
+    shine2.setAttribute('x', x + 48); shine2.setAttribute('opacity', .3 * so);
   } else { shine.setAttribute('opacity', 0); shine2.setAttribute('opacity', 0); }
+  // little smile "breathing"
+  mouth.setAttribute('transform', `translate(366 786) scale(${1 + 0.04 * Math.sin(t * 2.2)} ${1 + 0.1 * g}) translate(-366 -786)`);
 
-  // hood shine streak sweeping from front to back
-  hoodShine.setAttribute('x', mod(-D * 0.9, W + 160) - 80);
+  hoodShine.setAttribute('x', mod(D * 1.3, 900) - 120);
   hoodShine.setAttribute('opacity', 0.35 * A);
 }
 
