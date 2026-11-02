@@ -218,7 +218,11 @@ const hoodShine = h('rect', { x: -100, y: 905, width: 110, height: 5, rx: 2.5, f
 
 /* the right arm hangs outside, over the door (in front of the yellow body) */
 const armLayer = h('g', {}, car);
-const arm = h('g', {}, armLayer);
+// the arm tucks BEHIND the torso: mask out the carrot's own silhouette
+const armMask = h('mask', { id: 'armMask', maskUnits: 'userSpaceOnUse', x: -100, y: 0, width: 1000, height: 1300 }, defs);
+h('rect', { x: -100, y: 0, width: 1000, height: 1300, fill: '#fff' }, armMask);
+h('path', { d: bodyD, fill: '#000' }, armMask);
+const arm = h('g', { mask: 'url(#armMask)' }, armLayer);
 const armRot = h('g', {}, arm);
 h('path', { d: 'M413 802 L440 799.5 C470 797 484 815 483 840 C482 862 474 877 458 887', fill: 'none', stroke: '#d4811b', 'stroke-width': 13, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, armRot);
 const mit = h('g', { fill: '#c9741a', transform: 'rotate(-6 446 892)' }, armRot);   // mitten: one rounded body + thumb
