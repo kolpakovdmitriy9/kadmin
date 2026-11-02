@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subscribers-only Chats intro</title>
+<style>
+  :root { --bg: #f2f2f2; --pink: #f91880; --blue: #1d9bf0; --purple: #c13ccf; }
+  html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+  #wrap { position: fixed; inset: 0; display: grid; place-items: center; }
+  #stage {
+    position: relative; width: 1080px; height: 1080px; flex: none;
+    background: var(--bg); overflow: hidden; color: #000;
+    font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+    transform-origin: center center;
+  }
+  #stage * { box-sizing: border-box; }
+  .abs { position: absolute; }
+  .t { position: absolute; white-space: nowrap; line-height: 1; transform: translateY(-50%); }
+  .line { position: absolute; left: 0; height: 2px; background: #111; }
+  .pill {
+    position: absolute; height: 58px; border: 3px solid #000; border-radius: 29px; background: #fff;
+    display: flex; align-items: center; white-space: nowrap; overflow: hidden;
+    transform: translateY(-50%);
+  }
+  .pill .av { flex: none; width: 46px; height: 46px; margin-left: -0px; }
+  .pill .tx { font-size: 25px; font-weight: 500; letter-spacing: -.005em; padding: 0 20px 0 12px; }
+  #title { left: 0; font-weight: 400; letter-spacing: -0.02em; }
+  #phone { position: absolute; left: 155px; width: 795px; height: 1500px; }
+  #phone .body { position: absolute; inset: 0; border-radius: 140px; background: linear-gradient(90deg,#55565a,#9a9ba0 8%,#3a3b3e 30%,#3a3b3e 70%,#9a9ba0 92%,#55565a); }
+  #phone .bezel { position: absolute; inset: 7px; border-radius: 133px; background: #050505; }
+  #phone .screen { position: absolute; left: 28px; top: 28px; right: 28px; bottom: 0; border-radius: 108px 108px 0 0; background: #fff; overflow: hidden; }
+  #phone .btn { position: absolute; width: 9px; background: linear-gradient(90deg,#222,#777); border-radius: 4px 0 0 4px; }
+  #page { position: absolute; left: -183px; top: -148px; width: 1080px; height: 3000px; will-change: transform; }
+  #sb { position: absolute; left: -183px; top: -148px; width: 1080px; height: 400px; pointer-events: none; }
+  .pt { font-weight: 600; color: #0f1419; }
+  .pg { color: #6b7075; }
+  #reveal { position: absolute; inset: 0; background: var(--bg); clip-path: circle(0px at 540px 535px); }
+  #reveal svg { position: absolute; inset: 0; width: 1080px; height: 1080px; overflow: visible; }
+  #newpill {
+    position: absolute; display: flex; align-items: center; justify-content: center;
+    white-space: nowrap; overflow: hidden; background: #000; color: #fff; font-weight: 700;
+    transform: translate(-50%, -50%);
+  }
+  #newpill .ph { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: #a7a7a7; font-weight: 400; font-size: 27px; letter-spacing: 0; white-space: pre; }
+  #newpill .ty { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: #000; font-weight: 400; font-size: 31px; letter-spacing: 0; white-space: pre; display: flex; align-items: center; }
+  #newpill .caret { display: inline-block; width: 2.5px; height: 38px; background: #000; margin-left: 2px; }
+  #form .row { position: absolute; left: 0; width: 1080px; }
+  #form .row .h { position: absolute; left: 252px; white-space: nowrap; font-size: 28px; font-weight: 600; letter-spacing: -.005em; }
+  #form .row .d { position: absolute; left: 252px; font-size: 26px; color: #6b6b6b; line-height: 33px; white-space: nowrap; letter-spacing: -.003em; }
+  #form .row svg { position: absolute; left: 168px; top: -8px; width: 48px; height: 48px; }
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <div id="lines"></div>
+  <div id="title" class="t"></div>
+  <div id="pills"></div>
+  <div id="phone"></div>
+  <div id="reveal"></div>
+  <div id="form"></div>
+  <div id="newpill"></div>
+</div></div>
+
+<script>
+/* ---------- helpers ---------- */
+const stage = document.getElementById('stage');
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, u) => a + (b - a) * u;
+const out3 = u => 1 - Math.pow(1 - u, 3);
+const in3 = u => u * u * u;
+const io3 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+const out5 = u => 1 - Math.pow(1 - u, 5);
+const hex = v => { v = Math.round(clamp(v, 0, 255)); return 'rgb(' + v + ',' + v + ',' + v + ')'; };
+
+function pchip(P) {
+  const n = P.length, h = [], d = [], m = new Array(n);
+  for (let i = 0; i < n - 1; i++) { h[i] = P[i + 1][0] - P[i][0]; d[i] = (P[i + 1][1] - P[i][1]) / h[i]; }
+  m[0] = d[0]; m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) { m[i] = m[i + 1] = 0; continue; }
+    const a = m[i] / d[i], b = m[i + 1] / d[i], s = a * a + b * b;
+    if (s > 9) { const k = 3 / Math.sqrt(s); m[i] = k * a * d[i]; m[i + 1] = k * b * d[i]; }
+  }
+  return x => {
+    if (x <= P[0][0]) return P[0][1];
+    if (x >= P[n - 1][0]) return P[n - 1][1];
+    let i = 0; while (x > P[i + 1][0]) i++;
+    const t = (x - P[i][0]) / h[i], t2 = t * t, t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * P[i][1] + (t3 - 2 * t2 + t) * h[i] * m[i] +
+           (-2 * t3 + 3 * t2) * P[i + 1][1] + (t3 - t2) * h[i] * m[i + 1];
+  };
+}
+function el(parent, cls, css, html) {
+  const e = document.createElement('div');
+  if (cls) e.className = cls;
+  if (css) e.style.cssText = css;
+  if (html != null) e.innerHTML = html;
+  parent.appendChild(e); return e;
+}
+function T(parent, txt, x, y, size, weight, color, align, extra) {
+  const e = el(parent, 't', `left:${x}px;top:${y}px;font-size:${size}px;font-weight:${weight};color:${color || '#0f1419'};` +
+    (align === 'c' ? 'transform:translate(-50%,-50%);' : align === 'r' ? 'transform:translate(-100%,-50%);' : '') + (extra || ''), txt);
+  return e;
+}
+const meas = document.createElement('span');
+meas.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0;';
+document.body.appendChild(meas);
+function fitSize(text, weight, ls, target) {
+  meas.style.font = `${weight} 100px Inter, "Helvetica Neue", Arial, sans-serif`;
+  meas.style.letterSpacing = ls;
+  meas.textContent = text;
+  return 100 * target / meas.getBoundingClientRect().width;
+}
+
+/* ---------- scene 1/2: title, lines, pills ---------- */
+const title = document.getElementById('title');
+const TITLE_A = 'Introducing', TITLE_B = 'Subscribers-only Chats';
+const sizeA = fitSize(TITLE_A, 400, '-0.02em', 438);
+const sizeB = fitSize(TITLE_B, 400, '-0.02em', 898);
+title.style.top = '540px';
+// each char in its own span so we can hide the middle (centre-out erase)
+function setTitle(chars, hiddenFn) {
+  let html = '';
+  for (let i = 0; i < chars.length; i++) {
+    html += `<span style="${hiddenFn && hiddenFn(i) ? 'visibility:hidden' : ''};white-space:pre">${chars[i]}</span>`;
+  }
+  title.innerHTML = html;
+}
+
+const linesRoot = document.getElementById('lines');
+const L = [0, 1, 2, 3].map(() => el(linesRoot, 'line', 'display:none'));
+const Y1 = pchip([[1.13, 360], [1.2, 355], [1.27, 346], [1.33, 342], [1.4, 328], [1.47, 310], [1.53, 288], [1.6, 256], [1.67, 225], [1.73, 194], [1.8, 171], [1.87, 148], [1.93, 135], [2.0, 126], [2.07, 112], [2.2, 104]]);
+const Y4 = pchip([[1.13, 720], [1.2, 724], [1.27, 729], [1.33, 734], [1.4, 747], [1.47, 765], [1.53, 783], [1.6, 815], [1.67, 842], [1.73, 869], [1.8, 891], [1.87, 909], [1.93, 922], [2.0, 931], [2.07, 940], [2.2, 955]]);
+const Y2 = pchip([[1.67, 333], [1.73, 324], [1.8, 315], [1.87, 306], [1.93, 300], [2.0, 296]]);
+const Y3 = pchip([[1.87, 733], [1.93, 742], [2.0, 742], [2.07, 747], [2.13, 751], [2.2, 756]]);
+function lineYs(t) {
+  const d = prog(t, 3.8, 4.8);
+  return [
+    (t < 1.13 ? 360 : Y1(t)) + 4 * d,
+    t < 1.67 ? 296 : Y2(t) + 2 * d,
+    t < 1.87 ? 756 : Y3(t) - 3 * d,
+    (t < 1.13 ? 720 : Y4(t)) - 6 * d
+  ];
+}
+function lineWidths(t) {
+  const g = s => clamp(3100 * (t - s), 0, 1080);
+  return [g(0.335), g(1.67), g(1.87), g(0.33)];
+}
+
+const PILL = [
+  { txt: 'What do you all think?',        t0: 1.93, t1: 2.42, e0: 3.68, e1: 4.25,  fl: 197, sl: 165, line: 0 },
+  { txt: 'Here’s a sneak peak',       t0: 2.0,  t1: 2.65, e0: 3.9,  e1: 4.9,  fl: 573, sl: 846, line: 1 },
+  { txt: 'Answering questions for next hour', t0: 2.27, t1: 2.9, e0: 3.85, e1: 4.8, fl: 262, sl: 325, line: 2 },
+  { txt: 'Come to my NYC meetup',         t0: 2.2,  t1: 2.9,  e0: 3.67, e1: 4.7,  fl: 642, sl: 905, line: 3 }
+];
+const avatarSVG = `<svg class="av" viewBox="0 0 46 46"><circle cx="23" cy="23" r="23" fill="#f91880"/><circle cx="20" cy="17" r="5" fill="#fff"/><path d="M10 33c0-6 4-9 10-9s10 3 10 9z" fill="#fff"/><path d="M31 18l1.4 2.9 3.1.4-2.3 2.2.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.2 3.1-.4z" fill="#fff"/></svg>`;
+const pillsRoot = document.getElementById('pills');
+PILL.forEach(p => {
+  p.el = el(pillsRoot, 'pill', 'display:none', avatarSVG + '<div class="tx"></div>');
+  p.tx = p.el.querySelector('.tx');
+});
+function renderPills(t, ys) {
+  PILL.forEach(p => {
+    let n = p.txt.length;
+    let show = t >= p.t0;
+    if (t < p.t1) n = Math.round(p.txt.length * prog(t, p.t0, p.t1));
+    if (t >= p.e0) n = Math.round(p.txt.length * (1 - prog(t, p.e0, p.e1)));
+    if (!show) { p.el.style.display = 'none'; return; }
+    p.el.style.display = 'flex';
+    p.tx.textContent = p.txt.slice(0, n);
+    p.tx.style.display = n ? 'block' : 'none';
+    p.el.style.width = n ? '' : (p.line === 0 ? lerp(120, 58, prog(t, 4.25, 4.45)) : 58) + 'px';
+    p.el.firstElementChild.style.display = (n === 0 && p.line === 0 && t > 4.25) ? 'none' : 'block';
+    let u = prog(t, p.t0, p.t1);
+    let left = lerp(p.sl, p.fl, io3(u));
+    if (p.line === 0 && t >= p.e0) left = lerp(197, 410, io3(prog(t, 3.6, 4.5)));
+    p.el.style.left = left + 'px';
+    p.el.style.top = ys[p.line] + 'px';
+    // hide the leftover circle of pill 1 once the phone has settled
+    let vis = 1;
+    if (p.line === 0) vis = 1 - prog(t, 4.88, 4.98);
+    if (p.line !== 0 && t > 4.4) vis = 0;
+    p.el.style.opacity = vis;
+    if (!vis) p.el.style.display = 'none';
+  });
+}
+
+/* ---------- phone ---------- */
+const phone = document.getElementById('phone');
+el(phone, 'body'); el(phone, 'bezel');
+[[342, 78], [475, 120], [635, 105]].forEach(([y, h]) => el(phone, 'btn', `left:-7px;top:${y}px;height:${h}px`));
+el(phone, 'btn', 'right:-7px;left:auto;top:518px;height:192px;border-radius:0 4px 4px 0;transform:scaleX(-1)');
+const screen = el(phone, 'screen');
+const page = el(screen, null, null); page.id = 'page';
+const sb = el(screen, null, null); sb.id = 'sb';
+
+const verified = (x, y, s) => `<svg class="abs" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px;transform:translateY(-50%)" viewBox="0 0 24 24"><path d="M12 1l2.6 2 3.2-.3 1.2 3 2.9 1.5-.7 3.1L22.5 12l-1.3 2.7.7 3.1-2.9 1.5-1.2 3-3.2-.3L12 23l-2.6-2-3.2.3-1.2-3-2.9-1.5.7-3.1L1.5 12l1.3-2.7-.7-3.1 2.9-1.5 1.2-3 3.2.3z" fill="#1d9bf0"/><path d="M7.5 12.4l3 3 6-6.3" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const chevron = (y) => `<svg class="abs" style="left:872px;top:${y}px;width:26px;height:26px;transform:translateY(-50%)" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="#aab0b5" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ico = {
+  chat: '<path d="M12 4c5 0 8.5 3.1 8.5 7s-3.5 7-8.5 7c-1 0-2-.1-2.9-.4L5 19.5l.9-3.4C4.7 15 3.5 13.2 3.5 11 3.5 7.1 7 4 12 4z"/>',
+  note: '<path d="M6 3.5h9.5a2 2 0 012 2V10M6 3.5a2 2 0 00-2 2v13a2 2 0 002 2h6M8 8h6M8 12h4"/><path d="M13.5 20.5l.5-2.6 6.2-6.2 2.1 2.1-6.2 6.2z"/>',
+  post: '<path d="M7 20.5l-3 .5.5-3L16 6.5a2 2 0 013 0l.5.5a2 2 0 010 3z"/><path d="M5 4v5M2.5 6.5h5"/>',
+  share: '<path d="M12 15V3.5M7.5 8L12 3.5 16.5 8M4.5 13v6a1.5 1.5 0 001.5 1.5h12a1.5 1.5 0 001.5-1.5v-6"/>',
+  link: '<path d="M10 14a4 4 0 005.6 0l3-3a4 4 0 00-5.6-5.6l-1 1M14 10a4 4 0 00-5.6 0l-3 3a4 4 0 005.6 5.6l1-1"/>',
+  help: '<circle cx="12" cy="12" r="9.2"/><path d="M9.2 9.3a2.8 2.8 0 015.5.7c0 1.9-2.7 2.3-2.7 4M12 17.3v.1"/>',
+  mail: '<rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M4 8l8 5.5L20 8"/>'
+};
+const icoSVG = (k, y) => `<svg class="abs" style="left:236px;top:${y}px;width:46px;height:46px;transform:translateY(-50%)" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ico[k]}</svg>`;
+
+(function buildPage() {
+  const P = page, S = 'rgb(15,20,25)';
+  // status bar
+  T(sb, '9:41', 312, 216, 30, 600, '#000', 'c');
+  el(sb, null, 'position:absolute;left:437px;top:173px;width:228px;height:65px;border-radius:33px;background:#000');
+  el(sb, null, 'position:absolute;left:602px;top:187px;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#1a1f3a 0 35%,#06060a 36%)');
+  sb.insertAdjacentHTML('beforeend', `<svg class="abs" style="left:680px;top:200px;width:150px;height:34px" viewBox="0 0 150 34" fill="#000"><rect x="2" y="20" width="6" height="10" rx="2"/><rect x="12" y="14" width="6" height="16" rx="2"/><rect x="22" y="8" width="6" height="22" rx="2"/><rect x="32" y="2" width="6" height="28" rx="2"/><path d="M62 28a3 3 0 100 .01zM50 18c7-6 17-6 24 0M44 12c10-9 26-9 36 0" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="96" y="6" width="46" height="24" rx="7" stroke="#000" stroke-width="2.5" fill="none"/><rect x="100" y="10" width="38" height="16" rx="4"/></svg>`);
+  // header
+  P.insertAdjacentHTML('beforeend', `<svg class="abs" style="left:210px;top:288px;width:36px;height:36px" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>`);
+  T(P, 'Subscriptions', 548, 307, 32, 700, '#000', 'c');
+  T(P, 'Gross Estimated Earnings', 212, 395, 27, 600, '#000');
+  T(P, '$768', 212, 443, 42, 700, '#000');
+  T(P, 'Lifetime Earnings', 212, 516, 27, 600, '#000');
+  T(P, '$6,144', 212, 560, 42, 700, '#000');
+  T(P, 'Total Active Subscribers', 212, 632, 27, 600, '#000');
+  T(P, '256', 212, 677, 42, 700, '#000');
+  P.insertAdjacentHTML('beforeend', `<svg class="abs" style="left:844px;top:376px;width:38px;height:38px" viewBox="0 0 24 24" fill="none" stroke="#6b7075" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.2v.1"/></svg>`);
+  T(P, 'See earnings history', 212, 749, 27, 500, 'var(--purple)');
+  el(P, null, 'position:absolute;left:212px;top:811px;width:674px;height:2px;background:#eff1f2');
+  T(P, 'Subscribers', 219, 876, 26, 600, '#000');
+  T(P, 'Total Active', 226, 950, 26, 700, '#000');
+  T(P, 'New', 540, 951, 26, 700, '#6b7075', 'c');
+  T(P, 'Renewed', 778, 951, 26, 700, '#6b7075', 'c');
+  el(P, null, 'position:absolute;left:192px;top:989px;width:698px;height:2px;background:#eff1f2');
+  el(P, null, 'position:absolute;left:226px;top:983px;width:149px;height:4px;border-radius:2px;background:var(--purple)');
+  const tones = ['#caa88a', '#b9a99b', '#222'];
+  [['Benji Taylor', '@benjitaylor', 1050], ['Emma Steuer', '@emmasteuer1', 1175], ['Jake Sherman', '@Jsherm_', 1300]].forEach(([n, h, y], i) => {
+    el(P, null, `position:absolute;left:217px;top:${y + 10 - 36}px;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 50% 38%,${tones[i]} 0 32%,#6d6358 33% 62%,#3b352f 63%)`);
+    T(P, n, 318, y, 27, 700, '#000');
+    P.insertAdjacentHTML('beforeend', verified(n.length * 14.2 + 330, y, 26));
+    T(P, h, 318, y + 36, 22, 400, '#6b7075');
+    T(P, '$3.00', 860, y + 17, 26, 600, '#000', 'r');
+  });
+  T(P, 'See more', 540, 1406, 27, 400, '#6b7075', 'c');
+  T(P, 'Growth', 222, 1530, 26, 700, '#000');
+  const rows = [['chat', 'Subscribers-only Chat', 1617, 323], ['note', 'Welcome note', 1705, 328], ['post', 'Post subs-only content', 1794, 328], ['share', 'Share your Subscriptions', 1884, 327], ['link', 'Copy paywall link', 1974, 328]];
+  rows.forEach(([k, txt, y, x]) => {
+    P.insertAdjacentHTML('beforeend', icoSVG(k, y));
+    T(P, txt, x, y, 28, 500, '#000');
+    P.insertAdjacentHTML('beforeend', chevron(y));
+  });
+  const badge = el(P, null, 'position:absolute;left:750px;top:1597px;width:80px;height:42px;border-radius:21px;background:var(--blue);color:#fff;font-weight:700;font-size:23px;display:flex;align-items:center;justify-content:center', 'New');
+  badge.id = 'pbadge';
+  T(P, 'Payment & Support', 222, 2085, 26, 700, '#000');
+  P.insertAdjacentHTML('beforeend', icoSVG('help', 2167)); T(P, 'Help Center', 328, 2167, 28, 500, '#000'); P.insertAdjacentHTML('beforeend', chevron(2167));
+  P.insertAdjacentHTML('beforeend', icoSVG('mail', 2254)); T(P, 'Contact Support', 328, 2254, 28, 500, '#000'); T(P, 'Send a DM to @premium', 328, 2294, 25, 400, '#6b7075'); P.insertAdjacentHTML('beforeend', chevron(2254));
+})();
+
+const phoneY = pchip([[3.87, 1080], [3.93, 832], [4.0, 598], [4.07, 455], [4.13, 355], [4.2, 288], [4.27, 230], [4.33, 194], [4.4, 170], [4.47, 158], [4.53, 145], [4.67, 128], [4.8, 118], [5.0, 118]]);
+const scrollY = pchip([[4.8, 0], [4.93, 10], [5.0, 30], [5.07, 60], [5.13, 100], [5.2, 160], [5.27, 240], [5.33, 360], [5.4, 520], [5.47, 690], [5.53, 850], [5.6, 980], [5.67, 1050], [5.73, 1110], [5.8, 1150], [5.87, 1180], [5.93, 1200], [6.0, 1210], [6.07, 1220], [6.4, 1230], [10, 1230]]);
+// the phone itself also rides up with the page from ~4.9 s (measured from the island position)
+const phoneTop2 = pchip([[4.6, 128], [4.67, 123], [4.8, 121], [4.93, 115], [5.0, 108], [5.07, 98], [5.13, 82], [5.2, 57], [5.27, 19], [5.33, -34], [5.4, -100], [5.5, -190], [5.7, -290], [6.0, -340], [10, -340]]);
+
+/* ---------- scene "New" ---------- */
+const reveal = document.getElementById('reveal');
+reveal.innerHTML = `<svg viewBox="0 0 1080 1080">
+  <g id="rline">
+    <line id="ll" x1="0" y1="539" x2="165" y2="539" stroke="#888" stroke-width="1.6"/>
+    <line id="lr" x1="912" y1="539" x2="1080" y2="539" stroke="#000" stroke-width="2.2"/>
+    <rect id="sq1" x="154" y="526" width="24" height="24" fill="#fff" stroke="#444" stroke-width="1.2"/>
+    <rect id="sq2" x="899" y="526" width="24" height="24" fill="#fff" stroke="#444" stroke-width="1.2"/>
+  </g>
+  <g id="rings" transform-origin="540 540">
+    <circle id="dot" cx="540" cy="540" r="330" fill="none" stroke="#000" stroke-width="4" stroke-dasharray="5 10" vector-effect="non-scaling-stroke"/>
+    <ellipse id="ell" cx="540" cy="540" rx="215" ry="410" fill="none" stroke="#000" stroke-width="4" vector-effect="non-scaling-stroke"/>
+  </g>
+</svg>`;
+const $ = id => document.getElementById(id);
+const newpill = $('newpill');
+newpill.innerHTML = '<span class="lab"></span><span class="ph"></span><span class="ty"></span>';
+const lab = newpill.querySelector('.lab'), ph = newpill.querySelector('.ph'), ty = newpill.querySelector('.ty');
+const revR = pchip([[6.65, 0], [6.73, 60], [6.8, 170], [6.87, 320], [6.93, 480], [7.0, 700], [7.05, 900]]);
+const ringS = pchip([[8.45, 1], [8.53, 1.03], [8.6, 1.07], [8.67, 1.13], [8.73, 1.2], [8.8, 1.4], [8.87, 1.7], [8.93, 2.1], [9.0, 2.8], [9.07, 4]]);
+// ring geometry measured from the reference frames
+const K = {
+  R: pchip([[6.9, 230], [7.0, 250], [7.2, 277], [7.47, 326], [8.0, 371], [8.27, 410], [8.45, 430], [10, 430]]),
+  sq: pchip([[7.0, 262], [7.2, 247], [7.47, 194], [8.0, 122], [8.27, 70], [8.45, 30], [8.6, -20], [10, -20]]),
+  rx: pchip([[6.9, 130], [7.0, 150], [7.07, 190], [7.2, 226], [7.5, 266], [8.0, 300], [8.4, 320], [10, 320]]),
+  ry: pchip([[6.9, 290], [7.0, 300], [7.07, 320], [7.2, 340], [7.5, 365], [8.0, 420], [8.4, 440], [10, 440]]),
+  ang: pchip([[6.9, 6], [7.0, 8], [7.07, 11], [7.2, 15], [7.5, 20], [8.0, 30], [8.4, 34], [10, 34]]),
+  em: pchip([[8.4, 1], [8.53, 1.22], [8.67, 1.5], [8.8, 2.0], [8.93, 2.8], [9.1, 4], [10, 4]]),
+  gray: pchip([[8.5, 0], [8.53, 0], [8.6, 58], [8.67, 107], [8.73, 145], [8.8, 185], [8.87, 232], [8.93, 250], [9.0, 255], [10, 255]])
+};
+
+/* ---------- form ---------- */
+const form = document.getElementById('form');
+const formTitle = T(form, '', 540, 207, 33, 700, '#000', 'c', 'letter-spacing:-.005em');
+const FORM_TITLE = 'Subscribers-only Chat';
+const feats = [
+  ['Your inner circle', ['Give your subscribers an exclusive place to', 'connect with you.'], 463, 8.65,
+    '<path d="M12 20.5C5 15.6 3 12.2 3 9a4.6 4.6 0 018.9-1.6L12 7.7l.1-.3A4.6 4.6 0 0121 9c0 3.2-2 6.6-9 11.5z"/>'],
+  ['Share more', ['Send high-quality photos, videos, files, and', 'voice notes, or start audio calls.'], 607, 8.72,
+    '<rect x="3" y="5.5" width="18" height="14" rx="3.5"/><circle cx="12" cy="12.5" r="3.6"/><path d="M8 5.5l1-2h6l1 2"/>'],
+  ['Keep it exclusive', ['Private messaging with disappearing messages', 'and screenshot blocking.'], 751, 8.85,
+    '<rect x="5" y="10" width="14" height="10.5" rx="3"/><path d="M8.5 10V7.5a3.5 3.5 0 017 0V10M10 15.2h4"/>'],
+  ['Runs by itself', ['New subscribers join automatically, and', 'canceled subscribers are removed automatically.'], 891, 8.92,
+    '<path d="M4 11a8 8 0 0113.7-4.7L20 8.5M20 4v4.5h-4.5M20 13a8 8 0 01-13.7 4.7L4 15.5M4 20v-4.5h4.5"/>']
+].map(([h, d, y, t0, icon], k) => {
+  const row = el(form, 'row', `top:${y}px`);
+  row.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+    <div class="h" style="top:-4px;transform:translateY(-50%)">${h}</div>
+    <div class="d" style="top:22px">${d[0]}<br>${d[1]}</div>`;
+  return { row, y, t0, m: [1, 1.8, 2.8, 5][k] };
+});
+const titleY = pchip([[8.6, 275], [8.67, 261], [8.73, 248], [8.8, 238], [9.13, 216], [9.6, 207], [10, 207]]);
+const featDrift = pchip([[8.65, 140], [8.73, 86], [8.8, 63], [9.13, 18], [9.6, 0], [10, 0]]);
+const inY = pchip([[8.5, 473], [8.6, 432], [8.67, 396], [8.73, 373], [8.8, 364], [9.0, 356], [9.6, 351]]);
+const inW = pchip([[8.5, 405], [8.6, 520], [8.67, 612], [8.73, 676], [8.8, 702], [9.0, 747]]);
+const inScale = pchip([[9.7, 1], [9.8, 1.15], [9.87, 1.33], [9.93, 1.4], [10, 1.46]]);
+const PH = 'Name your group (required)', TYPED = 'AJ’s I';
+
+/* ---------- master render ---------- */
+function render(t) {
+  /* lines */
+  const ys = lineYs(t), ws = lineWidths(t);
+  for (let i = 0; i < 4; i++) {
+    const on = ws[i] > 0 && (i === 0 || i === 3 ? true : true);
+    L[i].style.display = on ? 'block' : 'none';
+    L[i].style.top = (ys[i] - 1) + 'px';
+    L[i].style.width = ws[i] + 'px';
+  }
+  // lines 1/4 initial pair sits at 360/720 until 1.13
+  /* title */
+  if (t < 1.8) {
+    const n = clamp(Math.floor(t / 0.0667 + 0.02), 0, 11);
+    title.style.fontSize = sizeA + 'px';
+    title.style.width = '1080px'; title.style.textAlign = 'center'; title.style.paddingLeft = '0';
+    title.style.display = n ? 'block' : 'none';
+    setTitle(TITLE_A.slice(0, n).split(''));
+    title.style.transform = `translate(${-37 * io3(prog(t, 1.05, 1.75))}px,-50%)`;
+  } else if (t < 4.2) {
+    const n = clamp(Math.ceil((t - 1.8) * 36.7), 1, 22);
+    title.style.display = 'block';
+    title.style.fontSize = sizeB + 'px';
+    title.style.width = 'auto'; title.style.textAlign = 'left';
+    const left = lerp(300, 92, Math.pow(n / 22, 0.8));
+    title.style.left = (n === 22 ? 92 : left) + 'px';
+    const u = prog(t, 3.6, 4.08), chars = TITLE_B.split('');
+    const k = (chars.length - 1) / 2;
+    setTitle(chars.slice(0, n), i => u > 0 && u >= 1 - 0 && true ? true : (u > 0 && Math.abs(i - k) / k <= u * 1.02));
+    title.style.transform = 'translateY(-50%)';
+  } else title.style.display = 'none';
+  if (t < 1.8) title.style.left = '0px';
+
+  renderPills(t, ys);
+
+  /* phone */
+  if (t >= 3.87 && t < 7.2) {
+    phone.style.display = 'block';
+    const top = t < 4.6 ? phoneY(t) : phoneTop2(t);
+    phone.style.top = top + 'px';
+    page.style.transform = `translateY(${-(scrollY(t) - (t < 4.6 ? 0 : 121 - top))}px)`;
+    // badge swaps to the overlay pill once it leaves
+    $('pbadge').style.visibility = t >= 6.45 ? 'hidden' : 'visible';
+  } else phone.style.display = 'none';
+
+  /* circle wipe + rings */
+  if (t >= 6.65 && t < 9.1) {
+    reveal.style.display = 'block';
+    const r = revR(t);
+    reveal.style.clipPath = `circle(${r}px at 540px 535px)`;
+    const R = K.R(t);
+    $('dot').setAttribute('r', R);
+    const sl = K.sq(t), sr = 1083 - sl;
+    $('sq1').setAttribute('x', sl - 12); $('sq2').setAttribute('x', sr - 12);
+    $('ll').setAttribute('x2', sl - 12); $('lr').setAttribute('x1', sr + 12);
+    const e = $('ell');
+    const em = t < 8.4 ? 1 : K.em(t);
+    const rx = K.rx(t) * em, ry = K.ry(t) * em, ang = K.ang(t);
+    e.setAttribute('rx', rx); e.setAttribute('ry', ry);
+    e.setAttribute('transform', `rotate(${ang} 540 540)`);
+    const s = t < 8.45 ? 1 : ringS(t);
+    $('rings').style.transform = `scale(${s})`;
+    $('rings').style.transformOrigin = '540px 540px';
+    $('rline').style.opacity = 1 - prog(t, 8.35, 8.55);
+    reveal.style.opacity = 1;
+    reveal.firstElementChild.style.opacity = t > 9.0 ? 0 : 1;
+  } else if (t >= 9.1) {
+    reveal.style.display = 'block';
+    reveal.style.clipPath = 'circle(2000px at 540px 535px)';
+    reveal.firstElementChild.style.opacity = 0;
+  } else reveal.style.display = 'none';
+
+  /* "New" pill -> input */
+  if (t >= 6.45) {
+    newpill.style.display = 'flex';
+    if (t < 8.5) {
+      const u = io3(prog(t, 6.5, 6.95)), uy = out3(prog(t, 6.5, 6.95));
+      const w0 = 80, h0 = 42, w1 = 250, h1 = 130;
+      let w = lerp(w0, w1, u), h = lerp(h0, h1, u);
+      const x = lerp(790, 543, u), y = lerp(397, 540, uy);
+      let n = 3;
+      if (t >= 8.07) n = t < 8.17 ? 3 : t < 8.36 ? 2 : t < 8.5 ? 1 : 0;
+      const full = lerp(0, 1, 1);
+      // pill narrows with each erased letter
+      if (t >= 8.07) w = w1 - (3 - n) * 36 + (n === 0 ? -40 : 0);
+      // colour: blue -> black
+      const c1 = prog(t, 6.5, 6.67), c2 = prog(t, 6.7, 7.05);
+      const mix = (a, m, z) => Math.round(lerp(lerp(a, m, c1), z, c2));
+      const r = mix(29, 10, 0), g = mix(155, 80, 0), b = mix(240, 125, 0);
+      newpill.style.background = `rgb(${r},${g},${b})`;
+      newpill.style.left = x + 'px'; newpill.style.top = y + 'px';
+      newpill.style.width = w + 'px'; newpill.style.height = h + 'px';
+      newpill.style.borderRadius = (h / 2) + 'px';
+      newpill.style.fontSize = lerp(23, 62, u) + 'px';
+      newpill.style.zIndex = 5;
+      lab.textContent = 'New'.slice(0, n); lab.style.display = 'block'; lab.style.color = '#fff';
+      ph.textContent = ''; ty.innerHTML = '';
+      newpill.style.transform = 'translate(-50%,-50%)';
+      newpill.style.overflow = 'hidden';
+    } else {
+      // morph into the white input
+      const w = inW(t), y = inY(t);
+      const mu = prog(t, 8.5, 9.0);
+      const h = lerp(120, 104, out3(mu));
+      newpill.style.width = w + 'px'; newpill.style.height = h + 'px';
+      newpill.style.left = '540px'; newpill.style.top = y + 'px';
+      newpill.style.borderRadius = lerp(60, 30, out3(mu)) + 'px';
+      newpill.style.background = hex(K.gray(t));
+      lab.textContent = '';
+      // placeholder typing + erase from the left
+      const pn = Math.round(clamp((t - 8.7) / 0.4, 0, 1) * PH.length);
+      const removed = t < 9.35 ? 0 : Math.round(clamp((t - 9.35) * 70, 0, PH.length));
+      const pv = PH.slice(0, pn);
+      ph.innerHTML = '<span style="visibility:hidden">' + pv.slice(0, removed) + '</span>' + pv.slice(removed);
+      ph.style.left = '30px';
+      ph.style.color = hex(lerp(205, 168, prog(t, 8.7, 9.1)));
+      const tn = clamp(Math.round((t - 9.53) / 0.07), 0, TYPED.length);
+      const caretOn = t >= 9.55 && (Math.floor(t * 2) % 2 === 0 || t > 9.7);
+      ty.innerHTML = TYPED.slice(0, tn) + (t >= 9.55 ? `<span class="caret" style="opacity:${caretOn ? 1 : 0}"></span>` : '');
+      if (tn > 0) ph.style.left = (30) + 'px';
+      const sc = t < 9.7 ? 1 : inScale(t);
+      newpill.style.transform = `translate(-50%,-50%) ${sc !== 1 ? `translate(${(540 - 343) * (1 - 1) }px,0)` : ''}`;
+      // zoom around (343,243) in stage coordinates
+      const ox = 343 - (540 - w / 2), oy = 243 - (y - h / 2);
+      newpill.style.transformOrigin = `${ox}px ${oy}px`;
+      newpill.style.transform = `translate(-50%,-50%) scale(${sc})`;
+    }
+  } else newpill.style.display = 'none';
+
+  /* form */
+  if (t >= 8.6) {
+    form.style.display = 'block';
+    const n = clamp(Math.round(2 + (t - 8.6) * 36), 2, FORM_TITLE.length);
+    formTitle.textContent = FORM_TITLE.slice(0, n);
+    // grow around a fixed left edge like the reference
+    const fl = 352, fw = 376;
+    formTitle.style.left = (t < 9.13 ? lerp(fl + 0, fl, 1) : fl) + 'px';
+    formTitle.style.transform = 'translateY(-50%)';
+    formTitle.style.top = titleY(t) + 'px';
+    const dr = featDrift(t);
+    feats.forEach(f => {
+      const a = clamp((t - f.t0) / 0.05);
+      f.row.style.opacity = a;
+      f.row.style.top = (f.y + dr * f.m) + 'px';
+    });
+  } else form.style.display = 'none';
+}
+
+window.seek = t => { render(t); };
+window.DURATION = 10;
+
+/* ---------- playback ---------- */
+(function () {
+  const q = new URLSearchParams(location.search);
+  function fit() {
+    const s = Math.min(innerWidth, innerHeight) / 1080;
+    stage.style.transform = s === 1 ? 'none' : `scale(${s})`;
+  }
+  addEventListener('resize', fit); fit();
+  if (q.has('t')) { render(parseFloat(q.get('t'))); return; }
+  if (q.has('manual')) { render(0); return; }
+  const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let t0 = performance.now();
+  function tick(now) {
+    let t = (now - t0) / 1000;
+    if (t > 10.6) { t0 = now; t = 0; }
+    render(rm ? 10 : Math.min(t, 10));
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
