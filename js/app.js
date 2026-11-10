@@ -339,7 +339,7 @@
     if (!p) { location.hash = '#/'; return; }
     document.title = 'КП — ' + p.client;
     app.innerHTML = `<div class="pbar"><button class="btn" data-a="back">← К редактору</button><b>${esc(p.client)}</b><span class="muted g" id="st">Готовлю…</span>
-      <button class="btn" data-a="print">🖨 Печать</button><button class="btn pri" data-a="savePdf">⬇ Сохранить в PDF</button></div><div class="pages" id="pages"></div>`;
+<button class="btn pri" data-a="print" title="Откроется окно печати: выберите «Сохранить как PDF». Текст выделяется, графика векторная">🖨 PDF с текстом (векторный)</button><button class="btn" data-a="savePdf" title="Слайды как картинки: быстро, но текст не выделяется и качество ниже">⬇ PDF-картинки</button></div><div class="pages" id="pages"></div>`;
     app.oninput = null; app.onchange = null;
     app.onclick = (e) => {
       const a = e.target.closest('[data-a]')?.dataset.a;
@@ -371,7 +371,7 @@
     const bytes = new Uint8Array(await file.arrayBuffer());
     let txt = ''; for (let i = 0; i < bytes.length; i += 0x8000) txt += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
     const m = txt.match(new RegExp(KP.PDF_MARK + '([A-Za-z0-9+/=\\\\\\r\\n]+)'));
-    if (!m) throw new Error('В этом PDF нет данных КП. Открыть можно только PDF, скачанный кнопкой «⬇ Сохранить в PDF» (не через «Печать»).');
+    if (!m) throw new Error('В этом PDF нет данных КП. Открыть можно только PDF, скачанный кнопкой «⬇ PDF-картинки» (PDF из окна печати такие данные не содержит).');
     const p = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/[\\\r\n]/g, '')))));
     if (!p || !Array.isArray(p.slides) || !Array.isArray(p.variants)) throw new Error('Данные КП в PDF повреждены');
     return p;
@@ -409,7 +409,7 @@
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 10000);
       toast('PDF сохранён');
-    } catch (er) { toast('Ошибка PDF: ' + er.message + '. Можно сохранить через «Печать».', 8000); }
+    } catch (er) { toast('Ошибка PDF: ' + er.message + '. Попробуйте «PDF с текстом» (окно печати).', 8000); }
     finally { box.remove(); btn.disabled = false; btn.textContent = was; }
   }
 
