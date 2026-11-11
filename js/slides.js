@@ -258,7 +258,7 @@
     });
     const yb = 275 + DY + pitch * n + 10, hrs = tariffHours(t);
     h += A(X(290), yb, 300, 44, 'font-size:22px;line-height:44px;color:#EE3824;', 'Итого');
-    h += A(X(1296) - 296, yb, 296, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', hrs ? `${grp(hrs)} ${plural(hrs, ['час', 'часа', 'часов'])}` : '');
+    h += A(X(1296) - 296, yb, 296, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', hrs ? `${hrsFmt(hrs)} ${plural(hrs, ['час', 'часа', 'часов'])}` : '');   // точная сумма строк, без округления до целого
     h += A(X(1517) - 200, yb, 200, 44, 'font-size:28px;line-height:44px;color:#EE3824;text-align:right;', rub(tariffTotal(t)));
     return wrap(h);
   }
